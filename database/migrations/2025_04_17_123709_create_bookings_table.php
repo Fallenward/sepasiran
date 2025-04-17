@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,10 +19,10 @@ return new class extends Migration
             $table->dateTime('appointment_date');
             $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])->default('PENDING');
             $table->text('notes')->nullable();
-            $table->timestamps();
 
             $table->index('user_id');
             $table->index('provider_id');
+            $table->index('city_id');
             $table->index('appointment_date');
             $table->timestamps();
         });

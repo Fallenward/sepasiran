@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedBigInteger('discount_id')->default(0);
             $table->enum('status', ['active', 'expired', 'purchased'])->default('active');
             $table->timestamps();
-            $table->timestamps();
         });
     }
 
