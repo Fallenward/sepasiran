@@ -89,11 +89,14 @@
             <div class="col-md-4">
                 <div class="card text-center">
                     <div class="card-body">
-                        <i class="fas fa-dog fa-3x"></i>
-                        <h6 class="fw-bold mt-3">تهیه سگ</h6>
+                        <a href="{{ route('frontend.dog.supply.index') }}" class="text-decoration-none">
+                            <i class="fas fa-dog fa-3x"></i>
+                            <h6 class="fw-bold mt-3">تهیه سگ</h6>
+                        </a>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card text-center">
                     <div class="card-body">
