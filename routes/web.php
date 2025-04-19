@@ -12,6 +12,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogController;
+use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NotificationController;
@@ -58,5 +59,9 @@ Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [SupportController::class, 'index'])->name('index');
+    });
 
 });

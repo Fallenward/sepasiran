@@ -21,7 +21,9 @@
                 <li class="nav-item"><a class="nav-link" href="#">میز خدمت</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">معرفی سازمان</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">اخبار</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">پشتیبانی</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('frontend.support.index') }}">پشتیبانی</a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('frontend.blog.index') }}">وبلاگ</a></li>
 
                 <li class="nav-item">
