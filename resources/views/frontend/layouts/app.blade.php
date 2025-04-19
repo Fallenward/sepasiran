@@ -10,7 +10,7 @@
     <title>@yield('title', env('APP_NAME'))</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset($settings->fav_icon) }}">
+    <link rel="icon" href="{{ asset(optional($settings)->fav_icon) }}">
 
     <!-- Bootstrap CSS -->
     @vite(['resources/css/app-front.css'])

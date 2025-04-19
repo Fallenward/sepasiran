@@ -25,9 +25,11 @@
                             <h5>لینک های مفید</h5>
                         </div>
                         <div class="footer-menu-items">
-                            @foreach($settings->footer_setting_useful_links as $item)
-                                <a class="btn btn-link" href="{{$item['url']}}">{{$item['title']}}</a>
-                            @endforeach
+                            @if(!empty($settings) && $settings->footer_setting_useful_links)
+                                @foreach($settings->footer_setting_useful_links as $item)
+                                    <a class="btn btn-link" href="{{$item['url']}}">{{$item['title']}}</a>
+                              @endforeach
+                            @endif
                         </div>
                     </div>
 
@@ -36,22 +38,37 @@
                             <h5>اپکس</h5>
                         </div>
                         <div class="footer-menu-items">
-                            @foreach($settings->footer_setting_menu as $item)
-                                <a class="btn btn-link" href="{{$item['url']}}">{{$item['title']}}</a>
-                            @endforeach
+                            @if(!empty($settings) && !empty($settings->footer_setting_menu))
+                                @foreach($settings->footer_setting_menu as $item)
+                                    <a class="btn btn-link" href="{{ $item['url'] }}">{{ $item['title'] }}</a>
+                                @endforeach
+                            @endif
+
                         </div>
                     </div>
 
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="text-center">
-                        <img class="img-fluid w-50" src="{{asset($settings->footer_setting_logo)}}">
-                        <p>{{$settings->footer_setting_about}}</p>
+                        <img class="img-fluid w-50" src="{{ asset(optional($settings)->footer_setting_logo ?? 'images/default-footer-logo.png') }}">
+                        <p>{{ optional($settings)->footer_setting_about }}</p>
                         <div class="text-center footer-socials">
-                            <a href="{{$settings->footer_setting_social_twitter}}"> <i class="fab fa-2x fa-twitter"></i></a>
-                            <a href="{{$settings->footer_setting_social_instagram}}"> <i class="fab fa-2x fa-instagram"></i></a>
-                            <a href="{{$settings->footer_setting_social_telegram}}"> <i class="fab fa-2x fa-telegram-plane"></i></a>
-                            <a href="{{$settings->footer_setting_social_linkedin}}"> <i class="fab fa-2x fa-linkedin-in"></i></a>
+                            <a href="{{ optional($settings)->footer_setting_social_twitter ?? '#' }}">
+                                <i class="fab fa-2x fa-twitter"></i>
+                            </a>
+
+                            <a href="{{ optional($settings)->footer_setting_social_instagram ?? '#' }}">
+                                <i class="fab fa-2x fa-instagram"></i>
+                            </a>
+
+                            <a href="{{ optional($settings)->footer_setting_social_telegram ?? '#' }}">
+                                <i class="fab fa-2x fa-telegram-plane"></i>
+                            </a>
+
+                            <a href="{{ optional($settings)->footer_setting_social_linkedin ?? '#' }}">
+                                <i class="fab fa-2x fa-linkedin-in"></i>
+                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -63,14 +80,16 @@
                         <div class="footer-certificates">
                             <div class="col-6 col-md-6">
                                 <div class="footer-menu-items">
-                                    <img class="img-fluid" src="{{$settings->footer_setting_enamad_logo}}">
+                                    <img class="img-fluid" src="{{ asset(optional($settings)->footer_setting_enamad_logo ?? 'images/default-enamad.png') }}">
                                 </div>
                             </div>
+
                             <div class="col-6 col-md-6">
                                 <div class="footer-menu-items">
-                                    <img class="img-fluid" src="{{$settings->footer_setting_samandehi_logo}}">
+                                    <img class="img-fluid" src="{{ asset(optional($settings)->footer_setting_samandehi_logo ?? 'images/default-samandehi.png') }}">
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>

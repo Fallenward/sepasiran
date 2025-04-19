@@ -82,7 +82,7 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Fav Icon:</strong>
-                                    {{ $setting->fav_icon }}
+                                    {{ $setting->fav_icon ?? 'فاوآیکن تنظیم نشده' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Footer Setting Social Twitter:</strong>

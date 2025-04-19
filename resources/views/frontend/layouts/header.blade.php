@@ -12,7 +12,7 @@
                 <!-- Logo and Brand -->
                 <div class="d-flex align-items-center mx-3">
                     <a class="navbar-brand" href="{{route('frontend.home')}}">
-                        <img class="img-fluid logo-icon" src="{{asset($settings->footer_setting_logo)}}"/>
+                        <img class="img-fluid logo-icon" src="{{ asset(optional($settings)->footer_setting_logo ?? 'images/default-footer-logo.png') }}"/>
                     </a>
                 </div>
             </div>
