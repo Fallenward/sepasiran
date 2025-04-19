@@ -47,6 +47,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">مقالات</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('frontend.blog.index') }}">وبلاگ</a>
+                    </li>
                 </ul>
 
                 <form class="d-flex me-auto">

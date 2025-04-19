@@ -1,93 +1,109 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Blogs
+    وبلاگ
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="container py-4">
+        <div class="mb-5 p-5 text-center text-white rounded" style="background-color: #5a8dee;">
+        <h1 class="fw-bold mb-2">وبلاگ</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center bg-transparent mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('frontend.home') }}" class="text-white text-decoration-none">سپاس ایران</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('frontend.blog.index') }}" class="text-white text-decoration-none">وبلاگ</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
 
-                            <span id="card_title">
-                                {{ __('Blogs') }}
-                            </span>
-
-                             <div class="float-right">
-                                <a href="{{ route('blogs.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
-                                </a>
-                              </div>
-                        </div>
-                    </div>
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success m-4">
-                            <p>{{ $message }}</p>
-                        </div>
-                    @endif
-
-                    <div class="card-body bg-white">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                    <tr>
-                                        <th>No</th>
-                                        
-									<th >Title</th>
-									<th >Slug</th>
-									<th >Content</th>
-									<th >Description</th>
-									<th >Image</th>
-									<th >Category Id</th>
-									<th >Author Id</th>
-									<th >Rating</th>
-									<th >Views</th>
-									<th >Likes</th>
-									<th >Status</th>
-									<th >Comments Enabled</th>
-
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($blogs as $blog)
-                                        <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $blog->title }}</td>
-										<td >{{ $blog->slug }}</td>
-										<td >{{ $blog->content }}</td>
-										<td >{{ $blog->description }}</td>
-										<td >{{ $blog->image }}</td>
-										<td >{{ $blog->category_id }}</td>
-										<td >{{ $blog->author_id }}</td>
-										<td >{{ $blog->rating }}</td>
-										<td >{{ $blog->views }}</td>
-										<td >{{ $blog->likes }}</td>
-										<td >{{ $blog->status }}</td>
-										<td >{{ $blog->comments_enabled }}</td>
-
-                                            <td>
-                                                <form action="{{ route('blogs.destroy', $blog->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('blogs.show', $blog->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('blogs.edit', $blog->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+        {{-- پربیننده‌ترین‌ها --}}
+        <div class="mb-5">
+            <h5 class="fw-bold mb-4">● پربیننده‌ترین‌ها</h5>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm rounded">
+                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <small>24 آذر 02</small>
+                                <small>10:00 🗓️</small>
+                            </div>
+                            <h6 class="fw-bold">قیمت و اطلاع از سگ روتوایلر</h6>
+                            <p class="text-muted small">روتوایلرها سگ‌هایی قدرتمند و وفادار هستند. برای اطلاعات دقیق در مورد قیمت‌های به‌روز و نکات مهم خرید این نژاد...</p>
+                            <a href="#" class="btn btn-outline-dark btn-sm">بیشتر بخوانید</a>
                         </div>
                     </div>
                 </div>
-                {!! $blogs->withQueryString()->links() !!}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm rounded">
+                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <small>24 آذر 02</small>
+                                <small>10:00 🗓️</small>
+                            </div>
+                            <h6 class="fw-bold">نگهداری و مراقبت از سگ ژرمن شپرد</h6>
+                            <p class="text-muted small">ژرمن شپردها سگ‌هایی باهوش، وفادار و پرانرژی هستند. در این مطلب با نکات مهم تربیت، تغذیه و سلامت این نژاد آشنا می‌شوید...</p>
+                            <a href="#" class="btn btn-outline-dark btn-sm">بیشتر بخوانید</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm rounded">
+                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <small>24 آذر 02</small>
+                                <small>10:00 🗓️</small>
+                            </div>
+                            <h6 class="fw-bold">چرا دوبرمن بهترین سگ نگهبان است؟</h6>
+                            <p class="text-muted small">دوبرمن‌ها بسیار باهوش، گوش‌به‌فرمان و قدرتمند هستند. این مقاله به ویژگی‌ها و نیازهای خاص این نژاد می‌پردازد...</p>
+                            <a href="#" class="btn btn-outline-dark btn-sm">بیشتر بخوانید</a>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="position-relative text-center my-5">
+            <hr>
+            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">ادامه مطالب</span>
+        </div>
+
+
+        {{-- آخرین مطلب --}}
+        <div class="mb-5">
+            <h5 class="fw-bold mb-4">آخرین مطلب</h5>
+                <div class="mb-5">
+                    <div class="row g-4">
+                        @for ($i = 0; $i < 6; $i++)
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm rounded">
+                                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="پست وبلاگ">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <small>24 آذر 02</small>
+                                            <small>10:00 🗓️</small>
+                                        </div>
+                                        <h6 class="fw-bold">عنوان پست نمونه {{ $i + 1 }}</h6>
+                                        <p class="text-muted small">خلاصه‌ای کوتاه از محتوای پست شماره {{ $i + 1 }} برای نمایش در لیست وبلاگ...</p>
+                                        <a href="#" class="btn btn-outline-dark btn-sm">بیشتر بخوانید</a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+
+            </div>
+        </div>
+
+        {{-- دکمه مشاهده بیشتر --}}
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-secondary">مشاهده بیشتر</a>
         </div>
     </div>
 @endsection
