@@ -35,7 +35,7 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-                                        
+
 									<th >Color Setting Primary</th>
 									<th >Color Setting Secondary</th>
 									<th >Color Setting Third</th>
@@ -67,7 +67,7 @@
                                     @foreach ($settings as $setting)
                                         <tr>
                                             <td>{{ ++$i }}</td>
-                                            
+
 										<td >{{ $setting->color_setting_primary }}</td>
 										<td >{{ $setting->color_setting_secondary }}</td>
 										<td >{{ $setting->color_setting_third }}</td>
@@ -80,7 +80,7 @@
 										<td >{{ $setting->footer_setting_samandehi_logo }}</td>
 										<td >{{ $setting->sms_setting_secretkey }}</td>
 										<td >{{ $setting->footer_setting_useful_links }}</td>
-										<td >{{ $setting->footer_setting_apex }}</td>
+										<td >{{ $setting->footer_setting_menu }}</td>
 										<td >{{ $setting->footer_setting_about }}</td>
 										<td >{{ $setting->footer_setting_logo }}</td>
 										<td >{{ $setting->fav_icon }}</td>

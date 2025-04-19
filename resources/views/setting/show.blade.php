@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="card-body bg-white">
-                        
+
                                 <div class="form-group mb-2 mb20">
                                     <strong>Color Setting Primary:</strong>
                                     {{ $setting->color_setting_primary }}
@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Footer Setting Apex:</strong>
-                                    {{ $setting->footer_setting_apex }}
+                                    {{ $setting->footer_setting_menu }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Footer Setting About:</strong>

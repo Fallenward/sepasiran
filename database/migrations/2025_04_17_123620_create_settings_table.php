@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('footer_setting_samandehi_logo')->nullable();
             $table->string('sms_setting_secretkey')->nullable();
             $table->json('footer_setting_useful_links')->nullable();
-            $table->json('footer_setting_apex')->nullable();
+            $table->json('footer_setting_menu')->nullable();
             $table->text('footer_setting_about')->nullable();
             $table->string('footer_setting_logo')->nullable();
             $table->string('fav_icon')->nullable();

@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property $footer_setting_samandehi_logo
  * @property $sms_setting_secretkey
  * @property $footer_setting_useful_links
- * @property $footer_setting_apex
+ * @property $footer_setting_menu
  * @property $footer_setting_about
  * @property $footer_setting_logo
  * @property $fav_icon
@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Setting extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -47,7 +47,13 @@ class Setting extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['color_setting_primary', 'color_setting_secondary', 'color_setting_third', 'color_setting_fourth', 'sms_setting_username', 'sms_setting_password', 'sms_setting_sender', 'sms_setting_apikey', 'footer_setting_enamad_logo', 'footer_setting_samandehi_logo', 'sms_setting_secretkey', 'footer_setting_useful_links', 'footer_setting_apex', 'footer_setting_about', 'footer_setting_logo', 'fav_icon', 'footer_setting_social_twitter', 'footer_setting_social_telegram', 'footer_setting_social_instagram', 'footer_setting_social_linkedin', 'about_setting_about', 'about_setting_img', 'comment_settings_type'];
+    protected $fillable = ['color_setting_primary', 'color_setting_secondary', 'color_setting_third', 'color_setting_fourth', 'sms_setting_username', 'sms_setting_password', 'sms_setting_sender', 'sms_setting_apikey', 'footer_setting_enamad_logo', 'footer_setting_samandehi_logo', 'sms_setting_secretkey', 'footer_setting_useful_links', 'footer_setting_menu', 'footer_setting_about', 'footer_setting_logo', 'fav_icon', 'footer_setting_social_twitter', 'footer_setting_social_telegram', 'footer_setting_social_instagram', 'footer_setting_social_linkedin', 'about_setting_about', 'about_setting_img', 'comment_settings_type'];
+
+
+    protected $casts = [
+        'footer_setting_menu' => 'array',
+        'footer_setting_useful_links' => 'array',
+    ];
 
 
 }

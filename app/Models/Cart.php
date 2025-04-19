@@ -22,7 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Cart extends Model
 {
-    
+    const STATUS_ACTIVE = 'active';
+    const STATUS_EXPIRED = 'expired';
+    const STATUS_PURCHASED = 'purchased';
     protected $perPage = 20;
 
     /**

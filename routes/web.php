@@ -22,6 +22,7 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Frontend\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -51,4 +52,9 @@ Route::group(['prefix' => 'admin'], function () {
         'bookings' => BookingController::class,
         'breeds' => BreedController::class,
     ]);
+});
+
+Route::name('frontend.')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+
 });

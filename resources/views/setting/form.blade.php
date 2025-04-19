@@ -1,6 +1,6 @@
 <div class="row padding-1 p-1">
     <div class="col-md-12">
-        
+
         <div class="form-group mb-2 mb20">
             <label for="color_setting_primary" class="form-label">{{ __('Color Setting Primary') }}</label>
             <input type="text" name="color_setting_primary" class="form-control @error('color_setting_primary') is-invalid @enderror" value="{{ old('color_setting_primary', $setting?->color_setting_primary) }}" id="color_setting_primary" placeholder="Color Setting Primary">
@@ -62,9 +62,9 @@
             {!! $errors->first('footer_setting_useful_links', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
-            <label for="footer_setting_apex" class="form-label">{{ __('Footer Setting Apex') }}</label>
-            <input type="text" name="footer_setting_apex" class="form-control @error('footer_setting_apex') is-invalid @enderror" value="{{ old('footer_setting_apex', $setting?->footer_setting_apex) }}" id="footer_setting_apex" placeholder="Footer Setting Apex">
-            {!! $errors->first('footer_setting_apex', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+            <label for="footer_setting_menu" class="form-label">{{ __('Footer Setting Apex') }}</label>
+            <input type="text" name="footer_setting_menu" class="form-control @error('footer_setting_menu') is-invalid @enderror" value="{{ old('footer_setting_menu', $setting?->footer_setting_menu) }}" id="footer_setting_menu" placeholder="Footer Setting Menu">
+            {!! $errors->first('footer_setting_menu', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
             <label for="footer_setting_about" class="form-label">{{ __('Footer Setting About') }}</label>
