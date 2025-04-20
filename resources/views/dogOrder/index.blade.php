@@ -15,7 +15,9 @@
                 <li class="breadcrumb-item">
                     <a href="{{ route('frontend.dog.supply.index') }}" class="text-white text-decoration-none">تهیه سگ</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">ثبت سفارش</li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <a href="{{ route('frontend.dog.order') }}" class="text-white text-decoration-none">ثبت سفارش</a>
+                </li>
             </ol>
         </nav>
     </div>
