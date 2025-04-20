@@ -12,6 +12,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogController;
+use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\InsuranceController;
@@ -72,5 +73,8 @@ Route::name('frontend.')->group(function () {
     Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
+
+    Route::get('/dog-order', [DogOrderController::class, 'index'])->name('dog.order');
+    Route::post('/dog-order', [DogOrderController::class, 'store'])->name('dog.order.store');
 
 });

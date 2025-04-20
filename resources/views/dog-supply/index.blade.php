@@ -107,7 +107,10 @@
                                 <h6 class="fw-bold">ژرمن شپرد</h6>
                                 <small>(از 10 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 مستر روتوایلر - پرورش دهنده
@@ -123,7 +126,10 @@
                                 <h6 class="fw-bold">هاسکی</h6>
                                 <small>(از 8 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 بنیامین رضایی - پرورش دهنده
@@ -139,7 +145,10 @@
                                 <h6 class="fw-bold">دوبرمن</h6>
                                 <small>(از 12 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 دامپزشکی دامون - پرورش دهنده
@@ -155,7 +164,10 @@
                                 <h6 class="fw-bold">اشپیتز</h6>
                                 <small>(از 7 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 حسین فلاح - پرورش دهنده
@@ -171,7 +183,10 @@
                                 <h6 class="fw-bold">روتوایلر</h6>
                                 <small>(از 15 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 آریا توکلی - پرورش دهنده
@@ -187,7 +202,10 @@
                                 <h6 class="fw-bold">ژرمن شپرد</h6>
                                 <small>(از 9 نظر)</small>
                                 <p class="text-muted small">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                                <form action="{{ route('frontend.dog.order') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">مشاهده</button>
+                                </form>
                             </div>
                             <div class="card-footer text-muted">
                                 مستر روتوایلر - پرورش دهنده
