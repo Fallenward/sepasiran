@@ -149,7 +149,7 @@
         <div class="bg-custom p-5 text-white text-center mb-5">
             <h5 class="fw-bold mb-4">پناهگاه</h5>
             <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ...</p>
-            <a href="#" class="btn btn-outline-light">مشاهده پناهگاه</a>
+            <a href="{{ route('frontend.shelter.index') }}" class="btn btn-outline-light">مشاهده پناهگاه</a>
         </div>
 
         <style>

@@ -21,6 +21,7 @@ use App\Http\Controllers\OnlineCourseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShelterController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\TransactionController;
@@ -69,5 +70,7 @@ Route::name('frontend.')->group(function () {
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
 
     Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
+
+    Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
 
 });
