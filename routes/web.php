@@ -17,6 +17,7 @@ use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OnlineCourseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
@@ -66,5 +67,7 @@ Route::name('frontend.')->group(function () {
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+
+    Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
 
 });

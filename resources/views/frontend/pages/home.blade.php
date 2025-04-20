@@ -81,8 +81,10 @@
             <div class="col-md-4">
                 <div class="card text-center">
                     <div class="card-body">
-                        <i class="fas fa-chalkboard-teacher fa-3x"></i>
-                        <h6 class="fw-bold mt-3">دوره های آنلاین</h6>
+                        <a href="{{ route('frontend.online.courses') }}" class="text-decoration-none">
+                            <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                            <h6 class="fw-bold mt-3">دوره های آنلاین</h6>
+                        </a>
                     </div>
                 </div>
             </div>
