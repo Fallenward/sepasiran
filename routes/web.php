@@ -7,6 +7,7 @@ use App\Http\Controllers\BreedController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CoachSelectionController;
 use App\Http\Controllers\CommentAnswerController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CourseController;
@@ -76,5 +77,8 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/dog-order', [DogOrderController::class, 'index'])->name('dog.order');
     Route::post('/dog-order', [DogOrderController::class, 'store'])->name('dog.order.store');
+
+    Route::get('/coach-selection', [CoachSelectionController::class, 'index'])->name('coach-selection.index');
+
 
 });

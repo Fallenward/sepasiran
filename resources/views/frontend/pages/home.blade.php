@@ -100,11 +100,14 @@
                 <div class="col-md-4">
                     <div class="card text-center">
                         <div class="card-body">
-                            <i class="fas fa-user-tie fa-3x"></i>
-                            <h6 class="fw-bold mt-3">انتخاب مربی</h6>
+                            <a href="{{ route('frontend.coach-selection.index') }}" class="text-decoration-none">
+                                <i class="fas fa-user-tie fa-3x"></i>
+                                <h6 class="fw-bold mt-3">انتخاب مربی</h6>
+                            </a>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="row g-4 mt-4">
