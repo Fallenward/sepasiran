@@ -46,11 +46,12 @@ class BlogController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show($id)
     {
-        $blog = Blog::find($id);
+        $post = Post::findOrFail($id);
 
-        return view('blog.show', compact('blog'));
+        // بازگشت به ویو و ارسال پست
+        return view('blog.show', compact('post'));
     }
 
     /**
