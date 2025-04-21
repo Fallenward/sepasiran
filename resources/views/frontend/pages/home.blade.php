@@ -122,11 +122,14 @@
                 <div class="col-md-4">
                     <div class="card text-center">
                         <div class="card-body">
-                            <i class="fas fa-clinic-medical fa-3x"></i>
-                            <h6 class="fw-bold mt-3">کلینیک ها و بیمه حیوانات</h6>
+                            <a href="{{ route('frontend.clinic.insurance.index') }}" class="text-decoration-none">
+                                <i class="fas fa-clinic-medical fa-3x"></i>
+                                <h6 class="fw-bold mt-3">کلینیک ها و بیمه حیوانات</h6>
+                            </a>
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="card text-center">
                         <div class="card-body">

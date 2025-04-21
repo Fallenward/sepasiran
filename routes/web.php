@@ -7,6 +7,7 @@ use App\Http\Controllers\BreedController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\CoachSelectionController;
 use App\Http\Controllers\CommentAnswerController;
 use App\Http\Controllers\CommentController;
@@ -80,5 +81,6 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/coach-selection', [CoachSelectionController::class, 'index'])->name('coach-selection.index');
 
+    Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
 
 });

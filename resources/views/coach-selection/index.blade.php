@@ -12,7 +12,7 @@
                     <a href="{{ route('frontend.home') }}" class="text-white text-decoration-none">سپاس ایران</a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{{ route('frontend.coach-selection.index') }}" class="text-white text-decoration-none">تهیه سگ</a>
+                    <a href="{{ route('frontend.coach-selection.index') }}" class="text-white text-decoration-none">انتخاب مربی</a>
                 </li>
             </ol>
         </nav>
