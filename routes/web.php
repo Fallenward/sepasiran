@@ -4,6 +4,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BreedController;
+use App\Http\Controllers\BreederController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
@@ -85,4 +86,5 @@ Route::name('frontend.')->group(function () {
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
 
+    Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
 });

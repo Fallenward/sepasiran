@@ -114,11 +114,14 @@
                 <div class="col-md-4">
                     <div class="card text-center">
                         <div class="card-body">
-                            <i class="fas fa-user fa-3x"></i>
-                            <h6 class="fw-bold mt-3">پرورش دهنده</h6>
+                            <a href="{{ route('frontend.breeders.index') }}" class="text-decoration-none">
+                                <i class="fas fa-user fa-3x"></i>
+                                <h6 class="fw-bold mt-3">پرورش دهنده</h6>
+                            </a>
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="card text-center">
                         <div class="card-body">
