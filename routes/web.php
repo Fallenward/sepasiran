@@ -29,6 +29,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShelterController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -88,4 +89,6 @@ Route::name('frontend.')->group(function () {
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
 
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
+
+    Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 });
