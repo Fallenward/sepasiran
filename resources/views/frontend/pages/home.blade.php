@@ -74,44 +74,71 @@
 
 
 
-
         <div class="mb-5">
-        <h5 class="fw-bold mb-4">خدمات</h5>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <a href="{{ route('frontend.online.courses') }}" class="text-decoration-none">
-                            <i class="fas fa-chalkboard-teacher fa-3x"></i>
-                            <h6 class="fw-bold mt-3">دوره های آنلاین</h6>
-                        </a>
+            <h5 class="fw-bold mb-4">خدمات</h5>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <a href="{{ route('frontend.online.courses') }}" class="text-decoration-none">
+                                <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                                <h6 class="fw-bold mt-3">دوره های آنلاین</h6>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <a href="{{ route('frontend.dog.supply.index') }}" class="text-decoration-none">
-                            <i class="fas fa-dog fa-3x"></i>
-                            <h6 class="fw-bold mt-3">تهیه سگ</h6>
-                        </a>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <a href="{{ route('frontend.dog.supply.index') }}" class="text-decoration-none">
+                                <i class="fas fa-dog fa-3x"></i>
+                                <h6 class="fw-bold mt-3">تهیه سگ</h6>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-user-tie fa-3x"></i>
+                            <h6 class="fw-bold mt-3">انتخاب مربی</h6>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <i class="fas fa-user-tie fa-3x"></i>
-                        <h6 class="fw-bold mt-3">انتخاب مربی</h6>
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-user fa-3x"></i>
+                            <h6 class="fw-bold mt-3">پرورش دهنده</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-clinic-medical fa-3x"></i>
+                            <h6 class="fw-bold mt-3">کلینیک ها و بیمه حیوانات</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-store fa-3x"></i>
+                            <h6 class="fw-bold mt-3">فروشگاه ها</h6>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-secondary">مشاهده همه</a>
+            </div>
         </div>
-        <div class="text-center mt-4">
-            <a href="#" class="btn btn-secondary">مشاهده همه</a>
-        </div>
-    </div>
+
 
 
     <div class="mb-5 text-center">
