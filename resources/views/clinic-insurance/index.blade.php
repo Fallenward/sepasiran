@@ -134,7 +134,79 @@
                 <a href="#" class="btn btn-secondary">مشاهده بیشتر</a>
             </div>
         </div>
+
+        <div class="service-box">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="content">
+                        <h5 class="fw-bold">خدمات و پوشش بیمه‌ای برای سگ شما</h5>
+                        <p>
+                            ما در پلتفرم سگ‌ها به صاحبان سگ‌ها کمک می‌کنیم تا بهترین خدمات و پوشش‌های بیمه‌ای را برای عزیزان چهارپای خود انتخاب کنند. با همکاری با معتبرترین کلینیک‌ها و شرکت‌های بیمه، ما به شما این امکان را می‌دهیم که به راحتی خدمات پزشکی، جراحی، واکسیناسیون، و سایر نیازهای بهداشتی سگ‌ها را مدیریت کنید. همچنین، با ارائه پوشش‌های بیمه‌ای جامع، خیال شما را از هرگونه هزینه‌های پیش‌بینی‌نشده راحت می‌کنیم. بهترین خدمات برای بهترین دوست شما، همیشه در دسترس است.
+                        </p>
+                        <ul class="services-list">
+                            <li><a href="#">کلینیک‌ها</a></li>
+                            <li><a href="#">مشاوره بیمه</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="image">
+                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" alt="سگ">
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 @endsection
+<style>
+    .service-box {
+        background-color: #f8f9fa; /* رنگ پس‌زمینه */
+        border-radius: 15px; /* گوشه‌های گرد */
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* سایه برای برجسته‌تر کردن مستطیل */
+    }
+
+    .service-box .content {
+        padding-right: 20px;
+    }
+
+    .service-box .content h5 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .service-box .content p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #6c757d;
+    }
+
+    .service-box .services-list {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 20px;
+    }
+
+    .service-box .services-list li {
+        margin-bottom: 10px;
+    }
+
+    .service-box .services-list a {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .service-box .services-list a:hover {
+        text-decoration: underline;
+    }
+
+    .service-box .image img {
+        max-width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
