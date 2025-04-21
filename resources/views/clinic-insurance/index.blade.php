@@ -156,26 +156,46 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- اضافه کردن بخش نظرات -->
         <div class="comments-section mt-5">
             <h5 class="fw-bold">نظرات در مورد مستر روتوایلر</h5>
 
-            <!-- نظر اول -->
-            <div class="comment">
+            <div class="comment mb-4">
                 <h6 class="fw-bold">حمید حمیدی</h6>
                 <p>لورم ایپسوم متن ساختگی با تولید سادگی لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
             </div>
 
-            <!-- نظر دوم -->
-            <div class="comment">
+            <div class="comment mb-4">
                 <h6 class="fw-bold">حمید حمیدی</h6>
                 <p>لورم ایپسوم متن ساختگی با تولید سادگی لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
             </div>
 
-            <!-- دکمه مشاهده بیشتر -->
             <div class="text-center mt-4">
                 <a href="#" class="btn btn-secondary">مشاهده بیشتر</a>
+            </div>
+        </div>
+
+        <!-- اضافه کردن بخش سوالات متداول -->
+        <div class="comments-section mt-5">
+            <h3 class="fw-bold mb-4 text-center">سوالات متداول</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <h6 class="fw-bold">جلسات چقدر طول می‌کشد؟</h6>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <h6 class="fw-bold">آیا امکان آموزش در خانه من هست؟</h6>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم...</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <h6 class="fw-bold">مربیان با چه نژادهایی کار می‌کنند؟</h6>
+                    <p>لورم ایپسوم متن ساختگی...</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <h6 class="fw-bold">لورم ایپسوم متن ساختگی؟</h6>
+                    <p>لورم ایپسوم متن ساختگی...</p>
+                </div>
             </div>
         </div>
 
