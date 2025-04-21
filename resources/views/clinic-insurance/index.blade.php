@@ -156,6 +156,29 @@
                 </div>
             </div>
         </div>
+        
+        <!-- اضافه کردن بخش نظرات -->
+        <div class="comments-section mt-5">
+            <h5 class="fw-bold">نظرات در مورد مستر روتوایلر</h5>
+
+            <!-- نظر اول -->
+            <div class="comment">
+                <h6 class="fw-bold">حمید حمیدی</h6>
+                <p>لورم ایپسوم متن ساختگی با تولید سادگی لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
+            </div>
+
+            <!-- نظر دوم -->
+            <div class="comment">
+                <h6 class="fw-bold">حمید حمیدی</h6>
+                <p>لورم ایپسوم متن ساختگی با تولید سادگی لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
+            </div>
+
+            <!-- دکمه مشاهده بیشتر -->
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-secondary">مشاهده بیشتر</a>
+            </div>
+        </div>
+
 
     </div>
 </div>
@@ -208,5 +231,37 @@
         max-width: 100%;
         border-radius: 15px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .comments-section {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .comments-section h5 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .comment {
+        margin-bottom: 20px;
+    }
+
+    .comment h6 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .comment p {
+        font-size: 1rem;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .comments-section .btn {
+        margin-top: 20px;
     }
 </style>
