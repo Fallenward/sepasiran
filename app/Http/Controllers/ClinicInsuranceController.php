@@ -11,3 +11,5 @@ class ClinicInsuranceController extends Controller
         return view('clinic-insurance.index');
     }
 }
+
+
