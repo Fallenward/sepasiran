@@ -66,11 +66,11 @@ Route::middleware(['auth', 'is_admin'])
         ]);
     });
 
-
 Route::middleware('guest')->group(function () {
     Route::get('/login',  [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
+Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 
 Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');

@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') - {{ config('app.name') }}</title>
 {{--    <link rel="icon" href="{{ asset($settings->fav_icon) }}">--}}
-    <link rel="icon" href="#">
+    <link rel="icon" type="image/png" href="{{ asset('images/fav.png') }}">
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     @vite(['resources/css/app.css'])
@@ -118,7 +118,7 @@
         <a href="javascript:void(0);" class="brand-link">
 
             <div class="brand-text font-weight-light">
-                <img class="img-fluid w-50 me-2" src="#" alt="{{env('APP_NAME')}}"/>
+                <img class="img-fluid w-50 me-2" src="{{ asset('images/fav.png') }}" alt="{{env('APP_NAME')}}"/>
             </div>
 
         </a>
@@ -128,12 +128,30 @@
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     @php
                         $menus = [
-                            ['route' => 'admin.dashboard.index', 'icon' => 'fas fa-tachometer-alt', 'text' => __('داشبورد')],
-                            ['route' => 'admin.sliders.index', 'icon' => 'fas fa-sliders-h', 'text' => __('اسلایدرها')],
-                            ['route' => 'admin.courses.index', 'icon' => 'fas fa-book', 'text' => __('دوره‌ها')],
-                            ['route' => 'admin.blogs.index', 'icon' => 'fas fa-blog', 'text' => __('وبلاگ‌ها')],
-                            ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave', 'text' => __('تراکنش‌ها')],
-                        ];
+     // ➊ بخش‌های فعال و حیاتی
+     ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
+     ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-paw',              'text' => __('تهیه سگ')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
+
+     // ➋ خدمات، آموزش و پشتیبانی
+     ['route' => 'coming.soon',              'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
+     ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
+
+     // ➌ محتوا و اطلاع‌رسانی
+     ['route' => 'admin.blogs.index',        'icon' => 'fas fa-blog',             'text' => __('وبلاگ‌ها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-newspaper',        'text' => __('اخبار')],
+
+     // ➍ تنظیمات و امکانات جانبی
+     ['route' => 'admin.sliders.index',      'icon' => 'fas fa-sliders-h',        'text' => __('اسلایدرها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-shield-alt',       'text' => __('بیمه حیوانات')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-clinic-medical',   'text' => __('کلینیک‌ها')],
+     ['route' => 'coming.soon',              'icon' => 'fas fa-home',             'text' => __('پناهگاه‌ها')],
+ ];
+
                     @endphp
 
                     @foreach ($menus as $menu)
