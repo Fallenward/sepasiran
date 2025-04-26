@@ -26,7 +26,7 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm rounded">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="روتوایلر">
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <small>24 آذر 02</small>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm rounded">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="روتوایلر">
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <small>24 آذر 02</small>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm rounded">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="روتوایلر">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="روتوایلر">
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <small>24 آذر 02</small>
@@ -83,7 +83,7 @@
                         @for ($i = 0; $i < 6; $i++)
                             <div class="col-md-4">
                                 <div class="card h-100 shadow-sm rounded">
-                                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="پست وبلاگ">
+                                    <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="پست وبلاگ">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between mb-2">
                                             <small>24 آذر 02</small>

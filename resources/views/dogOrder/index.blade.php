@@ -28,7 +28,7 @@
             <!-- بخش اطلاعات سگ (سمت چپ) -->
             <div class="col-md-6">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                     <div class="card-body text-center">
                         <h5 class="fw-bold">ژرمن شپرد</h5>
                         <a href="#" class="btn btn-outline-primary btn-sm">تماس</a>

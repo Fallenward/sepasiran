@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Blog extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -48,7 +48,7 @@ class Blog extends Model
     {
         return $this->hasMany(\App\Models\BlogRating::class, 'id', 'blog_id');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -56,5 +56,9 @@ class Blog extends Model
     {
         return $this->hasMany(\App\Models\CommentAnswer::class, 'id', 'blog_id');
     }
-    
+
+    public function category() { return $this->belongsTo(Category::class); }
+    public function author()   { return $this->belongsTo(User::class, 'author_id'); }
+
+
 }

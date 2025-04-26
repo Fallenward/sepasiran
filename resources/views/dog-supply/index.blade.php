@@ -102,7 +102,7 @@
                     <!-- سگ 1 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">ژرمن شپرد</h6>
                                 <small>(از 10 نظر)</small>
@@ -121,7 +121,7 @@
                     <!-- سگ 2 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">هاسکی</h6>
                                 <small>(از 8 نظر)</small>
@@ -140,7 +140,7 @@
                     <!-- سگ 3 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">دوبرمن</h6>
                                 <small>(از 12 نظر)</small>
@@ -159,7 +159,7 @@
                     <!-- سگ 4 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">اشپیتز</h6>
                                 <small>(از 7 نظر)</small>
@@ -178,7 +178,7 @@
                     <!-- سگ 5 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">روتوایلر</h6>
                                 <small>(از 15 نظر)</small>
@@ -197,7 +197,7 @@
                     <!-- سگ 6 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">ژرمن شپرد</h6>
                                 <small>(از 9 نظر)</small>

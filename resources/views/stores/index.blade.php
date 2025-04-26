@@ -73,7 +73,7 @@
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">پوزبند وایبر</h6>
                                 <p class="text-muted small">لوازم سگ</p>
@@ -88,7 +88,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">پوزبند وایبر</h6>
                                 <p class="text-muted small">لوازم سگ</p>
@@ -103,7 +103,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">پوزبند وایبر</h6>
                                 <p class="text-muted small">لوازم سگ</p>
@@ -117,22 +117,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
-                            <div class="card-body">
-                                <h6 class="fw-bold">پوزبند وایبر</h6>
-                                <p class="text-muted small">لوازم سگ</p>
-                                <form action="#" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-primary btn-sm">خرید</button>
-                                </form>
-                                <button type="submit" class="btn btn-outline-primary btn-sm">1,000,000 تومان</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">پوزبند وایبر</h6>
                                 <p class="text-muted small">لوازم سگ</p>
@@ -147,7 +132,22 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
+                            <div class="card-body">
+                                <h6 class="fw-bold">پوزبند وایبر</h6>
+                                <p class="text-muted small">لوازم سگ</p>
+                                <form action="#" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">خرید</button>
+                                </form>
+                                <button type="submit" class="btn btn-outline-primary btn-sm">1,000,000 تومان</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">پوزبند وایبر</h6>
                                 <p class="text-muted small">لوازم سگ</p>

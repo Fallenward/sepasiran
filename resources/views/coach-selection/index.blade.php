@@ -101,7 +101,7 @@
                     <!-- سگ 1 -->
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>
@@ -116,7 +116,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>
@@ -131,7 +131,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>
@@ -146,7 +146,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>
@@ -161,7 +161,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>
@@ -176,7 +176,7 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                            <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                             <div class="card-body">
                                 <h6 class="fw-bold">بنیامین رضایی</h6>
                                 <small>(از 10 نظر)</small>

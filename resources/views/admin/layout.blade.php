@@ -115,13 +115,12 @@
 
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="javascript:void(0);" class="brand-link">
-
-            <div class="brand-text font-weight-light">
-                <img class="img-fluid w-50 me-2" src="{{ asset('images/fav.png') }}" alt="{{env('APP_NAME')}}"/>
-            </div>
-
+        <a href="{{ url('/') }}" class="brand-link">
+            <img src="{{ asset('images/fav.png') }}"
+                 alt="{{ config('app.name') }}"
+                 class="img-fluid w-50 me-2">
         </a>
+
 
         <div class="sidebar">
             <nav class="mt-2">

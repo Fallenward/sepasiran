@@ -7,11 +7,17 @@
         <div id="carouselExampleIndicators" class="mb-5 p-5 text-center text-white rounded" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="d-block w-100 banner-img" alt="بنر نمونه">
+                    <img src="{{ asset('images/slider.png') }}"
+                         class="d-block w-100 banner-img"
+                         alt="بنر نمونه">
                 </div>
+
                 <div class="carousel-item">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="d-block w-100 banner-img" alt="بنر نمونه">
+                    <img src="{{ asset('images/slider.png') }}"
+                         class="d-block w-100 banner-img"
+                         alt="بنر نمونه">
                 </div>
+
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -44,7 +50,7 @@
                 <div class="row g-4">
                     <div class="col-2 col-md-3">
                         <div class="card h-50">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="خبر">
+                            <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="خبر">
                             <div class="card-body">
                                 <h6 class="fw-bold">تلاش دولت آلمان برای بیکاری</h6>
                                 <small class="text-muted">10:00 - 24 آذر 02</small>
@@ -55,7 +61,7 @@
                     </div>
                     <div class="col-2 col-md-3">
                         <div class="card h-50">
-                            <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="خبر">
+                            <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="خبر">
                             <div class="card-body">
                                 <h6 class="fw-bold">تلاش دولت آلمان برای بیکاری</h6>
                                 <small class="text-muted">10:00 - 24 آذر 02</small>
@@ -204,7 +210,7 @@
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card text-center">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="fw-bold">مستر روتوالر</h6>
                         <p>(از 10 نظر)</p>
@@ -215,7 +221,7 @@
 
             <div class="col-md-4">
                 <div class="card text-center">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h6 class="fw-bold">دامپزشکی دامون</h6>
                         <p>(از 10 نظر)</p>
@@ -225,7 +231,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card text-center">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="مستر روتوالر" style="height: 200px; object-fit: cover;">
 
                     <div class="card-body">
                         <h6 class="fw-bold">بنیامین رضایی</h6>
@@ -245,15 +251,15 @@
             <h5 class="fw-bold mb-4">پیوند به سایت‌های دیگر</h5>
             <div class="d-flex justify-content-center gap-4">
                 <a href="#" class="d-flex align-items-center custom-link-card p-4">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" alt="دولت" class="rounded-circle" width="50" height="50">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" alt="دولت" class="rounded-circle" width="50" height="50">
                     <span class="ms-3 custom-text">پایگاه اطلاع رسانی دولت</span>
                 </a>
                 <a href="#" class="d-flex align-items-center custom-link-card p-4">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" alt="ریاست جمهوری" class="rounded-circle" width="50" height="50">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" alt="ریاست جمهوری" class="rounded-circle" width="50" height="50">
                     <span class="ms-3 custom-text">پایگاه اطلاع رسانی ریاست جمهوری</span>
                 </a>
                 <a href="#" class="d-flex align-items-center custom-link-card p-4">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" alt="مقام معظم رهبری" class="rounded-circle" width="50" height="50">
+                    <img src="{{ asset('images/dogPicture.jpg') }}" alt="مقام معظم رهبری" class="rounded-circle" width="50" height="50">
                     <span class="ms-3 custom-text">پایگاه اطلاع رسانی دفتر مقام معظم رهبری</span>
                 </a>
             </div>

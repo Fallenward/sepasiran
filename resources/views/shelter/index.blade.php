@@ -27,13 +27,13 @@
         <h4 class="fw-bold mb-3">گالری تصاویر</h4>
         <div class="row g-4">
             <div class="col-md-4">
-                <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="img-fluid rounded" alt="تصویر1">
+                <img src="{{ asset('storage/dogPicture.jpg') }}" class="img-fluid rounded" alt="تصویر1">
             </div>
             <div class="col-md-4">
-                <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="img-fluid rounded" alt="تصویر2">
+                <img src="{{ asset('storage/dogPicture.jpg') }}" class="img-fluid rounded" alt="تصویر2">
             </div>
             <div class="col-md-4">
-                <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="img-fluid rounded" alt="تصویر3">
+                <img src="{{ asset('storage/dogPicture.jpg') }}" class="img-fluid rounded" alt="تصویر3">
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                     <div class="card-body">
                         <h6 class="fw-bold">سگ‌های تغذیه‌شده</h6>
                         <p class="text-muted small">ما به سگ‌های بی‌سرپرست غذاهای سالم و کافی می‌دهیم تا از سوءتغذیه و بیماری‌ها جلوگیری کنیم.</p>
@@ -55,7 +55,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                     <div class="card-body">
                         <h6 class="fw-bold">عقیم کردن سگ‌ها</h6>
                         <p class="text-muted small">با عقیم‌سازی سگ‌ها، به کنترل جمعیت و پیشگیری از تولد توله‌های بی‌خانمان کمک می‌کنیم.</p>
@@ -66,7 +66,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                     <div class="card-body">
                         <h6 class="fw-bold">سگ‌هایی که سرپرست پیدا کردند</h6>
                         <p class="text-muted small">تعداد زیادی سگ به خانواده‌های جدید سپرده شده‌اند تا در یک خانه امن و پر از محبت زندگی کنند.</p>
@@ -77,7 +77,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                     <div class="card-body">
                         <h6 class="fw-bold">واکسیناسیون سگ‌ها</h6>
                         <p class="text-muted small">واکسیناسیون سگ‌ها، راهی برای محافظت از آنها در برابر بیماری‌های خطرناک و تضمین سلامت عمومی است.</p>

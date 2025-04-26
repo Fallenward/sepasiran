@@ -76,7 +76,7 @@
                 <!-- سگ 1 -->
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -85,7 +85,7 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -94,7 +94,7 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -103,7 +103,7 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -112,7 +112,7 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -121,7 +121,7 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                         <div class="card-body">
                             <h6 class="fw-bold">بیمه زندگی</h6>
                         </div>
@@ -151,7 +151,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="image">
-                        <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" alt="سگ">
+                        <img src="{{ asset('images/dogPicture.jpg') }}" alt="سگ">
                     </div>
                 </div>
             </div>

@@ -58,11 +58,12 @@
                             </tr>
                             </thead>
                             <tbody>
+
                             @isset($recentTransactions)
                                 @forelse($recentTransactions as $trx)
                                     <tr>
                                         <td>{{$trx->id}}</td>
-                                        <td class="text-truncate" style="max-width:120px;">{{$trx->user->name}}</td>
+                                        <td class="text-truncate" style="max-width:120px;">{{ optional($trx->user)->name ?? '—' }}</td>
                                         <td>{{number_format($trx->amount)}}</td>
                                         <td>
                                             <span class="badge bg-{{ $trx->status=='paid' ? 'success' : 'danger' }} bg-opacity-25 text-{{ $trx->status=='paid' ? 'success' : 'danger' }} fw-normal">

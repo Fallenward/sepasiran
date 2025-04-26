@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Transaction extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -38,5 +38,11 @@ class Transaction extends Model
      */
     protected $fillable = ['user_id', 'transaction_id', 'cart_ids', 'description', 'card_number', 'ref_id', 'status', 'amount', 'cart_price', 'tax', 'discount', 'payment_method'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+        // اگر کلید خارجی متفاوت است:
+        // return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
 }

@@ -1,7 +1,7 @@
 <header>
     {{-- بنر بالایی با پرچم ایران --}}
     <div class="w-100">
-        <img src="{{ asset('storage/Annotation 2025-04-19 110404.jpg') }}" alt="بنر پرچم ایران" class="img-fluid w-100">
+        <img src="{{ asset('images/IranBanner.jpg') }}" alt="بنر پرچم ایران" class="img-fluid w-100">
     </div>
 
     {{-- ناوبری اصلی --}}
@@ -10,7 +10,7 @@
 
             {{-- لوگو سمت راست --}}
             <a class="navbar-brand ms-3" href="{{ route('frontend.home') }}">
-                <img src="{{ asset('storage/Annotation 2025-04-19 110311.jpg') }}" alt="لوگو سپاس ایران" height="50">
+                <img src="{{ asset('images/fav.png') }}" alt="لوگو سپاس ایران" height="50">
             </a>
 
             {{-- منوی ناوبری --}}

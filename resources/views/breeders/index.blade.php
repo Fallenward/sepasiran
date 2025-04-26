@@ -101,7 +101,7 @@
                     @foreach(range(1, 6) as $index)
                         <div class="col-md-4">
                             <div class="card">
-                                <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="سگ">
+                                <img src="{{ asset('images/dogPicture.jpg') }}" class="card-img-top" alt="سگ">
                                 <div class="card-body">
                                     <h6 class="fw-bold">مستر روتوایلر</h6>
                                     <small>(از 10 نظر)</small>

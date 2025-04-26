@@ -26,7 +26,7 @@
             <!-- دوره 1 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره گله داری">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره گله داری">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره گله داری</h6>
                         <p class="text-muted small">تربیت سگ برای گله داری و کار در مزارع...</p>
@@ -41,7 +41,7 @@
             <!-- دوره 2 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره تشخیص بیماری">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره تشخیص بیماری">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره تشخیص بیماری و سرطان</h6>
                         <p class="text-muted small">آموزش تشخیص بیماری‌ها و سرطان در سگ‌ها...</p>
@@ -56,7 +56,7 @@
             <!-- دوره 3 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره آتش نشانی">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره آتش نشانی">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره آتش نشانی</h6>
                         <p class="text-muted small">آموزش سگ‌ها برای کمک به تیم‌های آتش‌نشانی...</p>
@@ -71,7 +71,7 @@
             <!-- دوره 4 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره حفاظت و نگهبانی">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره حفاظت و نگهبانی">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره حفاظت و نگهبانی</h6>
                         <p class="text-muted small">آموزش سگ‌ها برای محافظت و نگهبانی از محل‌ها...</p>
@@ -92,7 +92,7 @@
             <!-- دوره 1 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره گله داری">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره گله داری">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره گله داری</h6>
                         <div class="d-flex justify-content-between align-items-center">
@@ -106,7 +106,7 @@
             <!-- دوره 2 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره تشخیص بیماری">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره تشخیص بیماری">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره تشخیص بیماری و سرطان</h6>
                         <div class="d-flex justify-content-between align-items-center">
@@ -120,7 +120,7 @@
             <!-- دوره 3 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره آتش نشانی">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره آتش نشانی">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره آتش نشانی</h6>
                         <div class="d-flex justify-content-between align-items-center">
@@ -134,7 +134,7 @@
             <!-- دوره 4 -->
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ asset('storage/Annotation 2025-04-19 105015.jpg') }}" class="card-img-top" alt="دوره حفاظت و نگهبانی">
+                    <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره حفاظت و نگهبانی">
                     <div class="card-body">
                         <h6 class="fw-bold">دوره حفاظت و نگهبانی</h6>
                         <div class="d-flex justify-content-between align-items-center">
