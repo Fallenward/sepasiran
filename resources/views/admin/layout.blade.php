@@ -54,11 +54,9 @@
                     </a>
                 </li>
 
-                @permission('dashboard.read')
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ route('admin.dashboard.index') }}" class="nav-link">داشبورد</a>
                 </li>
-                @endpermission
             </ul>
 
             <!-- Right navbar links -->
@@ -85,13 +83,6 @@
                     </div>
                 </li>
 
-                <!-- Notification Bell Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">$unreadCount</span>
-                    </a>
-                </li>
 
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
@@ -134,86 +125,26 @@
 
         <div class="sidebar">
             <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                    data-accordion="false">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     @php
-                        $menus = [];
-//                        $menus = [
-//                            ['permission' => 'dashboard.read', 'route' => 'admin.dashboard.index', 'icon' => 'fas fa-tachometer-alt', 'text' => __('داشبورد')],
-//                            ['permission' => 'roles.read', 'route' => 'admin.roles.index', 'icon' => 'fas fa-shield-alt', 'text' => __('نقش‌ها')],
-//                            ['permission' => 'permissions.read', 'route' => 'admin.permissions.index', 'icon' => 'fas fa-user-shield', 'text' => __('مجوزها')],
-//                            ['permission' => 'users.read', 'route' => 'users.index', 'icon' => 'fas fa-users', 'text' => __('کاربران')],
-//                            ['permission' => 'profile.read', 'route' => 'profile.index', 'icon' => 'fas fa-user', 'text' => __('پروفایل من')],
-//                            ['permission' => 'permissions.read', 'route' => 'sliders.index', 'icon' => 'fas fa-sliders-h', 'text' => __('اسلایدرها')],
-//                            ['permission' => 'permissions.read', 'route' => 'categories.index', 'icon' => 'fas fa-list', 'text' => __('دسته‌بندی‌ها')],
-//                            ['permission' => 'permissions.read', 'route' => 'types.index', 'icon' => 'fas fa-tags', 'text' => __('نوع‌ها')],
-//                            ['permission' => 'permissions.read', 'route' => 'days.index', 'icon' => 'fas fa-calendar-day', 'text' => __('روزها')],
-//                            ['permission' => 'permissions.read', 'route' => 'courses.index', 'icon' => 'fas fa-book', 'text' => __('دوره‌ها')],
-//                            ['permission' => 'students.read', 'route' => 'coursesStudent.index', 'icon' => 'fas fa-user-plus', 'text' => __('افزودن دانش‌آموز')],
-//                            ['permission' => 'my_courses.read', 'route' => 'my_courses.index', 'icon' => 'fas fa-graduation-cap', 'text' => __('دوره‌های من')],
-//                            ['permission' => 'packages.read', 'route' => 'admin.packages.index', 'icon' => 'fas fa-box', 'text' => __('پکیج‌ها')],
-//                            ['permission' => 'blogs.read', 'route' => 'blogs.index', 'icon' => 'fas fa-blog', 'text' => __('وبلاگ‌ها')],
-//                            ['permission' => 'certificates.read', 'route' => 'certificates.index', 'icon' => 'fas fa-certificate', 'text' => __('مدارک')],
-//                            ['permission' => 'chats.read', 'route' => 'chats.index', 'icon' => 'fas fa-comments', 'text' => __('گفتگوها')],
-//                            ['permission' => 'comments.read', 'route' => 'comments.index', 'icon' => 'fas fa-comment', 'text' => __('نظرات')],
-//                            ['permission' => 'discounts.read', 'route' => 'discounts.index', 'icon' => 'fas fa-tag', 'text' => __('تخفیف‌ها')],
-//                            ['permission' => 'exams.read', 'route' => 'exams.index', 'icon' => 'fas fa-file-alt', 'text' => __('آزمون‌ها')],
-//                            ['permission' => 'homeworks.read', 'route' => 'homeworks.index', 'icon' => 'fas fa-book', 'text' => __('تمرین‌ها')],
-//                            ['permission' => 'levels.read', 'route' => 'levels.index', 'icon' => 'fas fa-layer-group', 'text' => __('سطوح')],
-//                            ['permission' => 'lives.read', 'route' => 'lives.index', 'icon' => 'fas fa-video', 'text' => __('پخش زنده')],
-//                            ['permission' => 'masters.read', 'route' => 'masters.index', 'icon' => 'fas fa-user-tie', 'text' => __('اساتید')],
-//                            ['permission' => 'menus.read', 'route' => 'menus.index', 'icon' => 'fas fa-bars', 'text' => __('منوها')],
-//                            ['permission' => 'notifications.read', 'route' => 'notifications.index', 'icon' => 'fas fa-bell', 'text' => __('اطلاعیه‌ها')],
-//                            ['permission' => 'quizzes.read', 'route' => 'quizzes.index', 'icon' => 'fas fa-question-circle', 'text' => __('کوییز')],
-//                            ['permission' => 'settings.read', 'route' => 'settings.index', 'icon' => 'fas fa-cog', 'text' => __('تنظیمات داشبورد')],
-//                            ['permission' => 'admin.home-courses.index', 'route' => 'admin.home-courses.index', 'icon' => 'fas fa-sliders-h', 'text' => __('ویرایش دوره‌های صفحه اصلی')],
-//                            ['permission' => 'transactions.read', 'route' => 'transactions.index', 'icon' => 'fas fa-money-bill-wave', 'text' => __('تراکنش‌ها')],
-//                            ['permission' => 'security.logs.view', 'route' => 'admin.security_logs', 'icon' => 'fas fa-shield-alt', 'text' => __('لاگ‌های امنیتی')],
-//                        ];
-
-$menuGroups = [];
-//                       $menuGroups = [
-//    'مدیریت اصلی' => ['dashboard.read', 'users.read', 'roles.read', 'permissions.read', 'profile.read'],
-//    'آموزش' => ['courses.read','lives.read', 'students.read', 'my_courses.read', 'packages.read', 'levels.read', 'masters.read', 'permissions.read'],
-//    'محتوا و سایت' => ['sliders.read', 'categories.read', 'types.read', 'blogs.read', 'menus.read'],
-//    'تعامل و گفتگو' => ['chats.read', 'comments.read', 'notifications.read'],
-//    'ارزیابی و آزمون' => ['quizzes.read', 'exams.read', 'homeworks.read', 'certificates.read'],
-//    'فروش و مالی' => ['discounts.read', 'transactions.read'],
-//'تنظیمات سایت' => ['admin.home-courses.index','settings.read', 'security.logs.view']
-//];
-
-
-
-                        $menusByPermission = collect($menus)->keyBy('permission');
+                        $menus = [
+                            ['route' => 'admin.dashboard.index', 'icon' => 'fas fa-tachometer-alt', 'text' => __('داشبورد')],
+                            ['route' => 'sliders.index', 'icon' => 'fas fa-sliders-h', 'text' => __('اسلایدرها')],
+                            ['route' => 'categories.index', 'icon' => 'fas fa-list', 'text' => __('دسته‌بندی‌ها')],
+                            ['route' => 'courses.index', 'icon' => 'fas fa-book', 'text' => __('دوره‌ها')],
+                            ['route' => 'blogs.index', 'icon' => 'fas fa-blog', 'text' => __('وبلاگ‌ها')],
+                            ['route' => 'discounts.index', 'icon' => 'fas fa-tag', 'text' => __('تخفیف‌ها')],
+                            ['route' => 'transactions.index', 'icon' => 'fas fa-money-bill-wave', 'text' => __('تراکنش‌ها')],
+                        ];
                     @endphp
 
-                    @foreach ($menuGroups as $groupTitle => $permissions)
-                        @php
-                            $groupMenus = collect($permissions)->map(fn($perm) => $menusByPermission->get($perm))->filter();
-                            $anyPermission = $groupMenus->pluck('permission')->filter(fn($perm) => auth()->user()->can($perm))->isNotEmpty();
-                            $isActiveGroup = $groupMenus->pluck('route')->contains(fn($route) => request()->routeIs($route));
-                        @endphp
-
-                        @if ($anyPermission)
-                            <li class="nav-item has-treeview {{ $isActiveGroup ? 'menu-open' : '' }}">
-                                <a href="#" class="nav-link {{ $isActiveGroup ? 'active' : '' }}">
-                                    <i class="nav-icon fas fa-folder"></i>
-                                    <p>{{ $groupTitle }} <i class="right fas fa-angle-left"></i></p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    @foreach ($groupMenus as $menu)
-                                        @permission($menu['permission'])
-                                        <li class="nav-item">
-                                            <a href="{{ route($menu['route']) }}" class="nav-link {{ request()->routeIs($menu['route']) ? 'active' : '' }}">
-                                                <i class="nav-icon {{ $menu['icon'] }}"></i>
-                                                <p>{{ $menu['text'] }}</p>
-                                            </a>
-                                        </li>
-                                        @endpermission
-                                    @endforeach
-                                </ul>
-                            </li>
-                        @endif
+                    @foreach ($menus as $menu)
+                        <li class="nav-item">
+                            <a href="{{ route($menu['route']) }}" class="nav-link {{ request()->routeIs($menu['route']) ? 'active' : '' }}">
+                                <i class="nav-icon {{ $menu['icon'] }}"></i>
+                                <p>{{ $menu['text'] }}</p>
+                            </a>
+                        </li>
                     @endforeach
 
                     <li class="nav-item mt-3">
@@ -225,8 +156,8 @@ $menuGroups = [];
                             @csrf
                         </form>
                     </li>
-
                 </ul>
+
             </nav>
         </div>
     </aside>

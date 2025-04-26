@@ -8,10 +8,10 @@
             <div class="card-body p-5">
                 <div class="text-center mb-4">
                     <a href="/" class="d-block mb-2 text-decoration-none">
-                        <h2 class="fw-bold text-primary">ApexOnline</h2>
+                        <h2 class="fw-bold text-primary">SepasIran</h2>
                     </a>
                     <h4 class="fw-semibold">ورود به حساب</h4>
-                    <p class="text-muted">برای شروع جلسه، اطلاعات حساب خود را وارد کنید</p>
+                    <p class="text-muted">برای ورود به داشبورد، اطلاعات حساب خود را وارد کنید</p>
                 </div>
 
                 <form action="{{ route('new-login') }}" method="POST">
