@@ -129,12 +129,10 @@
                     @php
                         $menus = [
                             ['route' => 'admin.dashboard.index', 'icon' => 'fas fa-tachometer-alt', 'text' => __('داشبورد')],
-                            ['route' => 'sliders.index', 'icon' => 'fas fa-sliders-h', 'text' => __('اسلایدرها')],
-                            ['route' => 'categories.index', 'icon' => 'fas fa-list', 'text' => __('دسته‌بندی‌ها')],
-                            ['route' => 'courses.index', 'icon' => 'fas fa-book', 'text' => __('دوره‌ها')],
-                            ['route' => 'blogs.index', 'icon' => 'fas fa-blog', 'text' => __('وبلاگ‌ها')],
-                            ['route' => 'discounts.index', 'icon' => 'fas fa-tag', 'text' => __('تخفیف‌ها')],
-                            ['route' => 'transactions.index', 'icon' => 'fas fa-money-bill-wave', 'text' => __('تراکنش‌ها')],
+                            ['route' => 'admin.sliders.index', 'icon' => 'fas fa-sliders-h', 'text' => __('اسلایدرها')],
+                            ['route' => 'admin.courses.index', 'icon' => 'fas fa-book', 'text' => __('دوره‌ها')],
+                            ['route' => 'admin.blogs.index', 'icon' => 'fas fa-blog', 'text' => __('وبلاگ‌ها')],
+                            ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave', 'text' => __('تراکنش‌ها')],
                         ];
                     @endphp
 

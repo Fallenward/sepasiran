@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\CourseRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -18,7 +19,7 @@ class CourseController extends Controller
     {
         $courses = Course::paginate();
 
-        return view('course.index', compact('courses'))
+        return view('admin.course.index', compact('courses'))
             ->with('i', ($request->input('page', 1) - 1) * $courses->perPage());
     }
 
@@ -29,7 +30,7 @@ class CourseController extends Controller
     {
         $course = new Course();
 
-        return view('course.create', compact('course'));
+        return view('admin.course.create', compact('course'));
     }
 
     /**
@@ -39,7 +40,7 @@ class CourseController extends Controller
     {
         Course::create($request->validated());
 
-        return Redirect::route('courses.index')
+        return Redirect::route('admin.courses.index')
             ->with('success', 'Course created successfully.');
     }
 
@@ -50,7 +51,7 @@ class CourseController extends Controller
     {
         $course = Course::find($id);
 
-        return view('course.show', compact('course'));
+        return view('admin.course.show', compact('course'));
     }
 
     /**
@@ -60,7 +61,7 @@ class CourseController extends Controller
     {
         $course = Course::find($id);
 
-        return view('course.edit', compact('course'));
+        return view('admin.course.edit', compact('course'));
     }
 
     /**
@@ -70,7 +71,7 @@ class CourseController extends Controller
     {
         $course->update($request->validated());
 
-        return Redirect::route('courses.index')
+        return Redirect::route('admin.courses.index')
             ->with('success', 'Course updated successfully');
     }
 
@@ -78,7 +79,7 @@ class CourseController extends Controller
     {
         Course::find($id)->delete();
 
-        return Redirect::route('courses.index')
+        return Redirect::route('admin.courses.index')
             ->with('success', 'Course deleted successfully');
     }
 }

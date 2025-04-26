@@ -16,9 +16,10 @@ class DashboardController extends Controller
      */
     public function index(): View|RedirectResponse
     {
-        $user = Auth::user();
+        $user = Auth::user(); // دریافت کاربر جاری
 
-        if ($user->is_admin) {
+        // بررسی اینکه آیا کاربر ادمین است یا خیر
+        if ($user && $user->is_admin) {
             // اگر کاربر ادمین بود
             $title = 'داشبورد مدیریت';
             $userCount = User::count();

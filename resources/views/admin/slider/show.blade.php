@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     {{ $slider->name ?? __('Show') . " " . __('Slider') }}
@@ -14,12 +14,12 @@
                             <span class="card-title">{{ __('Show') }} Slider</span>
                         </div>
                         <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('sliders.index') }}"> {{ __('Back') }}</a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('admin.sliders.index') }}"> {{ __('Back') }}</a>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
-                        
+
                                 <div class="form-group mb-2 mb20">
                                     <strong>Title:</strong>
                                     {{ $slider->title }}

@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('admin.layout')
 @section('template_title')
     {{ $transaction->name ?? __('Show') . " " . __('Transaction') }}
 @endsection
@@ -14,12 +13,12 @@
                             <span class="card-title">{{ __('Show') }} Transaction</span>
                         </div>
                         <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('transactions.index') }}"> {{ __('Back') }}</a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('admin.transactions.index') }}"> {{ __('Back') }}</a>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
-                        
+
                                 <div class="form-group mb-2 mb20">
                                     <strong>User Id:</strong>
                                     {{ $transaction->user_id }}

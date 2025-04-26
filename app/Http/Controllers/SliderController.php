@@ -18,7 +18,7 @@ class SliderController extends Controller
     {
         $sliders = Slider::paginate();
 
-        return view('slider.index', compact('sliders'))
+        return view('admin.slider.index', compact('sliders'))
             ->with('i', ($request->input('page', 1) - 1) * $sliders->perPage());
     }
 
@@ -29,7 +29,7 @@ class SliderController extends Controller
     {
         $slider = new Slider();
 
-        return view('slider.create', compact('slider'));
+        return view('admin.slider.create', compact('slider'));
     }
 
     /**
@@ -39,7 +39,7 @@ class SliderController extends Controller
     {
         Slider::create($request->validated());
 
-        return Redirect::route('sliders.index')
+        return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider created successfully.');
     }
 
@@ -50,7 +50,7 @@ class SliderController extends Controller
     {
         $slider = Slider::find($id);
 
-        return view('slider.show', compact('slider'));
+        return view('admin.slider.show', compact('slider'));
     }
 
     /**
@@ -60,7 +60,7 @@ class SliderController extends Controller
     {
         $slider = Slider::find($id);
 
-        return view('slider.edit', compact('slider'));
+        return view('admin.slider.edit', compact('slider'));
     }
 
     /**
@@ -70,7 +70,7 @@ class SliderController extends Controller
     {
         $slider->update($request->validated());
 
-        return Redirect::route('sliders.index')
+        return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider updated successfully');
     }
 
@@ -78,7 +78,7 @@ class SliderController extends Controller
     {
         Slider::find($id)->delete();
 
-        return Redirect::route('sliders.index')
+        return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider deleted successfully');
     }
 }

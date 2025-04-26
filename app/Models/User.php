@@ -21,9 +21,10 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-
     protected $perPage = 20;
+
     use Notifiable;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -33,64 +34,48 @@ class User extends Authenticatable implements MustVerifyEmail
         'name', 'email', 'password', 'is_admin'
     ];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function blogs()
-    {
-        return $this->hasMany(\App\Models\Blog::class, 'id', 'author_id');
-    }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * The attributes that should be cast to native types.
+     *
+     * @var array
      */
-    public function carts()
-    {
-        return $this->hasMany(\App\Models\Cart::class, 'id', 'user_id');
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean', // تبدیل is_admin به نوع بولی
+    ];
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * بررسی نقش کاربر
+     *
+     * @param string $role
+     * @return bool
      */
-    public function chats()
-    {
-        return $this->hasMany(\App\Models\Chat::class, 'id', 'private_chat_user_id');
-    }
-
     public function hasRole($role): bool
     {
         if ($role == 'administrator') {
             return $this->is_admin;
         }
 
-        return false; // یا می‌تونی سایر نقش‌ها رو بررسی کنی
+        return false; // سایر نقش‌ها را هم می‌توانید اضافه کنید
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * اینجا باید روابط واقعی مدل‌ها قرار گیرد.
+     * به عنوان مثال، اگر مدل Blog وجود دارد و کاربر می‌تواند چندین وبلاگ داشته باشد:
      */
-    public function commentAnswers()
+    public function blogs()
     {
-        return $this->hasMany(\App\Models\CommentAnswer::class, 'id', 'user_id');
+        return $this->hasMany(\App\Models\Blog::class, 'author_id', 'id');
     }
 
-
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * روابط مشابه می‌توانند برای سایر مدل‌ها مانند Notifications و غیره ایجاد شوند.
      */
+
     public function notifications()
     {
-        return $this->hasMany(\App\Models\Notification::class, 'id', 'receiver_id');
+        return $this->hasMany(\App\Models\Notification::class, 'receiver_id', 'id');
     }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function roleUsers()
-    {
-        return $this->hasMany(\App\Models\RoleUser::class, 'id', 'user_id');
-    }
-
-
 }

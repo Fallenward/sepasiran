@@ -1,24 +1,23 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
-    {{ __('Update') }} Transaction
+    {{ __('Create') }} Course
 @endsection
 
 @section('content')
     <section class="content container-fluid">
-        <div class="">
+        <div class="row">
             <div class="col-md-12">
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Transaction</span>
+                        <span class="card-title">{{ __('Create') }} Course</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('transactions.update', $transaction->id) }}"  role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
+                        <form method="POST" action="{{ route('admin.courses.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
-                            @include('transaction.form')
+                            @include('course.form')
 
                         </form>
                     </div>

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\TransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\TransactionRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -18,7 +19,7 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::paginate();
 
-        return view('transaction.index', compact('transactions'))
+        return view('admin.transaction.index', compact('transactions'))
             ->with('i', ($request->input('page', 1) - 1) * $transactions->perPage());
     }
 
@@ -29,7 +30,7 @@ class TransactionController extends Controller
     {
         $transaction = new Transaction();
 
-        return view('transaction.create', compact('transaction'));
+        return view('admin.transaction.create', compact('transaction'));
     }
 
     /**
@@ -39,7 +40,7 @@ class TransactionController extends Controller
     {
         Transaction::create($request->validated());
 
-        return Redirect::route('transactions.index')
+        return Redirect::route('admin.transactions.index')
             ->with('success', 'Transaction created successfully.');
     }
 
@@ -50,7 +51,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::find($id);
 
-        return view('transaction.show', compact('transaction'));
+        return view('admin.transaction.show', compact('transaction'));
     }
 
     /**
@@ -60,7 +61,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::find($id);
 
-        return view('transaction.edit', compact('transaction'));
+        return view('admin.transaction.edit', compact('transaction'));
     }
 
     /**
@@ -70,7 +71,7 @@ class TransactionController extends Controller
     {
         $transaction->update($request->validated());
 
-        return Redirect::route('transactions.index')
+        return Redirect::route('admin.transactions.index')
             ->with('success', 'Transaction updated successfully');
     }
 
@@ -78,7 +79,7 @@ class TransactionController extends Controller
     {
         Transaction::find($id)->delete();
 
-        return Redirect::route('transactions.index')
+        return Redirect::route('admin.transactions.index')
             ->with('success', 'Transaction deleted successfully');
     }
 }

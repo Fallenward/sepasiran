@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
-    {{ __('Create') }} Course
+    {{ __('Create') }} Transaction
 @endsection
 
 @section('content')
@@ -11,13 +11,13 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Create') }} Course</span>
+                        <span class="card-title">{{ __('Create') }} Transaction</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('courses.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.transactions.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
-                            @include('course.form')
+                            @include('admin.transaction.form')
 
                         </form>
                     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     Sliders
@@ -17,7 +17,7 @@
                             </span>
 
                              <div class="float-right">
-                                <a href="{{ route('sliders.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                                <a href="{{ route('admin.sliders.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
                                   {{ __('Create New') }}
                                 </a>
                               </div>
@@ -35,7 +35,7 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-                                        
+
 									<th >Title</th>
 									<th >Image</th>
 									<th >Link</th>
@@ -47,15 +47,15 @@
                                     @foreach ($sliders as $slider)
                                         <tr>
                                             <td>{{ ++$i }}</td>
-                                            
+
 										<td >{{ $slider->title }}</td>
 										<td >{{ $slider->image }}</td>
 										<td >{{ $slider->link }}</td>
 
                                             <td>
-                                                <form action="{{ route('sliders.destroy', $slider->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('sliders.show', $slider->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('sliders.edit', $slider->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('admin.sliders.destroy', $slider->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('admin.sliders.show', $slider->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('admin.sliders.edit', $slider->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>

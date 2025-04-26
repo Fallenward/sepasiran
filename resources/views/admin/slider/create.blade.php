@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     {{ __('Create') }} Slider
@@ -14,10 +14,10 @@
                         <span class="card-title">{{ __('Create') }} Slider</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('sliders.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.sliders.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
-                            @include('slider.form')
+                            @include('admin.slider.form')
 
                         </form>
                     </div>

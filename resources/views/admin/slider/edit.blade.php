@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
-    {{ __('Update') }} Course
+    {{ __('Update') }} Slider
 @endsection
 
 @section('content')
@@ -11,14 +11,15 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Course</span>
+                        <span class="card-title">{{ __('Update') }} Slider</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('courses.update', $course->id) }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.sliders.update', $slider->id) }}" role="form"
+                              enctype="multipart/form-data">
                             {{ method_field('PATCH') }}
                             @csrf
 
-                            @include('course.form')
+                            @include('admin.slider.form')
 
                         </form>
                     </div>

@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\BlogRequest;
 use App\Models\Blog;
+use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\BlogRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -18,7 +20,7 @@ class BlogController extends Controller
     {
         $blogs = Blog::paginate();
 
-        return view('blog.index', compact('blogs'))
+        return view('admin.blog.index', compact('blogs'))
             ->with('i', ($request->input('page', 1) - 1) * $blogs->perPage());
     }
 
@@ -29,7 +31,7 @@ class BlogController extends Controller
     {
         $blog = new Blog();
 
-        return view('blog.create', compact('blog'));
+        return view('admin.blog.create', compact('blog'));
     }
 
     /**
@@ -39,7 +41,7 @@ class BlogController extends Controller
     {
         Blog::create($request->validated());
 
-        return Redirect::route('blogs.index')
+        return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog created successfully.');
     }
 
@@ -51,7 +53,7 @@ class BlogController extends Controller
         $post = Post::findOrFail($id);
 
         // بازگشت به ویو و ارسال پست
-        return view('blog.show', compact('post'));
+        return view('admin.blog.show', compact('post'));
     }
 
     /**
@@ -61,7 +63,7 @@ class BlogController extends Controller
     {
         $blog = Blog::find($id);
 
-        return view('blog.edit', compact('blog'));
+        return view('admin.blog.edit', compact('blog'));
     }
 
     /**
@@ -71,7 +73,7 @@ class BlogController extends Controller
     {
         $blog->update($request->validated());
 
-        return Redirect::route('blogs.index')
+        return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog updated successfully');
     }
 
@@ -79,7 +81,7 @@ class BlogController extends Controller
     {
         Blog::find($id)->delete();
 
-        return Redirect::route('blogs.index')
+        return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog deleted successfully');
     }
 }
