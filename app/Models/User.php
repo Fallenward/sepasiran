@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * Class User
@@ -16,18 +19,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property $created_at
  * @property $updated_at
  */
-class User extends Model
+class User extends Authenticatable implements MustVerifyEmail
 {
 
     protected $perPage = 20;
-
+    use Notifiable;
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email'];
-
+    protected $fillable = [
+        'name', 'email', 'password', 'is_admin'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -54,6 +58,14 @@ class User extends Model
         return $this->hasMany(\App\Models\Chat::class, 'id', 'private_chat_user_id');
     }
 
+    public function hasRole($role): bool
+    {
+        if ($role == 'administrator') {
+            return $this->is_admin;
+        }
+
+        return false; // یا می‌تونی سایر نقش‌ها رو بررسی کنی
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

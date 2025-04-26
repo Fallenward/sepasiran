@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
@@ -38,19 +40,28 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::group(['prefix' => 'admin'], function () {
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    });
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/new-login', [AuthenticatedSessionController::class, 'store'])->name('new-login');
+});
+
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], function () {
     Route::resources([
         'users' => UserController::class,
         'blogs' => BlogController::class,
         'blog_ratings' => BlogRatingController::class,
         'carts' => CartController::class,
         'categories' => CategoryController::class,
-        'chats' => ChatController::class,
-        'comments' => CommentController::class,
         'discounts' => DiscountController::class,
         'menus' => MenuController::class,
-        'notifications' => NotificationController::class,
-        'settings' => SettingController::class,
         'sliders' => SliderController::class,
         'transactions' => TransactionController::class,
         'services' => ServiceController::class,
