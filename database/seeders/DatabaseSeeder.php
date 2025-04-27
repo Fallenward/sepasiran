@@ -77,23 +77,7 @@ class BookingSeeder extends Seeder
     }
 }
 
-class BreedSeeder extends Seeder
-{
-    public function run(): void
-    {
-        $faker = Faker::create('fa_IR');
 
-        foreach (range(1, 15) as $i) {
-            DB::table('breeds')->insert([
-                'name'        => $faker->word,
-                // حداکثر 200 نویسه ← مناسب برای VARCHAR(255)
-                'description' => Str::limit($faker->paragraph(3, true), 200, '…'),
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
-        }
-    }
-}
 class CartSeeder extends Seeder
 {
     public function run(): void
@@ -354,6 +338,10 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             SkillSeeder::class,
             TransactionSeeder::class,
+            CitySeeder::class,
+            BreedSeeder::class,
+            SpecialtySeeder::class,
+            CoachSeeder::class,
         ]);
     }
 }

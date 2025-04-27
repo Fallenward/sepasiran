@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TypeController;
+use App\Http\Controllers\Admin\CoachController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
@@ -14,7 +15,6 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
-use App\Http\Controllers\CoachSelectionController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogController;
 use App\Http\Controllers\DogOrderController;
@@ -50,6 +50,7 @@ Route::middleware(['auth', 'is_admin'])
             'blogs' => BlogController::class,
             'blog_ratings' => BlogRatingController::class,
             'carts' => CartController::class,
+            'coaches' => CoachController::class,
             'categories' => CategoryController::class,
             'discounts' => DiscountController::class,
             'menus' => MenuController::class,
@@ -91,7 +92,7 @@ Route::name('frontend.')->group(function () {
     Route::get('/dog-order', [DogOrderController::class, 'index'])->name('dog.order');
     Route::post('/dog-order', [DogOrderController::class, 'store'])->name('dog.order.store');
 
-    Route::get('/coach-selection', [CoachSelectionController::class, 'index'])->name('coach-selection.index');
+    Route::get('/coaches', [CoachController::class, 'indexFront'])->name('coaches.index');
 
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');

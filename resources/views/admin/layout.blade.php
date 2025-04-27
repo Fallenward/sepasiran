@@ -136,7 +136,7 @@
      ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
 
      // ➋ خدمات، آموزش و پشتیبانی
-     ['route' => 'coming.soon',              'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
+     ['route' => 'admin.coaches.index',              'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
      ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
      ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
 

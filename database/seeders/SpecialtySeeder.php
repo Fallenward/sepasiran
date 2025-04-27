@@ -1,0 +1,21 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\Specialty;
+
+class SpecialtySeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        Specialty::create(['name' => 'آموزش فرمان‌ها']);
+        Specialty::create(['name' => 'آموزش رفتار']);
+        Specialty::create(['name' => 'آموزش سگ‌های محافظ']);
+    }
+}
