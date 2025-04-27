@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\CoachController;
+use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
@@ -16,7 +17,6 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
-use App\Http\Controllers\DogController;
 use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -83,7 +83,7 @@ Route::name('frontend.')->group(function () {
         Route::get('/', [SupportController::class, 'index'])->name('index');
     });
 
-    Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+    Route::get('/dog-supply', [DogSupplyController::class, 'indexFront'])->name('dog.supply.index');
 
     Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
 

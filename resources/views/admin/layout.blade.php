@@ -131,7 +131,7 @@
      ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
      ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
      ['route' => 'coming.soon',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
+     ['route' => 'admin.dogs.index',              'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
      ['route' => 'coming.soon',              'icon' => 'fas fa-paw',              'text' => __('تهیه سگ')],
      ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
 
