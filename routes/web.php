@@ -21,6 +21,8 @@ use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\SupportController;
+use App\Http\Controllers\Frontend\BlogController as FrontendBlogController;
+use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OnlineCourseController;
@@ -100,4 +102,20 @@ Route::name('frontend.')->group(function () {
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
+
+
+    // Blogs
+    Route::get('/blogs', [FrontendBlogController::class, 'index'])->name('blogs.index');
+    Route::get('/blog/{slug}', [FrontendBlogController::class, 'show'])->name('blogs.show');
+    Route::get('/blog/category/{slug}', [FrontendBlogController::class, 'showBlogCategory'])->name('blogs.show.category');
+    Route::post('/blog/store-comment', [FrontendBlogController::class, 'storeComment'])->name('blogs.store.comment');
+    Route::post('/blog/{blogId}/rate', [FrontendBlogController::class, 'rateBlog']);
+
+
+    // Services
+    Route::get('/services', [FrontendServiceController::class, 'index'])->name('services.index');
+    Route::get('/service/{slug}', [FrontendServiceController::class, 'show'])->name('services.show');
+    Route::get('/service/category/{slug}', [FrontendServiceController::class, 'showServiceCategory'])->name('services.show.category');
+    Route::post('/service/store-comment', [FrontendServiceController::class, 'storeComment'])->name('services.store.comment');
+    Route::post('/service/{serviceId}/rate', [FrontendServiceController::class, 'rateService']);
 });

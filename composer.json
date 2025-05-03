@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "diglactic/laravel-breadcrumbs": "^10.0",
         "garygreen/pretty-routes": "^1.0",
         "intervention/image": "^3.11",
         "kavenegar/laravel": "^1.3",

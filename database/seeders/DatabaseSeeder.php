@@ -13,14 +13,15 @@ class BlogSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call([SlidersTableSeeder::class]);
         $faker = Faker::create('fa_IR');
         foreach (range(1, 20) as $i) {
             DB::table('blogs')->insert([
                 'title'       => $title = $faker->sentence(3),
                 'slug'        => Str::slug($title)."-$i",
-                'content'     => $faker->paragraphs(5, true),
+                'content'     => $faker->paragraphs(1, true),
                 'description' => $faker->paragraph,
-                'image'       => "blog-$i.jpg",
+                'image'       => "images/blog.svg",
                 'category_id' => rand(1, 10),
                 'author_id'   => rand(1, 5),
                 'rating'      => rand(1, 5),
@@ -259,17 +260,27 @@ class ServiceSeeder extends Seeder
     {
         $faker = Faker::create('fa_IR');
 
-        foreach (range(1, 10) as $i) {
-            $title = $faker->word;
+        foreach (range(1, 6) as $i) {
+            // Static titles array
+            $staticTitles = [
+                'انتخاب مربی',
+                'تهیه سگ',
+                'دوره های آنلاین',
+                'فروشگاه ها',
+                'کلینیک ها و بیمه حیوانات',
+                'پرورش دهنده',
+            ];
+
+            // Select title based on index (cycle through titles if $i exceeds array length)
+            $title = $staticTitles[($i - 1) % count($staticTitles)];
 
             DB::table('services')->insert([
-                'title'       => $title,
-                'slug'        => Str::slug($title),
-                // حداکثر 200 نویسه
-                'description' => Str::limit($faker->paragraph(3, true), 200, '…'),
-                'image'       => "service-$i.jpg",
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'title' => $title,
+                'slug' => Str::slug($title, '-'), // Generate slug from title (Persian slugs are supported)
+                'description' => Str::limit(fake()->paragraph(3, true), 200, '…'), // Use fake() for description
+                'image' => "images/service-$i.png",
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }

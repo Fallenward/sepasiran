@@ -1,12 +1,6 @@
 import "@fortawesome/fontawesome-free/css/all.css";
 import "bootstrap";
 
-import DataTable from 'datatables.net-bs4';
-import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
-import 'datatables.net-responsive-bs4';
-import 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css';
-import 'datatables.net-staterestore-bs4';
-
 import "./adminlte3";
 import "./bootstrap";
 import Swal from 'sweetalert2';
