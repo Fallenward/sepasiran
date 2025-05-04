@@ -16,6 +16,7 @@ class HomeController extends Controller
         $sliders = Slider::all();
         $services = Service::all();
         $blogs = Blog::all();
+        $blog = Blog::first();
         $statistics = [
             ['title'=>'تعداد مربی','counter'=>'53'],
             ['title'=>'پرورش دهندگان','counter'=>'53'],
@@ -24,6 +25,6 @@ class HomeController extends Controller
         ];
         $bests = User::all();
 
-        return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests'));
+        return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests','blog'));
     }
 }

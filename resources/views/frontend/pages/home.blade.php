@@ -27,9 +27,59 @@
         <div class="mt-107"></div>
 
         <div class="container">
-            <div class="col-12 upper-box">
-                <x-swiper :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'card-with-date'"
-                          :ride="false" :enabledDesc="true" :enabledLink="true" :viewLink="'frontend.blogs.show'"/>
+            <div class="col-12 upper-box row">
+                <div class="col-12 col-md-6">
+                    <div class="card">
+                        <img src="{{asset($blog->image)}}" class="card-img-top img-fluid" alt="{{$blog->title}}">
+                        <div class="card-body">
+                            <p class="card-text">{{$blog->content}}</p>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .card{
+                        border-bottom: 4px solid #15499e;
+                    }
+                    img{
+                        object-fit: cover;
+                    }
+                </style>
+                <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-6" style="display:contents;">
+                        <div class="card mb-3">
+                            <div class="row g-0">
+                                <div class="col-md-4 d-flex">
+                                    <img src="{{asset($blog->image)}}" class="img-fluid rounded-start" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{$blog->title}}</h5>
+                                        <p class="card-text">{{$blog->content}}</p>
+                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-md-6" style="display:contents;">
+                        <div class="card mb-3">
+                            <div class="row g-0">
+                                <div class="col-md-4 d-flex">
+                                    <img src="{{asset($blog->image)}}" class="img-fluid rounded-start" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{$blog->title}}</h5>
+                                        <p class="card-text">{{$blog->content}}</p>
+                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
