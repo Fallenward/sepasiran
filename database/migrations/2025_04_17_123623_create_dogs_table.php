@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dogs', function (Blueprint $table) {
             $table->id();
-
+            $table->unsignedBigInteger('user_id');
             $table->string('title')->nullable();
             $table->string('color')->nullable();
             $table->integer('age')->nullable();

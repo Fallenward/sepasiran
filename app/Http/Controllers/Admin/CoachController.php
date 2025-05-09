@@ -106,7 +106,6 @@ class CoachController extends Controller
         $breeds = Breed::all();
         $specialties = Specialty::all();
 
-        // اعمال فیلترها بر اساس درخواست کاربر
         $query = Coach::query();
 
         if ($request->has('city')) {
@@ -121,8 +120,26 @@ class CoachController extends Controller
             $query->whereIn('specialty_id', $request->input('specialty'));
         }
 
-        $coaches = $query->get();
+        $coaches = $query->paginate(9); // Adjust number of items per page
 
-        return view('coaches.index', compact('coaches', 'cities', 'breeds', 'specialties'));
+        if ($request->ajax()) {
+            $html = view('coaches.partials.coach-cards', compact('coaches'))->render();
+            return response()->json([
+                'html' => $html,
+                'hasMore' => $coaches->hasMorePages(),
+                'nextPage' => $coaches->currentPage() + 1,
+            ]);
+        }
+
+        $filters = [
+            'city' => $cities,
+            'breed' => $breeds,
+            'specialty' => $specialties,
+        ];
+
+        return view('coaches.index', compact('coaches', 'filters'));
     }
+
+
+
 }

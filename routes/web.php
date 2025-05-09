@@ -46,6 +46,7 @@ Route::middleware(['auth', 'is_admin'])
         // داشبورد
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
+
         // منابع CRUD
         Route::resources([
             'users' => UserController::class,
@@ -85,7 +86,7 @@ Route::name('frontend.')->group(function () {
         Route::get('/', [SupportController::class, 'index'])->name('index');
     });
 
-    Route::get('/dog-supply', [DogSupplyController::class, 'indexFront'])->name('dog.supply.index');
+    Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
 
     Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
 
@@ -105,11 +106,11 @@ Route::name('frontend.')->group(function () {
 
 
     // Blogs
-    Route::get('/blogs', [FrontendBlogController::class, 'index'])->name('blogs.index');
-    Route::get('/blog/{slug}', [FrontendBlogController::class, 'show'])->name('blogs.show');
-    Route::get('/blog/category/{slug}', [FrontendBlogController::class, 'showBlogCategory'])->name('blogs.show.category');
-    Route::post('/blog/store-comment', [FrontendBlogController::class, 'storeComment'])->name('blogs.store.comment');
-    Route::post('/blog/{blogId}/rate', [FrontendBlogController::class, 'rateBlog']);
+    // Route::get('/blogs', [FrontendBlogController::class, 'index'])->name('blogs.index');
+    // Route::get('/blog/{slug}', [FrontendBlogController::class, 'show'])->name('blogs.show');
+    // Route::get('/blog/category/{slug}', [FrontendBlogController::class, 'showBlogCategory'])->name('blogs.show.category');
+    // Route::post('/blog/store-comment', [FrontendBlogController::class, 'storeComment'])->name('blogs.store.comment');
+    // Route::post('/blog/{blogId}/rate', [FrontendBlogController::class, 'rateBlog']);
 
 
     // Services

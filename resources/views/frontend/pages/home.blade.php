@@ -28,8 +28,8 @@
 
         <div class="container">
             <div class="col-12 upper-box">
-                <x-swiper :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'card-with-date'"
-                          :ride="false" :enabledDesc="true" :enabledLink="true" :viewLink="'frontend.blogs.show'"/>
+                <x-blogs-slider :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'card-with-date'"
+                          :ride="false" :enabledDesc="true" :enabledLink="true" :viewLink="'frontend.blog.show'"/>
             </div>
         </div>
     </section>
@@ -77,31 +77,26 @@
 
 
     {{-- ======================= Coverage Section ======================= --}}
+
+    {{-- ======================= End of Coverage Section ======================= --}}
+    <div class="mt-107"></div>
     <section class="coverage-section">
-        <div class="mt-107"></div>
-        <div class="container-fluid p-5">
-            <div class="row align-items-center">
-                <!-- col-7 with title, content, and button -->
-                <div class="col-md-7">
-                    <h2 class="mb-3 text-white">پناهگاه</h2>
-                    <x-title-divider></x-title-divider>
-                    <p class="my-4 text-white">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده
-                        از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای
-                        شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای
-                        زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم
-                        افزارها شناخت شود.</p>
-                    <a href="{{ route('frontend.shelter.index') }}" class="btn btn-light mb-4">مشاهده پناهگاه</a>
-
-                </div>
-
-                <!-- col-5 with image -->
-                <div class="col-md-5">
-                    <img src="{{ asset('images/shelther.png') }}" alt="Placeholder image" class="img-fluid rounded">
+        <div class="container-custom">
+            <div class="text-column">
+                <h2 class="mb-3 text-white">پناهگاه</h2>
+                <x-title-divider></x-title-divider>
+                <p class="my-4 text-white">
+                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است...
+                </p>
+                <a href="{{ route('frontend.shelter.index') }}" class="btn btn-light mb-4">مشاهده پناهگاه</a>
+            </div>
+            <div class="image-column">
+                <div class="image-wrapper">
+                    <img src="{{ asset('images/shelther.png') }}" alt="Shelter" class="dog-image">
                 </div>
             </div>
         </div>
     </section>
-    {{-- ======================= End of Coverage Section ======================= --}}
 
 
     {{-- ======================= Best Section ======================= --}}
@@ -117,7 +112,7 @@
         <div class="container">
             <div class="col-12 upper-box">
                 <x-swiper :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'bests'"
-                          :ride="false" :enabledDesc="false" :enabledLink="true" :viewLink="'frontend.blogs.show'"/>
+                          :ride="false" :enabledDesc="false" :enabledLink="true" :viewLink="'frontend.blog.show'"/>
             </div>
         </div>
     </section>
