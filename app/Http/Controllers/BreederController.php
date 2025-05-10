@@ -8,29 +8,40 @@ use Illuminate\Http\Request;
 
 class BreederController extends Controller
 {
+
     public function index(Request $request)
     {
-        // 1) Load the filter data
-        $cities = City::orderBy('name')->get();      // or City::pluck('name','id')
-        $breeds = Breed::orderBy('name')->get();
+        // Prepare filters for the sidebar component
+        $filters = [
+            'cities' => City::orderBy('name')->get(),
+            'breeds' => Breed::orderBy('name')->get(),
+            'sizes' => [
+                'mini' => 'کوچک (Mini)',
+                'medium' => 'متوسط (Medium)',
+                'large' => 'بزرگ (Large)',
+            ],
+        ];
 
-        // 2) Build your breeders query (apply filters if you want)
+        // Base query
         $query = Breed::query();
 
+        // Apply filters
         if ($request->filled('city')) {
-            $query->whereIn('city_id', $request->input('city'));
+            $query->whereIn('city_id', (array) $request->input('city'));
         }
+
         if ($request->filled('breed')) {
-            $query->whereIn('breed_id', $request->input('breed'));
+            $query->whereIn('breed_id', (array) $request->input('breed'));
         }
+
         if ($request->filled('size')) {
-            $query->whereIn('size', $request->input('size'));
+            $query->whereIn('size', (array) $request->input('size'));
         }
 
-        // 3) Paginate
-        $breeders = $query->paginate(12);
+        // Paginate results
+        $breeders = $query->latest()->paginate(12);
 
-        // 4) Pass everything into the view
-        return view('breeders.index', compact('cities', 'breeds', 'breeders'));
+        // Return view
+        return view('breeders.index', compact('filters', 'breeders'));
     }
 }

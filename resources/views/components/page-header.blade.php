@@ -1,5 +1,6 @@
 <div class="mb-5 p-5 {{ $extraClasses }}" style="background-color: {{ $bgColor }};">
-    <h1 class="fw-bold mb-2">{{ $title }}</h1>
+    <h1 class="fw-bold mb-2 text-center text-white">{{ $title }}</h1>
+
 
     @if(!empty($breadcrumbs))
         <nav aria-label="breadcrumb">

@@ -1,6 +1,4 @@
-@once
-@push('scripts')
-<script>
+<script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function () {
     const loadMoreBtn = document.getElementById('load-more');
     const dogsList = document.getElementById('dogs-list');
@@ -36,5 +34,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-@endpush
-@endonce
+

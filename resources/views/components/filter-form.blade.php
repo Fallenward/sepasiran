@@ -10,8 +10,10 @@
                     'city' => 'شهر',
                     'breed' => 'نژاد',
                     'specialty' => 'تخصص',
-                    'size' => 'اندازه'
+                    'size' => 'اندازه',
+                    'duration' => 'مدت زمان'
                 ][$filterKey] ?? ucfirst($filterKey);
+
 
                 $groupId = 'collapse_' . $filterKey;
                 $items = is_array($items) ? collect($items) : $items;
@@ -29,7 +31,8 @@
                                 data-bs-target="#{{ $groupId }}"
                                 aria-expanded="false"
                                 aria-controls="{{ $groupId }}">
-                            &gt;
+                            <i class="fa fa-arrow-left"></i>
+                            
                         </button>
                     @endif
                 </div>

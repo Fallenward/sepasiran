@@ -30,13 +30,18 @@ class ClinicInsuranceController extends Controller
         // etc...
 
         $insurances = $query->paginate(6);
+        $filters = [
+            'city'     => $cities,
+            'duration' => collect(array_keys($durations)), // چون durationها به صورت key => value هستند
+        ];
 
         // Pass everything into the view
         return view('clinic-insurance.index', compact(
             'cities',
             'breeds',
             'durations',
-            'insurances'
+            'insurances',
+            'filters'
         ));
     }
 }
