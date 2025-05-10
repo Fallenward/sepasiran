@@ -4,69 +4,118 @@
     use App\Helpers\GenralHelpers;
 @endphp
 
-<div class="container my-4">
+<style>
+    .img-rounded {
+        border-radius: 1rem;
+        object-fit: cover;
+    }
+
+    .overflow-hidden-rounded {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .img-fixed-size {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    @media (min-width: 992px) {
+        .feature-size {
+            width: 498px;
+            height: 498px;
+        }
+
+        /* Make the container relative for overlap */
+        .horizontal-card-size {
+            position: relative;
+            width: 498px;
+            height: 271px;
+        }
+
+        .horizontal-img {
+            width: 236px;
+            height: 100%;
+        }
+
+        /* Slide the text panel over the image */
+        .horizontal-card-size .text-panel {
+            position: relative;
+            margin-right: -100px;
+            z-index: 2;
+            width: calc(100% + 100px); /* extend to fill */
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .horizontal-card-size {
+            width: 90%;
+        }
+
+        .horizontal-img {
+            width: 100%;
+            height: 200px;
+            border-radius: 1rem 1rem 0 0 !important;
+        }
+
+        .horizontal-card-size .text-panel {
+            margin-left: 0;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-center gap-3 pt-5">
     @if($items->count() >= 1)
-        <div class="row">
-            <!-- Left Side: Large Feature Card -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    @if($items[0]->image)
-                        <img src="{{ asset($items[0]->image) }}" class="card-img-top feature-image-blog" alt="{{ $items[0]->title }}">
+        <!-- Left Feature Card -->
+        <div class="position-relative overflow-hidden-rounded feature-size">
+            <img src="{{ asset($items[0]->image) }}" class="w-100 h-90 img-rounded" alt="{{ $items[0]->title }}">
+            <div
+                class="position-absolute bottom-0 start-50 translate-middle-x w-75 mt-4"
+                onclick="window.location.href='{{ route($viewLink, $items[0]->slug) }}'"
+                style="cursor:pointer; z-index: 2;"
+            >
+                <div class="bg-white rounded shadow-lg p-3 border-bottom border-4 border-primary d-flex flex-column justify-content-between">
+                    @php
+                        $carbonDate = Carbon::parse($items[0]->created_at);
+                        $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
+                    @endphp
+                    <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt ms-1"></i></div>
+                    <div class="fw-bold fs-5">{{ $items[0]->title }}</div>
+                    @if($enabledDesc)
+                        <div class="text-muted small">{{ GenralHelpers::limitTextToTwoLines($items[0]->description) }}</div>
                     @endif
-                    <div class="card-body d-flex flex-column justify-content-between h-100">
-                        <h5 class="card-title">{{ $items[0]->title }}</h5>
-                        @if($enabledDesc)
-                            <p class="card-text">{{ GenralHelpers::limitTextToTwoLines($items[0]->description) }}</p>
-                        @endif
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right List Cards -->
+        <div class="d-flex flex-column gap-3">
+            @foreach($items->slice(1, 2) as $item)
+                <div class="overflow-hidden-rounded horizontal-card-size d-flex flex-lg-row flex-column">
+                    <img src="{{ asset($item->image) }}" class="img-rounded horizontal-img" alt="{{ $item->title }}">
+
+                    <!-- Add a wrapper with class .text-panel -->
+                    <div
+                        class="text-panel flex-grow-1 p-3 d-flex align-items-center"
+                        onclick="window.location.href='{{ route($viewLink, $item->slug) }}'"
+                        style="cursor: pointer;"
+                    >
+                        <div class="bg-white rounded shadow-lg p-3 border-bottom border-4 border-primary w-100">
                             @php
-                                $carbonDate = Carbon::parse($items[0]->created_at);
+                                $carbonDate = Carbon::parse($item->created_at);
                                 $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
                             @endphp
-                            <small>{{ $persianDate }} <i class="fa fa-calendar-alt"></i></small>
-                            @if($enabledLink)
-                                <a href="{{ route($viewLink, $items[0]->slug) }}" class="btn btn-sm btn-primary">مشاهده</a>
+                            <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt"></i></div>
+                            <div class="fw-bold fs-5">{{ $item->title }}</div>
+                            @if($enabledDesc)
+                                <div class="text-muted small">{{ GenralHelpers::limitTextToTwoLines($item->description) }}</div>
                             @endif
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Right Side: Two Smaller Cards -->
-            <div class="col-md-6">
-                @foreach($items->slice(1, 2) as $item)
-                    <div class="card mb-4">
-                        @if($item->image)
-                            <img src="{{ asset($item->image) }}" class="card-img-top feature-image-blog" alt="{{ $item->title }}">
-                        @endif
-                        <div class="card-body d-flex flex-column justify-content-between h-100">
-                            <h6 class="card-title">{{ $item->title }}</h6>
-                            @if($enabledDesc)
-                                <p class="card-text small">{{ GenralHelpers::limitTextToTwoLines($item->description) }}</p>
-                            @endif
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                @php
-                                    $carbonDate = Carbon::parse($item->created_at);
-                                    $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
-                                @endphp
-                                <small>{{ $persianDate }} <i class="fa fa-calendar-alt"></i></small>
-                                @if($enabledLink)
-                                    <a href="{{ route($viewLink, $item->slug) }}" class="btn btn-sm btn-outline-primary">مشاهده</a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    <!-- Optional Pagination -->
-    @if($items->count() > 3)
-        <div class="row">
-            <div class="col-12 text-center">
-                {{ $items->links() }}
-            </div>
+            @endforeach
         </div>
     @endif
 </div>

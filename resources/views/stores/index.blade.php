@@ -5,8 +5,8 @@
 @section('content')
 
     <!-- بخش عنوان و نوار مسیریابی -->
-    <div class="mb-5 p-5 text-center text-white rounded" style="background-color: #5a8dee;">
-        <h1 class="fw-bold mb-2">پناهگاه</h1>
+    <div class="mb-5 p-5 text-center text-white rounded" style="background-color: #0D47A1;">
+        <h1 class="fw-bold mb-2">فروشگاه</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center bg-transparent mb-0">
                 <li class="breadcrumb-item">
@@ -22,51 +22,58 @@
     <div class="container">
         <div class="row">
             <!-- بخش فیلتر سمت راست -->
-            <div class="col-md-4"> <!-- اینجا عرض 1/3 صفحه را اختصاص داده‌ایم -->
-                <div class="p-3 bg-light rounded mb-4">
+            <aside class="col-lg-4 col-md-5 col-12 mb-4">
+                <div class="collapse d-md-block" id="filterPanel">
+                  <div class="p-3 bg-light rounded w-100" style="direction: rtl; max-width: 350px;">
                     <h5 class="fw-bold">فیلترها</h5>
 
-                    <!-- فیلتر شهر -->
-                    <div class="mb-3">
-                        <h6>دسته بندی لوازم</h6>
-                        <div>
-                            <input type="checkbox" id="shiraz" value="shiraz">
-                            <label for="shiraz" class="ms-2">لوازم سرگرمی سگ</label>
+                    <!-- دسته بندی لوازم -->
+                    <div class="mb-4 border rounded p-2">
+                      <h6 class="text-white px-2 py-1 rounded" style="background-color: #0d47a1;">دسته بندی لوازم</h6>
+                      @foreach([
+                        'entertainment' => 'لوازم سرگرمی سگ',
+                        'training'      => 'لوازم آموزشی سگ',
+                        'lorem1'        => 'لورم',
+                        'lorem2'        => 'لورم'
+                      ] as $value => $label)
+                        <div class="form-check d-flex justify-content-between align-items-center mb-2">
+                          <label class="form-check-label me-2 text-nowrap" for="cat_{{ $value }}">{{ $label }}</label>
+                          <input class="form-check-input"
+                                 type="checkbox"
+                                 id="cat_{{ $value }}"
+                                 name="category[]"
+                                 value="{{ $value }}"
+                                 {{ in_array($value, request('category', [])) ? 'checked' : '' }}>
                         </div>
-                        <div>
-                            <input type="checkbox" id="isfahan" value="isfahan">
-                            <label for="isfahan" class="ms-2">لوازم اموزشی سگ</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="tehran" value="tehran">
-                            <label for="tehran" class="ms-2">لورم</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="tehran" value="tehran">
-                            <label for="tehran" class="ms-2">لورم</label>
-                        </div>
+                      @endforeach
                     </div>
 
+                    <!-- اندازه سگ -->
+                    <div class="mb-4 border rounded p-2">
+                      <h6 class="text-white px-2 py-1 rounded" style="background-color: #0d47a1;">اندازه سگ</h6>
+                      @foreach([
+                        'mini'   => 'کوچک (Mini)',
+                        'medium' => 'متوسط (Medium)',
+                        'large'  => 'بزرگ (Large)'
+                      ] as $value => $label)
+                        <div class="form-check d-flex justify-content-between align-items-center mb-2">
+                          <label class="form-check-label me-2" for="size_{{ $value }}">{{ $label }}</label>
+                          <input class="form-check-input"
+                                 type="checkbox"
+                                 id="size_{{ $value }}"
+                                 name="size[]"
+                                 value="{{ $value }}"
+                                 {{ in_array($value, request('size', [])) ? 'checked' : '' }}>
+                        </div>
+                      @endforeach
+                    </div>
+
+                    <form method="GET" action="{{ route('frontend.stores.index') }}">
+                      <button type="submit" class="btn btn-primary btn-sm w-100">اعمال فیلترها</button>
+                    </form>
+                  </div>
                 </div>
-
-
-                <!-- فیلتر اندازه سگ -->
-                <div class="p-3 bg-light rounded">
-                    <h6>اندازه سگ</h6>
-                    <div>
-                        <input type="checkbox" id="mini" value="mini">
-                        <label for="mini" class="ms-2">کوچک (Mini)</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="medium" value="medium">
-                        <label for="medium" class="ms-2">متوسط (Medium)</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="large" value="large">
-                        <label for="large" class="ms-2">بزرگ (Large)</label>
-                    </div>
-                </div>
-            </div>
+              </aside>
 
             <!-- بخش نمایش سگ‌ها سمت چپ -->
             <div class="col-md-8"> <!-- اینجا عرض 2/3 صفحه را اختصاص داده‌ایم -->

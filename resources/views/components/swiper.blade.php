@@ -1,3 +1,4 @@
+
 @php
     use Carbon\Carbon;
     use Morilog\Jalali\Jalalian;
@@ -89,37 +90,8 @@
                             </div>
                         </div>
                     @elseif($type === 'card-with-date')
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-12">
-                                <div class="card">
-                                    @if($item->image)
-                                        <img src="{{ asset($item->image) }}" class="card-img-top feature-image-blog"
-                                             alt="{{ $item->title }}">
-                                    @endif
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ $item->title }}</h5>
-                                        @if($enabledDesc)
-                                            <p class="text-justify">{{ GenralHelpers::limitTextToTwoLines($item->description) }}</p>
-                                        @endif
-                                        @if($enabledLink)
-                                            <div class="col-12 justify-content-between d-flex align-items-baseline">
-                                                @php
-                                                    $carbonDate = Carbon::parse($item->created_at);
-                                                    $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
-                                                @endphp
-                                                <div>
-                                                    <span>{{ $persianDate }} <i class="fa fa-calendar-alt"></i></span>
-                                                </div>
-                                                @if($enabledLink)
-                                                    <a href="{{ route($viewLink, $item->slug) }}"
-                                                       class="btn btn-primary">مشاهده</a>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <x-blogs-slider :items="$blogs" :enabledDesc="true" :enabledLink="true" viewLink="blogs.show" />
+
                     @elseif($type === 'bests')
                         <div class="row d-flex justify-content-center">
                             <div class="col-12">

@@ -15,8 +15,7 @@ class HomeController extends Controller
         $title='سپاس ایران';
         $sliders = Slider::all();
         $services = Service::all();
-        $blogs = Blog::all();
-        $blog = Blog::first();
+        $blogs = Blog::orderby('created_at')->take(3)->get();
         $statistics = [
             ['title'=>'تعداد مربی','counter'=>'53'],
             ['title'=>'پرورش دهندگان','counter'=>'53'],
@@ -25,6 +24,6 @@ class HomeController extends Controller
         ];
         $bests = User::all();
 
-        return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests','blog'));
+        return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests'));
     }
 }
