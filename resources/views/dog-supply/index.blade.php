@@ -41,5 +41,8 @@
 
 <!-- Scripts -->
 <x-scripts.filter-submit />
-<x-scripts.load-more-dogs /
+
+
+<x-scripts.load-more-dogs />
+
 @endsection
