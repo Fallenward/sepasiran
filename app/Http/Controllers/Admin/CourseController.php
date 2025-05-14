@@ -82,4 +82,18 @@ class CourseController extends Controller
         return Redirect::route('admin.courses.index')
             ->with('success', 'Course deleted successfully');
     }
+
+    public function showById($id)
+    {
+        $course = Course::with('curriculum', 'reviews.user')->find($id);
+
+        if (!$course) {
+            abort(404, 'Course not found');
+        }
+
+        $popularCourses = Course::where('is_featured', true)->take(5)->get(); // Example for popular courses
+
+        return view('fronted.course.show', compact('course', 'popularCourses'));
+    }
+
 }

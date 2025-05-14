@@ -10,4 +10,6 @@ class OnlineCourseController extends Controller
     {
         return view('online-courses.index'); // اینجا به نمای آنلاین کورس‌ها ارجاع می‌دهیم
     }
+
+
 }

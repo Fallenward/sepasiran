@@ -88,7 +88,11 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
                         <i class="fas fa-user"></i>
-                        {{ Auth::user()->name }}
+                        @if (Auth::check())
+                            {{ Auth::user()->name }}
+                        @else
+                            Guest
+                        @endif
                     </a>
                     <div class="dropdown-menu dropdown-menu-left" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="#">پروفایل</a>

@@ -53,7 +53,7 @@ class BlogController extends Controller
         $post = Post::findOrFail($id);
 
         // بازگشت به ویو و ارسال پست
-        return view('admin.blog.show', compact('post'));
+        return view('blog.show', compact('post'));
     }
 
     /**

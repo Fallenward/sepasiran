@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('title')->nullable();
             $table->string('color')->nullable();
+            $table->string('status')->nullable();
             $table->integer('age')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('cover_type')->nullable();

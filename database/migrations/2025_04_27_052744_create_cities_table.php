@@ -10,12 +10,13 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-    {
+        {
         Schema::create('cities', function (Blueprint $table) {
             $table->id(); // به طور پیش‌فرض این نوع 'bigIncrements' است
             $table->string('name');
             $table->timestamps();
         });
+
     }
 
 
