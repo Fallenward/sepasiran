@@ -4,6 +4,7 @@ window.Swiper = Swiper;
 import 'bootstrap';
 import '@popperjs/core';
 import Swal from 'sweetalert2';
+
 window.Swal = Swal;
 
 

@@ -1,6 +1,5 @@
 import "@fortawesome/fontawesome-free/css/all.css";
 import "bootstrap";
-
 import "./adminlte3";
 import "./bootstrap";
 import Swal from 'sweetalert2';

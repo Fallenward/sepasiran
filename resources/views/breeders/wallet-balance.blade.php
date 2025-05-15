@@ -184,9 +184,11 @@
     </nav>
 </div>
 
+<!-- Chartjs -->
+<script src="{{asset('assets/js/chart.js')}}"></script>
+
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<script defer>
     const ctx = document.getElementById('incomeChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',

@@ -47,6 +47,75 @@
             </div>
         </div>
 
+
+                </div>
+
+        <!-- Title -->
+        <h5 class="text-start mb-3">جلسات من</h5>
+
+        <!-- Courses Section -->
+        <div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
+            <!-- Repeatable Course Card -->
+            <div class="row g-0 align-items-center mb-3 bg-white" style="border-radius: 12px; overflow: hidden;">
+                <div class="col-12 col-md-9 p-3 text-end">
+                    <span class="badge bg-primary mb-2">فعال</span>
+                    <h5 class="card-title">دوره حفاظت و نگهبانی</h5>
+                    <p class="card-text text-muted small">
+                        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است
+                    </p>
+                    <div class="row text-muted small">
+                        <div class="col-6 col-sm-6 col-md-3">قیمت دوره: 100,000 تومان</div>
+                        <div class="col-6 col-sm-6 col-md-3">تعداد شرکت‌کنندگان: 35 نفر</div>
+                        <div class="col-6 col-sm-6 col-md-3">تاریخ شروع و پایان: 3 شهریور 1403 تا 15 آبان 1403</div>
+                        <div class="col-6 col-sm-6 col-md-3">وضعیت دوره: در حال برگزاری</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 text-center p-3">
+                    <img src="your-image.jpg" class="img-fluid rounded-end" alt="course image" style="max-height: 100px;">
+                </div>
+            </div>
+            <!-- /Course Card -->
+
+            <div class="text-center mt-3">
+                <a href="#" class="text-white text-decoration-none">مشاهده بیشتر ^</a>
+            </div>
+        </div>
+
+
+            <h6 class="mb-2">لیست مربیان ثبت شده قبلی</h6>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>نام مربی</th>
+                    <th>شهر</th>
+                    <th>نژاد</th>
+                    <th>رشته تخصصی</th>
+                    <th>توضیحات</th>
+                    <th>اقدام</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
+                    <tr>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ Str::limit($user->description, 50) }}</td>
+                        <td>
+                            <form method="POST" action="{{ route('admin.coaches.destroy', $user->id) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger">حذف</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
         <!-- Shortcuts Section -->
 
         <div class="row text-center mb-4">

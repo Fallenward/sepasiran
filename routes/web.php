@@ -139,8 +139,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 });
 
 Route::middleware(['auth'])->group(function () {
+    // Route::get('/coaches-dashboard', [CoachController::class, 'dashboard'])->name('coaches.dashboard');
     Route::get('/coaches-listing', [CoachController::class, 'listing'])->name('coaches.listing');
     Route::get('/coaches/create', [CoachController::class, 'createList'])->name('coaches.create');
     Route::post('/coaches/store', [CoachController::class, 'storeList'])->name('coaches.store');
     Route::delete('/coaches/{id}', [CoachController::class, 'destroyList'])->name('coaches.destroy');
+    Route::get('/coaches/wallet', [CoachController::class, 'coachWallet' ])->name('cpaches.wallet');
+});
+
+
+Route::prefix('admin/clinics')->middleware(['auth'])->group(function () {
+    Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('admin.clinics.wallet');
+    Route::get('dashboard', [ClinicController::class, 'dashboard'])->name('admin.clinics.dashboard');
 });

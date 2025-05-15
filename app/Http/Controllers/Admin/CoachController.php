@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\Coach;
 use App\Models\Dog;
 use App\Models\Specialty;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -257,6 +258,32 @@ public function dashboard()
 
         return redirect()->route('coaches.index')->with('success', 'Coach deleted successfully');
     }
+
+    public function coachWallet()
+{
+    $userId = auth()->id();
+
+    $transactions = Transaction::where('user_id', $userId)->latest()->get();
+
+    $walletBalance = $transactions->where('status', 'completed')->sum('amount');
+
+    $monthlyTransactions = $transactions->filter(function ($transaction) {
+        return $transaction->created_at->isCurrentMonth();
+    });
+
+    $monthlyIncome = $monthlyTransactions->where('amount', '>', 0)->sum('amount');
+    $monthlyExpense = $monthlyTransactions->where('amount', '<', 0)->sum('amount');
+    $netProfit = $monthlyIncome + $monthlyExpense;
+
+    return view('admin.coaches.wallet-balance', [
+        'transactions' => $transactions,
+        'walletBalance' => $walletBalance,
+        'monthlyIncome' => $monthlyIncome,
+        'monthlyExpense' => abs($monthlyExpense),
+        'netProfit' => $netProfit,
+    ]);
+}
+
 }
 
 
