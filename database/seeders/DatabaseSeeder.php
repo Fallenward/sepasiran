@@ -167,6 +167,7 @@ class DogSeeder extends Seeder
         $faker = Faker::create('fa_IR');
         foreach (range(1, 30) as $i) {
             DB::table('dogs')->insert([
+                'user_id'       => 1,
                 'title'       => $faker->firstName,
                 'color'       => $faker->safeColorName,
                 'age'         => rand(1, 10),

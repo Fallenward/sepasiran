@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete(); // self-referencing
+            $table->unsignedBigInteger('parent_id')->nullable()->constrained('categories')->nullOnDelete(); // self-referencing
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
