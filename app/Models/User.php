@@ -34,6 +34,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'name', 'email', 'password', 'is_admin'
     ];
 
+        public function coach()
+    {
+        return $this->hasOne(Coach::class);
+    }
+
+
 
     /**
      * The attributes that should be cast to native types.

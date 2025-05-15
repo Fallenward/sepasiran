@@ -31,6 +31,9 @@ class Transaction extends Model
 
     protected $perPage = 20;
 
+    protected $table = 'transactions'; // Change this to your actual table name if it's different
+
+
     /**
      * The attributes that are mass assignable.
      *

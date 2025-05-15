@@ -46,6 +46,7 @@ Route::middleware(['auth', 'is_admin'])
         // داشبورد
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
+        Route::get('/dashboard-breeders', [BreederController::class, 'dashboard'])->name('breeders.dashboard');
 
         // منابع CRUD
         Route::resources([
@@ -105,12 +106,7 @@ Route::name('frontend.')->group(function () {
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
 
-    // Blogs
-    // Route::get('/blogs', [FrontendBlogController::class, 'index'])->name('blogs.index');
-    // Route::get('/blog/{slug}', [FrontendBlogController::class, 'show'])->name('blogs.show');
-    // Route::get('/blog/category/{slug}', [FrontendBlogController::class, 'showBlogCategory'])->name('blogs.show.category');
-    // Route::post('/blog/store-comment', [FrontendBlogController::class, 'storeComment'])->name('blogs.store.comment');
-    // Route::post('/blog/{blogId}/rate', [FrontendBlogController::class, 'rateBlog']);
+    Route::get('course/{id}', [CourseController::class, 'showById'])->name('courses.show');
 
 
     // Services
@@ -119,4 +115,32 @@ Route::name('frontend.')->group(function () {
     Route::get('/service/category/{slug}', [FrontendServiceController::class, 'showServiceCategory'])->name('services.show.category');
     Route::post('/service/store-comment', [FrontendServiceController::class, 'storeComment'])->name('services.store.comment');
     Route::post('/service/{serviceId}/rate', [FrontendServiceController::class, 'rateService']);
+});
+
+Route::get('/dashboard-breeders', [BreederController::class, 'dashboard'])->name('breeders.dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/breeder/profile', [BreederController::class, 'profile'])->name('profile');
+    Route::post('/profile', [BreederController::class, 'updateProfile']);
+});
+Route::get('/breeder/dogs-listing', [BreederController::class, 'dogsListing'])->name('breeder.dogs.listing');
+Route::get('/breeder/dashboard-create', [BreederController::class, 'create'])->name('breeders.dashboard-create');
+Route::post('/breeder/dashboard/store', [BreederController::class, 'store'])->name('breeders.dashboard-store');
+Route::get('/breeder/wallet', [BreederController::class, 'wallet'])->name('breeders.wallet');
+
+
+Route::get('/coaches/dashboard', [CoachController::class, 'dashboard'])->name('coaches.dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/coach/profile', [CoachController::class, 'editProfile'])->name('coach.profile.edit');
+    Route::post('/coach/profile', [CoachController::class, 'updateProfile'])->name('coach.profile.update');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::resource('coaches', CoachController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/coaches-listing', [CoachController::class, 'listing'])->name('coaches.listing');
+    Route::get('/coaches/create', [CoachController::class, 'createList'])->name('coaches.create');
+    Route::post('/coaches/store', [CoachController::class, 'storeList'])->name('coaches.store');
+    Route::delete('/coaches/{id}', [CoachController::class, 'destroyList'])->name('coaches.destroy');
 });

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Coach;
-use App\Models\City;
 use App\Models\Breed;
+use App\Models\City;
+use App\Models\Coach;
+use App\Models\Dog;
 use App\Models\Specialty;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class CoachController extends Controller
 {
@@ -100,46 +103,161 @@ class CoachController extends Controller
     }
 
 
-    public function indexFront(Request $request)
+
+public function indexFront(Request $request)
+{
+    $cities = City::all();
+    $breeds = Breed::all();
+    $specialties = Specialty::all();
+
+    $query = Coach::with(['user', 'city', 'breed', 'specialty'])
+        ->whereHas('user', function ($q) {
+            $q->where('role', 'coach');
+        });
+
+    if ($request->filled('city')) {
+        $query->whereIn('city_id', $request->input('city'));
+    }
+
+    if ($request->filled('breed')) {
+        $query->whereIn('breed_id', $request->input('breed'));
+    }
+
+    if ($request->filled('specialty')) {
+        $query->whereIn('specialty_id', $request->input('specialty'));
+    }
+
+    $coaches = $query->paginate(9);
+
+    if ($request->ajax()) {
+        $html = view('coaches.partials.coach-cards', compact('coaches'))->render();
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $coaches->hasMorePages(),
+            'nextPage' => $coaches->currentPage() + 1,
+        ]);
+    }
+
+    $filters = [
+        'city' => $cities,
+        'breed' => $breeds,
+        'specialty' => $specialties,
+    ];
+
+  return view('coaches.index', compact('coaches', 'filters'));
+}
+
+public function dashboard()
+
     {
-        $cities = City::all();
-        $breeds = Breed::all();
-        $specialties = Specialty::all();
+        // Get the authenticated user and any necessary data
+        $users = User::all();
+        // Example: You can fetch a count of dogs or any other relevant data
+        $dogsCount = Dog::count();  // You can fetch dogs that belong to this coach if applicable
 
-        $query = Coach::query();
-
-        if ($request->has('city')) {
-            $query->whereIn('city_id', $request->input('city'));
-        }
-
-        if ($request->has('breed')) {
-            $query->whereIn('breed_id', $request->input('breed'));
-        }
-
-        if ($request->has('specialty')) {
-            $query->whereIn('specialty_id', $request->input('specialty'));
-        }
-
-        $coaches = $query->paginate(9); // Adjust number of items per page
-
-        if ($request->ajax()) {
-            $html = view('coaches.partials.coach-cards', compact('coaches'))->render();
-            return response()->json([
-                'html' => $html,
-                'hasMore' => $coaches->hasMorePages(),
-                'nextPage' => $coaches->currentPage() + 1,
-            ]);
-        }
-
-        $filters = [
-            'city' => $cities,
-            'breed' => $breeds,
-            'specialty' => $specialties,
-        ];
-
-        return view('coaches.index', compact('coaches', 'filters'));
+        return view('coaches.dashboard', compact('users', 'dogsCount'));
     }
 
 
+        public function editProfile()
+    {
+        $users = User::all();
+        $breeds = Breed::all();
 
+        return view('coaches.profile', compact('users', 'breeds'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth()->user;
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email,' . $user->id,
+            'national_id'=> 'nullable|string|max:10',
+            'phone'      => 'nullable|string|max:11',
+            'password'   => 'nullable|string|min:6|confirmed',
+
+            'breeder_name'     => 'nullable|string|max:255',
+            'business_address' => 'nullable|string|max:255',
+            'business_phone'   => 'nullable|string|max:11',
+            'breeder_type'     => 'nullable|string|max:255',
+            'bank_info'        => 'nullable|string|max:255',
+        ]);
+
+        // Update fields
+        $user->fill($validated);
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('coach.profile.edit')->with('success', 'پروفایل با موفقیت به‌روزرسانی شد.');
+    }
+
+        public function listing(Request $request)
+    {
+        $query = Coach::query();
+
+        // Filter by breed, gender, and other parameters
+        if ($request->has('breed')) {
+            $query->where('breed_id', $request->breed);
+        }
+
+        if ($request->has('city')) {
+            $query->where('city_id', $request->city);
+        }
+
+        if ($request->has('specialty')) {
+            $query->where('specialty_id', $request->specialty);
+        }
+
+        $coaches = $query->get();
+
+        $breeds = Breed::all();
+        $cities = City::all();
+        $specialties = Specialty::all();
+
+        return view('coaches.listing', compact('coaches', 'breeds', 'cities', 'specialties'));
+    }
+
+    // Show form to create a new coach
+    public function createList()
+    {
+        $breeds = Breed::all();
+        $cities = City::all();
+        $specialties = Specialty::all();
+
+        return view('admin.coaches.create', compact('breeds', 'cities', 'specialties'));
+    }
+
+    // Store a new coach in the database
+    public function storelist(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'city_id' => 'required|exists:cities,id',
+            'breed_id' => 'required|exists:breeds,id',
+            'specialty_id' => 'required|exists:specialties,id',
+            'description' => 'required|string',
+        ]);
+
+        Coach::create($request->all());
+
+        return redirect()->route('coaches.index')->with('success', 'Coach created successfully');
+    }
+
+    // Delete a coach
+    public function destroyList($id)
+    {
+        $coach = Coach::findOrFail($id);
+        $coach->delete();
+
+        return redirect()->route('coaches.index')->with('success', 'Coach deleted successfully');
+    }
 }
+
+
+

@@ -20,45 +20,32 @@
     </div> --}}
 
     <!-- بخش اطلاعات پناهگاه -->
-<div class="container mb-5">
-    <div class="row g-4">
-        <!-- Card 1: Shelter Info with Button -->
- <div class="container my-5">
-    <div class="row g-4">
-        <!-- Card 1: Shelter Info with Button -->
-        <div class="col-md-6">
-            <div class="card shadow-sm p-4" style="min-height: 500px;">
-                <div class="card-body d-flex flex-column justify-content-between h-100">
-                    <div>
-                        <h3 class="fw-bold mb-4">اطلاعات پناهگاه</h3>
-                        <p>
-                            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است،
-                            چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز،
-                            و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می‌باشد...
-                        </p>
-                    </div>
-                    <div class="mt-4">
-                        <a href="{{ route('frontend.shelter.index') }}" class="btn btn-primary">
-                            مشاهده تصاویر
-                        </a>
-                    </div>
+<div class="container my-5">
+    <div class="card shadow-sm p-4" style="min-height: 500px;">
+        <div class="row g-4">
+            <!-- Text Section -->
+            <div class="col-md-6 d-flex flex-column justify-content-between">
+                <div>
+                    <h3 class="fw-bold mb-4">اطلاعات پناهگاه</h3>
+                    <p>
+                        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است،
+                        چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز،
+                        و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می‌باشد...
+                    </p>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{{ route('frontend.shelter.index') }}" class="btn btn-primary">
+                        مشارکت در پناهگاه
+                    </a>
+                    <a href="{{ route('frontend.shelter.index') }}" class="btn btn-outline-primary">
+                        مشاهده تصاویر
+                    </a>
                 </div>
             </div>
-        </div>
 
-        <!-- Card 2: Shelter Image -->
-        <div class="col-md-6">
-            <div class="card shadow-sm p-4 d-flex align-items-center justify-content-center" style="min-height: 500px;">
-                <img src="{{ asset('storage/dogPicture.jpg') }}" class="img-fluid rounded" alt="تصویر پناهگاه">
-            </div>
-        </div>
-    </div>
-</div>
-
-        <!-- Card 2: Shelter Image Only -->
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm p-4"> <!-- Add padding inside the card -->
-                <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top img-fluid rounded" alt="تصویر پناهگاه">
+            <!-- Image Section -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="{{ asset('storage/dogPicture.jpg') }}" class="img-fluid rounded-4 shadow-sm" alt="تصویر پناهگاه" style="max-width: 100%; height: auto;">
             </div>
         </div>
     </div>
@@ -70,68 +57,85 @@
 <section class="services-section my-5">
     <div class="container">
         <div class="row g-4">
-            <!-- Service Card 1 -->
+            <!-- Card 1 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-3">پذیرش سگ‌ بی‌سرپرست</h5>
-                        <p class="card-text">
-                            این سرویس مخصوص سگ‌هایی است که بی‌سرپرست بوده و نیاز به پناهگاه، غذا و مراقبت‌های اولیه دارند.
-                        </p>
-                        <a href="{{ route('frontend.services.show', 1) }}" class="btn btn-outline-primary mt-auto">
-                            مشاهده بیشتر
-                        </a>
+                    <div class="card-body">
+                        <!-- Title and Button Row -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">پذیرش سگ‌ بی‌سرپرست</h5>
+                            <a href="{{ route('frontend.services.show', 1) }}" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                        </div>
+                        <!-- Content -->
+                        <div class="d-flex align-items-center">
+                            <img src="{{ asset('storage/icons/adoption.svg') }}" alt="آیکون پذیرش" style="width: 40px; height: 40px;" class="me-3">
+                            <p class="mb-0">
+                                این سرویس مخصوص سگ‌هایی است که بی‌سرپرست بوده و نیاز به پناهگاه، غذا و مراقبت‌های اولیه دارند.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Service Card 2 -->
+            <!-- Card 2 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-3">واکسیناسیون و معاینات پزشکی</h5>
-                        <p class="card-text">
-                            ارائه خدمات بهداشتی از جمله واکسن‌ها و بررسی‌های دوره‌ای برای حفظ سلامت سگ‌ها.
-                        </p>
-                        <a href="{{ route('frontend.services.show', 2) }}" class="btn btn-outline-primary mt-auto">
-                            مشاهده بیشتر
-                        </a>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">واکسیناسیون و معاینات پزشکی</h5>
+                            <a href="{{ route('frontend.services.show', 2) }}" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ asset('storage/icons/vaccine.svg') }}" alt="آیکون واکسن" style="width: 40px; height: 40px;" class="me-3">
+                            <p class="mb-0">
+                                ارائه خدمات بهداشتی از جمله واکسن‌ها و بررسی‌های دوره‌ای برای حفظ سلامت سگ‌ها.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Service Card 3 -->
+            <!-- Card 3 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-3">فرآیند واگذاری سگ</h5>
-                        <p class="card-text">
-                            اگر قصد دارید سگی را به سرپرستی بگیرید، این سرویس مراحل کامل پذیرش را برای شما توضیح می‌دهد.
-                        </p>
-                        <a href="{{ route('frontend.services.show', 3) }}" class="btn btn-outline-primary mt-auto">
-                            مشاهده بیشتر
-                        </a>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">فرآیند واگذاری سگ</h5>
+                            <a href="{{ route('frontend.services.show', 3) }}" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ asset('storage/icons/adoption-process.svg') }}" alt="آیکون واگذاری" style="width: 40px; height: 40px;" class="me-3">
+                            <p class="mb-0">
+                                اگر قصد دارید سگی را به سرپرستی بگیرید، این سرویس مراحل کامل پذیرش را برای شما توضیح می‌دهد.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Service Card 4 -->
+            <!-- Card 4 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-3">آموزش و رفتارشناسی</h5>
-                        <p class="card-text">
-                            ارائه خدمات آموزشی برای تربیت بهتر سگ‌ها و اصلاح رفتارهای نامطلوب آن‌ها.
-                        </p>
-                        <a href="{{ route('frontend.services.show', 4) }}" class="btn btn-outline-primary mt-auto">
-                            مشاهده بیشتر
-                        </a>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">آموزش و رفتارشناسی</h5>
+                            <a href="{{ route('frontend.services.show', 4) }}" class="btn btn-outline-primary btn-sm">مشاهده</a>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ asset('storage/icons/training.svg') }}" alt="آیکون آموزش" style="width: 40px; height: 40px;" class="me-3">
+                            <p class="mb-0">
+                                ارائه خدمات آموزشی برای تربیت بهتر سگ‌ها و اصلاح رفتارهای نامطلوب آن‌ها.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
+
+
 
 
 

@@ -15,4 +15,15 @@ class DogOrderController extends Controller
     {
         return redirect()->route('frontend.dog.order')->with('success', 'سفارش با موفقیت ثبت شد!');
     }
+        public function dashboard()
+    {
+        return view('breeders.dashboard');
+    }
+
+    // 🆕 Optional new function: orders
+    public function orders()
+    {
+        // later you can pass order data if needed
+        return view('breeders.orders');
+    }
 }

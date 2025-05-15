@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Coach extends Model
 {
     use HasFactory;
+        public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 
     // تعریف روابط
     public function city()
@@ -24,4 +29,10 @@ class Coach extends Model
     {
         return $this->belongsTo(Specialty::class);
     }
+
+    public function courses()
+{
+    return $this->hasMany(Course::class);
+}
+
 }

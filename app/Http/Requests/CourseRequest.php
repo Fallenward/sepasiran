@@ -25,15 +25,17 @@ class CourseRequest extends FormRequest
 			'title' => 'required|string',
 			'slug' => 'required|string',
 			'short_description' => 'string',
+			'description' => 'string',
 			'thumbnail' => 'string',
 			'instructor_id' => 'required',
 			'price' => 'required',
-			'status' => 'required',
+			'status' => 'required|string',
 			'is_featured' => 'required',
 			'has_certificate' => 'required',
 			'language' => 'required|string',
 			'video_demo_url' => 'string',
 			'view_count' => 'required',
+			'is_active' => 'required',
         ];
     }
 }
