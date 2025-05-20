@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->decimal('price', 10, 2);
             $table->decimal('discount_price', 10, 2)->nullable();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
 
             $table->unsignedInteger('stock')->default(0);
             $table->boolean('is_active')->default(true);

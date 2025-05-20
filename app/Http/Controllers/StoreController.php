@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\Dog;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,6 +16,7 @@ class StoreController extends Controller
             ->when($request->filled('category'), fn($q) => $q->whereIn('category', $request->input('category')))
             ->paginate(9);
 
+        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
         $filters = [
             'size' => ['mini' => 'کوچک', 'medium' => 'متوسط', 'large' => 'بزرگ'],
             'category' => [
@@ -25,6 +27,6 @@ class StoreController extends Controller
             ]
         ];
 
-        return view('stores.index', compact('dogs', 'filters'));
+        return view('stores.index', compact('dogs', 'filters', 'blogs'));
     }
 }

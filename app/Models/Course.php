@@ -55,11 +55,10 @@ namespace App\Models;
     // {
     //     return $this->hasMany(Review::class);
     // }
-
-        public function coach()
-    {
-        return $this->belongsTo(Coach::class);
+    public function users(){
+        return $this->belongsTo(User::class,'user_id');
     }
+
 
     public function level()
 {

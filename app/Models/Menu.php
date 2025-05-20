@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Menu extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -34,9 +34,13 @@ class Menu extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function menuses()
-    {
-        return $this->hasMany(\App\Models\Menu::class, 'id', 'parent_id');
+
+    public function parent() {
+        return $this->belongsTo(Menu::class, 'parent_id');
     }
-    
+
+    public function children() {
+        return $this->hasMany(Menu::class, 'parent_id');
+    }
+
 }

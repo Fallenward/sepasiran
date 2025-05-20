@@ -16,7 +16,6 @@ class DogCard extends Component
     public function render()
     {
         // Render the correct view (could be a generic 'dog-card' view or another, depending on context)
-        return view('components.dog-card');
     }
 }
 

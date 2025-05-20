@@ -35,9 +35,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 Route::middleware(['auth', 'is_admin'])
     ->prefix('admin')
@@ -80,28 +78,36 @@ Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-    Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
+    Route::get('/blogs', [BlogController::class, 'showById'])->name('blog-kir.index');
+        Route::get('/kir', [BlogController::class, 'kir'])->name('blog.kir');
+
+
 
     Route::prefix('support')->name('support.')->group(function () {
         Route::get('/', [SupportController::class, 'index'])->name('index');
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+    Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
+
+    Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+
 
     Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
 
-    Route::get('/dog-order', [DogOrderController::class, 'index'])->name('dog.order');
-    Route::post('/dog-order', [DogOrderController::class, 'store'])->name('dog.order.store');
-
     Route::get('/coaches', [CoachController::class, 'indexFront'])->name('coaches.index');
+    Route::get('/coaches/{id}', [CoachController::class, 'showById'])->name('coaches.show');
+
 
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
 
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
+    Route::get('/breeders/{id}', [BreederController::class, 'show'])->name('breeders.show');
+
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
@@ -120,7 +126,7 @@ Route::name('frontend.')->group(function () {
 Route::get('/dashboard-breeders', [BreederController::class, 'dashboard'])->name('breeders.dashboard');
 Route::middleware(['auth'])->group(function () {
     Route::get('/breeder/profile', [BreederController::class, 'profile'])->name('profile');
-    Route::post('/profile', [BreederController::class, 'updateProfile']);
+    // Route::post('/profile', [BreederController::class, 'updateProfile']);
 });
 Route::get('/breeder/dogs-listing', [BreederController::class, 'dogsListing'])->name('breeder.dogs.listing');
 Route::get('/breeder/dashboard-create', [BreederController::class, 'create'])->name('breeders.dashboard-create');
@@ -139,16 +145,34 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Route::get('/coaches-dashboard', [CoachController::class, 'dashboard'])->name('coaches.dashboard');
-    Route::get('/coaches-listing', [CoachController::class, 'listing'])->name('coaches.listing');
+    Route::get('/coach/{coachId}/products', [CoachController::class, 'listing'])->name('coaches.listing');
     Route::get('/coaches/create', [CoachController::class, 'createList'])->name('coaches.create');
     Route::post('/coaches/store', [CoachController::class, 'storeList'])->name('coaches.store');
     Route::delete('/coaches/{id}', [CoachController::class, 'destroyList'])->name('coaches.destroy');
-    Route::get('/coaches/wallet', [CoachController::class, 'coachWallet' ])->name('cpaches.wallet');
+    Route::get('/coaches/wallet', [CoachController::class, 'coachWallet' ])->name('coaches.wallet');
+    Route::get('coach/profile', [CoachController::class, 'editProfile'])->name('profile.edit');
+
+// Handle form submission
+Route::post('/profile', [CoachController::class, 'updateProfile'])->name('profile');
 });
 
 
 Route::prefix('admin/clinics')->middleware(['auth'])->group(function () {
     Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('admin.clinics.wallet');
     Route::get('dashboard', [ClinicController::class, 'dashboard'])->name('admin.clinics.dashboard');
+});
+
+
+///
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/clinic/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/coach/dashboard', [DashboardController::class, 'index'])->middleware('role:coach');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/breeder/dashboard', [DashboardController::class, 'index'])->middleware('role:breeder');
 });

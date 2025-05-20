@@ -16,7 +16,11 @@ class DogController extends Controller
      */
     public function index(Request $request): View
     {
-        $dogs = Dog::paginate();
+        // $dogs = Dog::paginate();
+
+        $dog = Dog::with('owner')->get();
+
+        dd($dog);
 
         return view('dog.index', compact('dogs'))
             ->with('i', ($request->input('page', 1) - 1) * $dogs->perPage());

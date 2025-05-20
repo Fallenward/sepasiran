@@ -19,7 +19,7 @@ return new class extends Migration
             $table->longText('description')->nullable();     // Full course description
             $table->string('thumbnail')->nullable();         // Course thumbnail image
 
-            $table->unsignedBigInteger('instructor_id');     // Instructor user ID (foreign key)
+            $table->unsignedBigInteger('user_id');     // Instructor user ID (foreign key)
             $table->unsignedBigInteger('category_id')->nullable(); // Course category ID
             $table->unsignedBigInteger('level_id')->nullable();    // Course difficulty level ID
 
@@ -31,7 +31,6 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);   // Is course featured?
             $table->boolean('has_certificate')->default(false); // Does course offer certificate?
 
-            $table->string('language')->default('fa');        // Course language (e.g., fa, en)
 
             $table->string('video_demo_url')->nullable();     // Demo video URL
             $table->integer('duration')->nullable();          // Course duration in minutes

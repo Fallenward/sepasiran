@@ -15,26 +15,29 @@
     />
 
     <div class="container">
-        <div class="row">
-            <!-- Filter Section -->
-            <div class="col-md-4 col-12">
-                <x-filter-form :filters="$filters" />
-            </div>
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4 col-12">
+            <x-filter-form :filters="$filters" />
+        </div>
 
-            <!-- Clinic Cards -->
+        <!-- Clinic Cards Section -->
+        <div class="col-md-8 col-12">
             <div id="items-list" class="row g-4">
                 @foreach($clinics as $clinic)
-                    <div class="col-md-4 col-12">
-                        <x-dog-card :item="$clinic" />
+                    <div class="col-md-6 col-lg-4 col-12">
+                        <x-clinic-card :item="$clinic" />
                     </div>
                 @endforeach
             </div>
 
             <!-- Load More Button -->
             @if($clinics->hasMorePages())
-                <button id="load-more" data-next-page="{{ $clinics->currentPage() + 1 }}" class="btn btn-primary">
-                    Load More Clinics
-                </button>
+                <div class="mt-4 text-center">
+                    <button id="load-more" data-next-page="{{ $clinics->currentPage() + 1 }}" class="btn btn-primary">
+                        Load More Clinics
+                    </button>
+                </div>
             @endif
 
             <!-- Pagination Links -->
@@ -43,6 +46,8 @@
             </div>
         </div>
     </div>
+</div>
+
 
 <!-- Card Section -->
 <div class="card shadow-sm p-3 mb-4 w-100" style="height: 480px;">

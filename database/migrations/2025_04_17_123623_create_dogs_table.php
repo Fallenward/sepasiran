@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('title')->nullable();
+            $table->string('breed')->nullable();
             $table->string('color')->nullable();
             $table->string('status')->nullable();
             $table->integer('age')->nullable();
@@ -23,7 +24,6 @@ return new class extends Migration
             $table->string('eye_color')->nullable();
 
             $table->boolean('shajare')->default(false);
-            $table->unsignedBigInteger('breed_id')->nullable();
 
             $table->string('father_name')->nullable();
             $table->unsignedBigInteger('father_breed_id')->nullable();

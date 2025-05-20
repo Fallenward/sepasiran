@@ -11,13 +11,7 @@ class Dog extends Model
     // ارتباط با مدل City
     public function city()
     {
-        return $this->belongsTo(City::class);
-    }
-
-    // ارتباط با مدل Breed
-    public function breed()
-    {
-        return $this->belongsTo(Breed::class);
+        return $this->belongsTo(City::class, 'city_id');
     }
 
     // ارتباط با مدل Specialty

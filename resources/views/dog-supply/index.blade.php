@@ -30,6 +30,7 @@
                         <x-dog-card :item="$dog" />
                     </div>
                 @endforeach
+
             </div>
 
             <!-- دکمه مشاهده بیشتر -->

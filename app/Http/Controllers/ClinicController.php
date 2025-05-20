@@ -13,40 +13,39 @@ use Illuminate\Support\Facades\Auth;
 
 class ClinicController extends Controller
 {
-    public function index(Request $request)
-    {
-        // Fetch all cities and specialties for filters
-        $cities = City::all();
-        $specialties = Specialty::all();
+public function index(Request $request)
+{
+    $cities = City::all();
+    $specialties = Specialty::all();
 
-        // Build the base query with relationships
-        $query = Clinic::with(['city', 'specialty']);
+    // Fetch users with role 'clinic' and eager load city & specialty
+$query = \App\Models\User::select('users.*')
+    ->join('role_user', 'users.id', '=', 'role_user.user_id')
+    ->join('roles', 'roles.id', '=', 'role_user.role_id')
+    ->where('roles.name', 'clinic')
+    ->with(['city', 'speciality']);
 
-        // Apply city filter
-        if ($request->has('city') && is_array($request->input('city'))) {
-            $query->whereIn('city_id', $request->input('city'));
-        }
-
-        // Apply specialty filter
-        if ($request->has('specialty') && is_array($request->input('specialty'))) {
-            $query->whereIn('specialty_id', $request->input('specialty'));
-        }
-
-        // Paginate results
-        $clinics = $query->paginate(9);
-
-        // Append filters to pagination links to retain them
-        $clinics->appends($request->only(['city', 'specialty']));
-
-        // Prepare filters array for component
-        $filters = [
-            'city' => $cities,
-            'specialty' => $specialties,
-        ];
-
-        // Return the view with clinics and filters
-        return view('clinics.index', compact('clinics', 'filters'));
+    // Filter by city
+    if ($request->has('city') && is_array($request->input('city'))) {
+        $query->whereIn('city_id', $request->input('city'));
     }
+
+    // Filter by specialty
+    if ($request->has('specialty') && is_array($request->input('specialty'))) {
+        $query->whereIn('specialty_id', $request->input('specialty'));
+    }
+
+    $clinics = $query->paginate(9);
+    $clinics->appends($request->only(['city', 'specialty']));
+
+    $filters = [
+        'city' => $cities,
+        'specialty' => $specialties,
+    ];
+
+    return view('clinics.index', compact('clinics', 'filters'));
+}
+
     public function clinicwallet(){
 
         $clinic = Auth::user(); // assuming the authenticated user is the clinic

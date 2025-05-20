@@ -84,4 +84,23 @@ class BlogController extends Controller
         return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog deleted successfully');
     }
+
+    public function showById()
+{
+    // Fetch the blog by ID or abort with 404 if not found
+    $blog = Blog::all(); // throws ModelNotFoundException if missing:contentReference[oaicite:0]{index=0}
+
+    // Return the Blade view with the blog data
+    return view('blog.index', compact('blog'));
+}
+
+    public function kir()
+{
+    // Fetch the blog by ID or abort with 404 if not found
+    $blog = Blog::all(); // throws ModelNotFoundException if missing:contentReference[oaicite:0]{index=0}
+    $title = 'onvan';
+    // Return the Blade view with the blog data
+    return view('frontend.pages.blogs.show', compact('title','blog'));
+}
+
 }

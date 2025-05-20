@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('provider_id');
             $table->unsignedBigInteger('city_id');
             $table->dateTime('appointment_date');
+            $table->date('booking_date');
             $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])->default('PENDING');
             $table->text('notes')->nullable();
 

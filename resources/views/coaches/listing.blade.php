@@ -1,83 +1,93 @@
 @extends('admin.layout')
 
-@section('title', 'لیست مربیان - Sepasiran')
-
-@section('header')
-<header class="custom-header d-flex align-items-center justify-content-center">
-    <h5 class="text-white m-0">مربیان ثبت‌شده</h5>
-</header>
-@endsection
+@section('template_title', 'مدیریت محصولات مربی')
 
 @section('content')
-<div class="container py-4 mb-5">
+<div class="container-fluid">
 
-    <!-- Filters -->
-    <form method="GET" class="row g-2 mb-4">
-        <div class="col-6 col-md-2">
-            <select name="breed" class="form-select">
-                <option value="">نژاد</option>
-                @foreach($breeds as $breed)
-                    <option value="{{ $breed->id }}">{{ $breed->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-6 col-md-2">
-            <select name="city" class="form-select">
-                <option value="">شهر</option>
-                @foreach($cities as $city)
-                    <option value="{{ $city->id }}">{{ $city->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-6 col-md-2">
-            <select name="specialty" class="form-select">
-                <option value="">رشته تخصصی</option>
-                @foreach($specialties as $specialty)
-                    <option value="{{ $specialty->id }}">{{ $specialty->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-6 col-md-2">
-            <button class="btn btn-primary w-100">نمایش نتایج</button>
-        </div>
-    </form>
+    <!-- Success message -->
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success" id="success-alert">{{ $message }}</div>
+    @endif
 
-    <!-- Coach List -->
-    <h6 class="mb-2">لیست مربیان ثبت شده قبلی</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered text-center bg-white">
-            <thead class="table-light">
-                <tr>
-                    <th>نام مربی</th>
-                    <th>شهر</th>
-                    <th>نژاد</th>
-                    <th>رشته تخصصی</th>
-                    <th>توضیحات</th>
-                    <th>اقدام</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($coaches as $coach)
-                    <tr>
-                        <td>{{ $coach->name }}</td>
-                        <td>{{ $coach->city->name }}</td>
-                        <td>{{ $coach->breed->name }}</td>
-                        <td>{{ $coach->specialty->name }}</td>
-                        <td>{{ Str::limit($coach->description, 50) }}</td>
-                        <td>
-                            <form method="POST" action="{{ route('admin.coaches.destroy', $coach->id) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">حذف</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <!-- Card -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between flex-wrap align-items-center">
+            <h5 class="mb-0">محصولات {{ $coach->name }}</h5>
+
+
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>عنوان محصول</th>
+                            <th>قیمت</th>
+                            <th>قیمت با تخفیف</th>
+                            <th>موجودی</th>
+                            <th>وضعیت</th>
+                            <th>تاریخ ایجاد</th>
+                            <th width="110">عملیات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse ($products as $product)
+                            <tr>
+                                <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
+
+                                <td class="text-truncate" style="max-width:200px;">
+                                    <a href="{{ route('products.show', $product) }}">
+                                        {{ $product->title }}
+                                    </a>
+                                </td>
+
+                                <td>{{ number_format($product->price) }} تومان</td>
+                                <td>
+                                    {{ $product->discount_price ? number_format($product->discount_price) . ' تومان' : '—' }}
+                                </td>
+                                <td>{{ $product->stock }}</td>
+
+                                <td>
+                                    <span class="badge bg-{{ $product->is_active ? 'success' : 'secondary' }}">
+                                        {{ $product->is_active ? 'فعال' : 'غیرفعال' }}
+                                    </span>
+                                </td>
+
+                                <td>{{ $product->created_at->format('Y-m-d') }}</td>
+
+                                <td>
+                                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-info" title="نمایش">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-primary" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline-block" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="8" class="text-muted">هیچ محصولی یافت نشد.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer py-2">
+            {{ $products->withQueryString()->links() }}
+        </div>
     </div>
-
-    <a href="{{ route('coaches.dashboard') }}" class="btn btn-primary mt-3">افزودن مربی جدید</a>
-
 </div>
 @endsection

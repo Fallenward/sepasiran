@@ -1,21 +1,30 @@
 <?php
 
 namespace Database\Seeders;
-
 use Illuminate\Database\Seeder;
-use App\Models\Specialty;
+use Illuminate\Support\Facades\DB;
 
 class SpecialtySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        Specialty::create(['name' => 'آموزش فرمان‌ها']);
-        Specialty::create(['name' => 'آموزش رفتار']);
-        Specialty::create(['name' => 'آموزش سگ‌های محافظ']);
+        // You can fetch an existing user_id dynamically if needed
+        $userId = DB::table('users')->value('id') ?? 1;
+
+        DB::table('specialties')->insert([
+            [
+                'name'       => 'آموزش فرمان‌ها',
+                'user_id'    => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name'       => 'مهارت‌های فردی',
+                'user_id'    => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            // Add more specialties if needed
+        ]);
     }
 }

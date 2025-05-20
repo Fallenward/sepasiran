@@ -5,70 +5,32 @@
 @endphp
 
 <style>
-    .img-rounded {
-        border-radius: 1rem;
-        object-fit: cover;
-    }
-
-    .overflow-hidden-rounded {
-        border-radius: 1rem;
-        overflow: hidden;
-    }
-
-    .img-fixed-size {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+    .img-rounded { border-radius: 1rem; object-fit: cover; }
+    .overflow-hidden-rounded { border-radius: 1rem; overflow: hidden; }
+    .img-fixed-size { width: 100%; height: 100%; object-fit: cover; }
 
     @media (min-width: 992px) {
-        .feature-size {
-            width: 498px;
-            height: 498px;
-        }
-
-        /* Make the container relative for overlap */
-        .horizontal-card-size {
-            position: relative;
-            width: 498px;
-            height: 271px;
-        }
-
-        .horizontal-img {
-            width: 236px;
-            height: 100%;
-        }
-
-        /* Slide the text panel over the image */
+        .feature-size { width: 498px; height: 498px; }
+        .horizontal-card-size { position: relative; width: 498px; height: 271px; }
+        .horizontal-img { width: 236px; height: 100%; }
         .horizontal-card-size .text-panel {
             position: relative;
             margin-right: -100px;
             z-index: 2;
-            width: calc(100% + 100px); /* extend to fill */
+            width: calc(100% + 100px);
         }
     }
 
     @media (max-width: 991.98px) {
-        .horizontal-card-size {
-            width: 90%;
-        }
-
-        .horizontal-img {
-            width: 100%;
-            height: 200px;
-            border-radius: 1rem 1rem 0 0 !important;
-        }
-
-        .horizontal-card-size .text-panel {
-            margin-left: 0;
-            width: 100%;
-        }
+        .horizontal-card-size { width: 90%; }
+        .horizontal-img { width: 100%; height: 200px; border-radius: 1rem 1rem 0 0 !important; }
+        .horizontal-card-size .text-panel { margin-left: 0; width: 100%; }
     }
 </style>
 
 <div class="d-flex flex-wrap justify-content-center gap-3 pt-5">
     @if($items->count() >= 1)
-        <!-- Left Feature Card -->
+        <!-- Feature Blog (First one) -->
         <div class="position-relative overflow-hidden-rounded feature-size">
             <img src="{{ asset($items[0]->image) }}" class="w-100 h-90 img-rounded" alt="{{ $items[0]->title }}">
             <div
@@ -78,8 +40,7 @@
             >
                 <div class="bg-white rounded shadow-lg p-3 border-bottom border-4 border-primary d-flex flex-column justify-content-between">
                     @php
-                        $carbonDate = Carbon::parse($items[0]->created_at);
-                        $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
+                        $persianDate = Jalalian::fromCarbon(Carbon::parse($items[0]->created_at))->format('j F Y');
                     @endphp
                     <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt ms-1"></i></div>
                     <div class="fw-bold fs-5">{{ $items[0]->title }}</div>
@@ -90,13 +51,12 @@
             </div>
         </div>
 
-        <!-- Right List Cards -->
+        <!-- Side Blog Cards -->
         <div class="d-flex flex-column gap-3">
             @foreach($items->slice(1, 2) as $item)
                 <div class="overflow-hidden-rounded horizontal-card-size d-flex flex-lg-row flex-column">
                     <img src="{{ asset($item->image) }}" class="img-rounded horizontal-img" alt="{{ $item->title }}">
 
-                    <!-- Add a wrapper with class .text-panel -->
                     <div
                         class="text-panel flex-grow-1 p-3 d-flex align-items-center"
                         onclick="window.location.href='{{ route($viewLink, $item->slug) }}'"
@@ -104,8 +64,7 @@
                     >
                         <div class="bg-white rounded shadow-lg p-3 border-bottom border-4 border-primary w-100">
                             @php
-                                $carbonDate = Carbon::parse($item->created_at);
-                                $persianDate = Jalalian::fromCarbon($carbonDate)->format('j F Y');
+                                $persianDate = Jalalian::fromCarbon(Carbon::parse($item->created_at))->format('j F Y');
                             @endphp
                             <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt"></i></div>
                             <div class="fw-bold fs-5">{{ $item->title }}</div>

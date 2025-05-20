@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Models\Breed;
 use App\Models\Breeders;
 use App\Models\City;
@@ -15,42 +16,52 @@ use Illuminate\Support\Facades\Hash;
 
 class BreederController extends Controller
 {
+public function index(Request $request)
+{
 
-    public function index(Request $request)
-    {
-        // Prepare filters for the sidebar component
-        $filters = [
-            'cities' => City::orderBy('name')->get(),
-            'breeds' => Breed::orderBy('name')->get(),
-            'sizes' => [
-                'mini' => 'کوچک (Mini)',
-                'medium' => 'متوسط (Medium)',
-                'large' => 'بزرگ (Large)',
-            ],
-        ];
+    \Illuminate\Support\Facades\DB::listen(function ($query) {
+    logger($query->sql);
+    logger($query->bindings);
+});
+    // Sidebar filters
+    $filters = [
+        'cities' => City::orderBy('name')->get(),
+        'breeds' => Breed::orderBy('name')->get(),
+        'sizes' => [
+            'mini' => 'کوچک (Mini)',
+            'medium' => 'متوسط (Medium)',
+            'large' => 'بزرگ (Large)',
+        ],
+    ];
 
-        // Base query
-        $query = Breed::query();
+    // Base query for breeders
+    $query = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'breeder')
+        ->with(['city', 'speciality']);
 
-        // Apply filters
-        if ($request->filled('city')) {
-            $query->whereIn('city_id', (array) $request->input('city'));
-        }
-
-        if ($request->filled('breed')) {
-            $query->whereIn('breed_id', (array) $request->input('breed'));
-        }
-
-        if ($request->filled('size')) {
-            $query->whereIn('size', (array) $request->input('size'));
-        }
-
-        // Paginate results
-        $breeders = $query->latest()->paginate(12);
-
-        // Return view
-        return view('breeders.index', compact('filters', 'breeders'));
+    // ✅ Filter: city (city_id)
+    if ($request->has('city')) {
+        $query->whereIn('users.city_id', (array) $request->input('city'));
     }
+
+    // ✅ Filter: breed (adjust column if different)
+    if ($request->has('breed')) {
+        $query->whereIn('users.breed_id', (array) $request->input('breed'));
+    }
+
+    // ✅ Filter: size
+    if ($request->has('size')) {
+        $query->whereIn('users.size', (array) $request->input('size'));
+    }
+
+    // Paginate results
+    $breeders = $query->paginate(12);
+
+    return view('breeders.index', compact('filters', 'breeders'));
+}
+
 
     public function dashboard()
 {
@@ -63,9 +74,9 @@ class BreederController extends Controller
     $soldDogs = Dog::where('status', 'sold')->count();
     $waitingDogs = Dog::where('status', 'waiting')->count();
 
-    $pendingOrders = DogOrder::where('status', 'pending')->count();
-    $totalRevenue = DogOrder::where('status', 'paid')->sum('total_price');
-    $openOrders = DogOrder::where('status', 'open')->count();
+    $pendingOrders = Booking::where('status', 'pending')->count();
+    $totalRevenue = booking::where('status', 'paid')->sum('total_price');
+    $openOrders = booking::where('status', 'open')->count();
 
     return view('breeders.dashboard', compact(
         'readyDogs',
@@ -212,4 +223,22 @@ public function wallet()
 }
 
 
+public function show($id)
+{
+    $trainer = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'breeder')
+        ->where('users.id', $id)
+        ->with(['city', 'speciality', 'dogs']) // assuming 'dogs' relationship exists
+        ->firstOrFail();
+
+    $dogsPending = $trainer->dogs()->where('status', 'pending')->get();
+    $dogsReady = $trainer->dogs()->where('status', 'ready')->get();
+
+    $medals = []; // your medals array
+    $comments = [];
+
+    return view('breeders.show', compact('trainer', 'dogsPending', 'dogsReady', 'medals', 'comments'));
+}
 }

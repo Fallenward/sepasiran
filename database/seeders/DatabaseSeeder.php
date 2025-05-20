@@ -2,12 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Transaction;
+use App\Models\User;
+use Carbon\Carbon;
+use Database\Seeders\AdminUserSeeder;
+use Database\Seeders\SlidersTableSeeder;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class BlogSeeder extends Seeder
 {
@@ -64,15 +68,19 @@ class BookingSeeder extends Seeder
 
         foreach (range(1, 50) as $i) {
             DB::table('bookings')->insert([
-                'user_id'          => rand(1, 20),
-                'service_type'     => $types[array_rand($types)],      // ✔ مجاز
-                'provider_id'      => rand(1, 10),
-                'city_id'          => rand(1, 30),
-                'appointment_date' => Carbon::now()->addDays(rand(1, 30)),
-                'status'           => $statuses[array_rand($statuses)],// ✔ مجاز
-                'notes'            => $faker->sentence,
-                'created_at'       => now(),
-                'updated_at'       => now(),
+                [
+                    'user_id' => 3,
+                    'service_type' => 'TRAINER',
+                    'provider_id' => 5,
+                    'city_id' => 20,
+                    'appointment_date' => '2025-05-27 08:48:45',
+                    'booking_date' => now(), // ✅ Add this line
+                    'status' => 'PENDING',
+                    'notes' => 'Some notes here...',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+
             ]);
         }
     }
@@ -103,17 +111,16 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $faker      = Faker::create('fa_IR');
-        $usedSlugs  = [];          // برای کنترل یکتا بودن
-        $rootIds    = [];
+        $faker   = Faker::create('fa_IR');
+        $rootIds = [];
+
+        // Optional: Clear existing categories before seeding
+        // DB::table('categories')->truncate();
 
         /* ---------- ۱. ایجاد ۵ دستهٔ ریشه ---------- */
         foreach (range(1, 5) as $i) {
-            $name = $faker->unique()->word;         // نام یکتا
-            $slug = Str::slug($name);
-
-            // تضمین ۱۰۰٪ یکتا بودن slug
-            $slug = $this->uniqueSlug($slug, $usedSlugs);
+            $name = $faker->unique()->word;
+            $slug = $this->uniqueSlug(Str::slug($name));
 
             $rootIds[] = DB::table('categories')->insertGetId([
                 'parent_id'   => 0,
@@ -129,7 +136,7 @@ class CategorySeeder extends Seeder
         /* ---------- ۲. ایجاد ۱۰ زیردسته ---------- */
         foreach (range(1, 10) as $i) {
             $name = $faker->unique()->word;
-            $slug = $this->uniqueSlug(Str::slug($name), $usedSlugs);
+            $slug = $this->uniqueSlug(Str::slug($name));
 
             DB::table('categories')->insert([
                 'parent_id'   => $rootIds[array_rand($rootIds)],
@@ -144,21 +151,21 @@ class CategorySeeder extends Seeder
     }
 
     /**
-     * اگر slug تکراری باشد با پسوند -1، -2 … یکتا می‌شود.
+     * Ensures the slug is unique in the database by appending a number if needed.
      */
-    private function uniqueSlug(string $base, array &$taken): string
+    private function uniqueSlug(string $base): string
     {
-        $slug   = $base;
-        $count  = 1;
-        while (in_array($slug, $taken)) {
+        $slug = $base;
+        $count = 1;
+
+        while (DB::table('categories')->where('slug', $slug)->exists()) {
             $slug = "{$base}-{$count}";
             $count++;
         }
-        $taken[] = $slug;
+
         return $slug;
     }
 }
-
 
 class DogSeeder extends Seeder
 {
@@ -302,32 +309,37 @@ class SkillSeeder extends Seeder
         }
     }
 }
-
 class TransactionSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        // مقادیر مجاز دقیقاً مطابق Enum جدول
-        $statuses = ['pending', 'completed', 'failed', 'refunded'];
+        // Get an existing user (e.g., first coach)
+        $user = User::whereHas('roles', function ($q) {
+            $q->where('name', 'coach');
+        })->first();
 
-        foreach (range(1, 50) as $i) {
-            DB::table('transactions')->insert([
-                'user_id'        => rand(1, 20),
-                'transaction_id' => Str::uuid(),
-                'cart_ids'       => json_encode([rand(1, 30), rand(1, 30)]),
-                'description'    => 'پرداخت سفارش',
-                'card_number'    => '610433******' . rand(1000, 9999),
-                'ref_id'         => 'RF' . time() . rand(100, 999),
-                'status'         => $statuses[array_rand($statuses)],   // ✔ مجاز
-                'amount'         => rand(100, 1000) * 1000,
-                'cart_price'     => rand(100, 1000) * 1000,
-                'tax'            => 0,
-                'discount'       => 0,
-                'payment_method' => 'online',   // اگر این ستون Enum است، گزینهٔ صحیح را بگذارید
-                'created_at'     => Carbon::now(),
-                'updated_at'     => Carbon::now(),
-            ]);
+        // Fallback if no coach user exists
+        if (! $user) {
+            $this->command->warn('No coach user found to attach transaction to.');
+            return;
         }
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'transaction_id' => Str::uuid(),
+            'cart_ids' => json_encode([1, 2]),
+            'description' => 'پرداخت تستی',
+            'card_number' => '610433******1234',
+            'ref_id' => 'RF' . rand(1000000000000, 9999999999999),
+            'status' => 'completed',
+            'amount' => 150000,
+            'cart_price' => 150000,
+            'tax' => 0,
+            'discount' => 0,
+            'payment_method' => 'online',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }
 
@@ -350,10 +362,13 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             SkillSeeder::class,
             TransactionSeeder::class,
-            CitySeeder::class,
             BreedSeeder::class,
+            CitiesTableSeeder::class,
             SpecialtySeeder::class,
-            CoachSeeder::class,
+
         ]);
     }
+
+
+
 }

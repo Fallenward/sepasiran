@@ -4,7 +4,7 @@
 
 @section('header')
 <header class="custom-header d-flex align-items-center justify-content-center">
-    <h5 class="text-white m-0">داشبورد کلینیک</h5>
+    <h5 class="text-white m-0">{{ $title }}</h5>
 </header>
 @endsection
 
@@ -40,6 +40,11 @@
         align-items: center;
         justify-content: center;
         margin: auto;
+        transition: background-color 0.3s;
+    }
+
+    .shortcut-icon:hover {
+        background-color: #1565c0;
     }
 
     .square-card {
@@ -78,8 +83,8 @@
     }
 </style>
 
-<!-- Header Info -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<!-- Clinic Info -->
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
     <div class="d-flex align-items-center">
         @foreach($clinics as $clinic)
             <div class="d-flex align-items-center me-3">
@@ -101,15 +106,23 @@
     <span class="input-group-text"><i class="bi bi-search"></i></span>
 </div>
 
-<!-- Notification -->
-<div class="card mb-4" style="border: 20px solid #0D47A1; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+<!-- Notifications -->
+<div class="card mb-4" style="border: 2px solid #0D47A1; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <div class="card-header text-white" style="background-color: #0d47a1;">
-        <strong>اطلاعیه</strong>
+        <strong>اطلاعیه‌ها</strong>
     </div>
-    <div class="card-body bg-white text-dark text-left">
-        اطلاعیه ویژه مربوط به کلینیک.
-        <br>
-        <small><i class="bi bi-calendar"></i> ۲۴ دی ۱۴۰۲</small>
+    <div class="card-body bg-white text-dark text-right">
+        @forelse($notifications as $notification)
+            <div class="mb-2 border-bottom pb-2">
+                {{ $notification['message'] }}
+                <br>
+                <small><i class="bi bi-calendar"></i>
+                    {{ \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $notification['date'])->format('d M Y') }}
+                </small>
+            </div>
+        @empty
+            <p class="text-muted">هیچ اطلاعیه‌ای موجود نیست.</p>
+        @endforelse
     </div>
 </div>
 
@@ -117,18 +130,20 @@
 <div class="row text-center mb-4">
     @php
         $shortcuts = [
-            ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش'],
-            ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت'],
-            ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها'],
+            ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'link' => route('clinic.reports.drafts')],
+            ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'link' => route('clinic.visits.history')],
+            ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'link' => route('clinic.settlements')],
         ];
     @endphp
 
     @foreach($shortcuts as $shortcut)
         <div class="col-4 mb-3">
-            <div class="shortcut-icon">
-                <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
-            </div>
-            <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            <a href="{{ $shortcut['link'] }}" class="text-decoration-none text-dark">
+                <div class="shortcut-icon">
+                    <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
+                </div>
+                <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            </a>
         </div>
     @endforeach
 </div>
@@ -139,21 +154,24 @@
         <div class="square-card">
             <i class="bi bi-clipboard2-check fs-3"></i>
             <div class="mt-2">ویزیت‌های فعال</div>
-            <a href="#" class="btn btn-light btn-sm">مشاهده</a>
+            <div>{{ number_format($activeVisits) }}</div>
+            <a href="{{ route('clinic.visits.active') }}" class="btn btn-light btn-sm">مشاهده</a>
         </div>
     </div>
     <div class="col-4">
         <div class="square-card">
             <i class="bi bi-cash-stack fs-3"></i>
             <div class="mt-2">درآمد کلینیک</div>
-            <a href="#" class="btn btn-light btn-sm">مشاهده</a>
+            <div>{{ number_format($clinicIncome) }} تومان</div>
+            <a href="{{ route('clinic.income') }}" class="btn btn-light btn-sm">مشاهده</a>
         </div>
     </div>
     <div class="col-4">
         <div class="square-card">
             <i class="bi bi-people fs-3"></i>
             <div class="mt-2">پزشکان فعال</div>
-            <a href="#" class="btn btn-light btn-sm">مشاهده</a>
+            <div>{{ number_format($activeDoctors) }}</div>
+            <a href="{{ route('clinic.doctors.active') }}" class="btn btn-light btn-sm">مشاهده</a>
         </div>
     </div>
 </div>

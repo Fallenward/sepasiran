@@ -1,188 +1,235 @@
 @extends('admin.layout')
 
 @section('title', 'داشبورد - Sepasiran')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 @section('header')
-    <header class="custom-header d-flex align-items-center justify-content-center">
-        <h5 class="text-white m-0">داشبورد Sepasiran</h5>
-    </header>
+<header class="custom-header d-flex align-items-center justify-content-center">
+    <h5 class="text-white m-0">داشبورد Sepasiran</h5>
+</header>
 @endsection
 
 @section('content')
-    <div class="container mt-5">
-        <div class="row g-3 align-items-center">
-            <div class="col-12 col-lg-8">
-                @foreach ($users as $user)
-                    <h4 class="mb-3">سلام، {{ $user->name }}</h4>
-                @endforeach
-                <div class="d-flex align-items-center flex-wrap">
-                    <img src="{{ $user->avatar_url ?? asset('images/default-avatar.png') }}" width="50" class="rounded-circle me-2 mb-2">
-                    <div>
-                        <div>{{ $user->name }}</div>
-                        <small>{{ $user->role }} | اعتبار: {{ $user->credit ?? 0 }} تومان</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-4 text-lg-end text-center mt-3 mt-lg-0">
-                <strong>Sepasiran</strong>
-            </div>
-        </div>
-
-        <!-- Search -->
-        <div class="input-group my-4">
-            <input type="text" class="form-control" placeholder="جست‌وجو..." aria-label="Search">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-        </div>
-
-        <!-- Notification -->
-        <div class="card mb-4" style="border: 3px solid #0D47A1;">
-            <div class="card-header text-white" style="background-color: #0d47a1;">
-                <strong>اطلاعیه</strong>
-            </div>
-            <div class="card-body bg-white text-dark text-end">
-                لورم ایپسوم متن ساختگی جهت نمایش.
-                <br>
-                <small><i class="bi bi-calendar"></i> ۲۴ دی ۱۴۰۲</small>
-            </div>
-        </div>
-
-
-                </div>
-
-        <!-- Title -->
-        <h5 class="text-start mb-3">جلسات من</h5>
-
-        <!-- Courses Section -->
-        <div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
-            <!-- Repeatable Course Card -->
-            <div class="row g-0 align-items-center mb-3 bg-white" style="border-radius: 12px; overflow: hidden;">
-                <div class="col-12 col-md-9 p-3 text-end">
-                    <span class="badge bg-primary mb-2">فعال</span>
-                    <h5 class="card-title">دوره حفاظت و نگهبانی</h5>
-                    <p class="card-text text-muted small">
-                        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است
-                    </p>
-                    <div class="row text-muted small">
-                        <div class="col-6 col-sm-6 col-md-3">قیمت دوره: 100,000 تومان</div>
-                        <div class="col-6 col-sm-6 col-md-3">تعداد شرکت‌کنندگان: 35 نفر</div>
-                        <div class="col-6 col-sm-6 col-md-3">تاریخ شروع و پایان: 3 شهریور 1403 تا 15 آبان 1403</div>
-                        <div class="col-6 col-sm-6 col-md-3">وضعیت دوره: در حال برگزاری</div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-3 text-center p-3">
-                    <img src="your-image.jpg" class="img-fluid rounded-end" alt="course image" style="max-height: 100px;">
-                </div>
-            </div>
-            <!-- /Course Card -->
-
-            <div class="text-center mt-3">
-                <a href="#" class="text-white text-decoration-none">مشاهده بیشتر ^</a>
-            </div>
-        </div>
-
-
-            <h6 class="mb-2">لیست مربیان ثبت شده قبلی</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered text-center bg-white">
-            <thead class="table-light">
-                <tr>
-                    <th>نام مربی</th>
-                    <th>شهر</th>
-                    <th>نژاد</th>
-                    <th>رشته تخصصی</th>
-                    <th>توضیحات</th>
-                    <th>اقدام</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                    <tr>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ Str::limit($user->description, 50) }}</td>
-                        <td>
-                            <form method="POST" action="{{ route('admin.coaches.destroy', $user->id) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">حذف</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-        <!-- Shortcuts Section -->
-
-        <div class="row text-center mb-4">
+<div class="container mt-5">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-lg-8">
+                <h4 class="mb-3">{{ $users->name }}</h4>
             @php
-                $shortcuts = [
-                    ['icon' => 'bi-cash', 'label' => 'تگ‌های آماده فروش'],
-                    ['icon' => 'bi-people', 'label' => 'تعداد کل حیوانات'],
-                    ['icon' => 'bi-clock-history', 'label' => 'در انتظار خروج'],
-                    ['icon' => 'bi-clock-history', 'label' => 'در انتظار خروج'],
-                ];
+                $firstUser = $users->first();
             @endphp
-
-            @foreach ($shortcuts as $shortcut)
-                <div class="col-6 col-sm-4 col-md-3 mb-3">
-                    <div class="shortcut-icon">
-                        <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
-                    </div>
-                    <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            @if ($firstUser)
+            <div class="d-flex align-items-center flex-wrap">
+                <img src="{{ $firstUser->avatar_url ?? asset('images/default-avatar.png') }}" width="50" class="rounded-circle me-2 mb-2" alt="User Avatar">
+                <div>
+                    <div>{{ $firstUser->name }}</div>
+                    <small>{{ $firstUser->role ?? '' }} | اعتبار: {{ $firstUser->credit ?? 0 }} تومان</small>
                 </div>
-            @endforeach
+            </div>
+            @endif
         </div>
 
-        <!-- Title -->
-        <h5 class="text-start mb-3">دوره های من</h5>
+        <div class="col-12 col-lg-4 text-lg-end text-center mt-3 mt-lg-0">
+            <strong>Sepasiran</strong>
+        </div>
+    </div>
 
-        <!-- Courses Section -->
-        <div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
-            <!-- Repeatable Course Card -->
-            <div class="row g-0 align-items-center mb-3 bg-white" style="border-radius: 12px; overflow: hidden;">
+    <!-- Search -->
+    <div class="input-group my-4">
+        <input type="text" class="form-control" placeholder="جست‌وجو..." aria-label="Search">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+    </div>
+
+    <!-- Notification -->
+    <div class="card mb-4" style="border: 3px solid #0D47A1;">
+        <div class="card-header text-white" style="background-color: #0d47a1;">
+            <strong>اطلاعیه</strong>
+        </div>
+        <div class="card-body bg-white text-dark text-end">
+            لورم ایپسوم متن ساختگی جهت نمایش.
+            <br>
+            <small><i class="bi bi-calendar"></i> ۲۴ دی ۱۴۰۲</small>
+        </div>
+    </div>
+
+    <!-- Title -->
+    <h5 class="text-start mb-3">جلسات من</h5>
+
+    <!-- Courses Section -->
+<!-- Appointments Section -->
+{{-- <div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
+    @forelse($todaysAppointments as $appointment)
+        <div class="row g-0 align-items-center mb-3 bg-white" style="border-radius: 12px; overflow: hidden;">
+            <div class="col-12 col-md-9 p-3 text-end">
+                <span class="badge bg-success mb-2">امروز</span>
+                <h5 class="card-title">ملاقات با {{ $appointment->user->name ?? 'کاربر ناشناس' }}</h5>
+                <p class="card-text text-muted small">
+                    نوع خدمت: {{ $appointment->service_type }} <br>
+                    ساعت: {{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}
+                </p>
+                <div class="row text-muted small">
+                    <div class="col-md-6">وضعیت: {{ $appointment->status }}</div>
+                    <div class="col-md-6">قیمت: {{ number_format($appointment->price) }} تومان</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 text-center p-3">
+                <img src="{{ $appointment->user->photo ?? 'default.jpg' }}" class="img-fluid rounded-end" alt="user image" style="max-height: 100px;">
+            </div>
+        </div>
+    @empty
+        <p class="text-white text-center">هیچ قراری برای امروز ثبت نشده است.</p>
+    @endforelse
+
+    <div class="text-center mt-3">
+        {{-- <a href="{{ route('appointments.index') }}" class="text-white text-decoration-none">مشاهده بیشتر ^</a> --}}
+    </div>
+</div> --}}
+<!-- Appointments Section -->
+<div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
+    <div class="bg-white p-4" style="border-radius: 12px;">
+        @forelse($todaysAppointments as $appointment)
+            <div class="row g-0 align-items-center mb-3" style="border: 1px solid #ccc; border-radius: 12px; overflow: hidden;">
                 <div class="col-12 col-md-9 p-3 text-end">
-                    <span class="badge bg-primary mb-2">فعال</span>
-                    <h5 class="card-title">دوره حفاظت و نگهبانی</h5>
+                    <span class="badge bg-success mb-2">امروز</span>
+                    <h5 class="card-title">ملاقات با {{ $appointment->user->name ?? 'کاربر ناشناس' }}</h5>
                     <p class="card-text text-muted small">
-                        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است
+                        نوع خدمت: {{ $appointment->service_type }} <br>
+                        ساعت: {{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}
                     </p>
                     <div class="row text-muted small">
-                        <div class="col-6 col-sm-6 col-md-3">قیمت دوره: 100,000 تومان</div>
-                        <div class="col-6 col-sm-6 col-md-3">تعداد شرکت‌کنندگان: 35 نفر</div>
-                        <div class="col-6 col-sm-6 col-md-3">تاریخ شروع و پایان: 3 شهریور 1403 تا 15 آبان 1403</div>
-                        <div class="col-6 col-sm-6 col-md-3">وضعیت دوره: در حال برگزاری</div>
+                        <div class="col-md-6">وضعیت: {{ $appointment->status }}</div>
+                        <div class="col-md-6">قیمت: {{ number_format($appointment->price) }} تومان</div>
                     </div>
                 </div>
                 <div class="col-12 col-md-3 text-center p-3">
-                    <img src="your-image.jpg" class="img-fluid rounded-end" alt="course image" style="max-height: 100px;">
+                    <img src="{{ $appointment->user->photo ?? 'default.jpg' }}" class="img-fluid rounded-end" alt="user image" style="max-height: 100px;">
                 </div>
             </div>
-            <!-- /Course Card -->
+        @empty
+            <p class="text-center m-0">هیچ قراری برای امروز ثبت نشده است.</p>
+        @endforelse
+    </div>
 
-            <div class="text-center mt-3">
-                <a href="#" class="text-white text-decoration-none">مشاهده بیشتر ^</a>
+    <div class="text-center mt-3">
+        {{-- Optional link to see more --}}
+        {{-- <a href="{{ route('appointments.index') }}" class="text-white text-decoration-none">مشاهده بیشتر ^</a> --}}
+    </div>
+</div>
+
+
+    <!-- Coaches Table -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between flex-wrap">
+        <h5 class="mb-0">قرارهای امروز</h5>
+        {{-- Optional actions like "مشاهده همه" --}}
+        {{-- <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-primary">مشاهده همه</a> --}}
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>کاربر</th>
+                        <th>نوع خدمت</th>
+                        <th>ساعت</th>
+                        <th>وضعیت</th>
+                        <th>قیمت</th>
+                        <th>تصویر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($todaysAppointments as $appointment)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $appointment->user->name ?? 'کاربر ناشناس' }}</td>
+                            <td>{{ $appointment->service_type }}</td>
+                            <td>{{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}</td>
+                            <td>{{ $appointment->status }}</td>
+                            <td>{{ number_format($appointment->price) }} تومان</td>
+                            <td>
+                                @if($appointment->user?->photo)
+                                    <img src="{{ asset($appointment->user->photo) }}" alt="user image" style="max-height: 50px;">
+                                @else
+                                    ندارد
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7">هیچ قراری برای امروز ثبت نشده است.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Shortcuts Section -->
+<div class="row text-center mb-4">
+    @php
+        $shortcuts = [
+            ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('breeders.dashboard')],
+            ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('breeders.dashboard')],
+            ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('breeders.wallet')],
+        ];
+    @endphp
+
+    @foreach($shortcuts as $shortcut)
+        <div class="col-4 mb-3">
+            <a href="{{ $shortcut['url'] }}" class="text-decoration-none text-dark">
+                <div class="shortcut-icon">
+                    <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
+                </div>
+                <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            </a>
+        </div>
+    @endforeach
+</div>
+    <!-- Title -->
+    <h5 class="text-start mb-3">دوره های من</h5>
+
+    <!-- Courses Section (Duplicate) -->
+    <div class="card shadow-sm mb-5" style="background-color: #0d47a1; padding: 20px; border-radius: 12px;">
+        <div class="row g-0 align-items-center mb-3 bg-white" style="border-radius: 12px; overflow: hidden;">
+            <div class="col-12 col-md-9 p-3 text-end">
+                <span class="badge bg-primary mb-2">فعال</span>
+                <h5 class="card-title">دوره حفاظت و نگهبانی</h5>
+                <p class="card-text text-muted small">
+                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است
+                </p>
+                <div class="row text-muted small">
+                    <div class="col-6 col-sm-6 col-md-3">قیمت دوره: 100,000 تومان</div>
+                    <div class="col-6 col-sm-6 col-md-3">تعداد شرکت‌کنندگان: 35 نفر</div>
+                    <div class="col-6 col-sm-6 col-md-3">تاریخ شروع و پایان: 3 شهریور 1403 تا 15 آبان 1403</div>
+                    <div class="col-6 col-sm-6 col-md-3">وضعیت دوره: در حال برگزاری</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 text-center p-3">
+                <img src="your-image.jpg" class="img-fluid rounded-end" alt="course image" style="max-height: 100px;">
             </div>
         </div>
 
-        <!-- Footer Nav -->
-        <nav class="footer-nav">
-            <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-            <a class="nav-link" href="#"><i class="bi bi-receipt"></i><br>سفارشات</a>
-            <a class="nav-link" href="{{ route('breeders.dashboard') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
-            <a class="nav-link" href="#"><i class="bi bi-gear"></i><br>مدیریت</a>
-            <a class="nav-link" href="#"><i class="bi bi-person"></i><br>پروفایل</a>
-        </nav>
+        <div class="text-center mt-3">
+            <a href="#" class="text-white text-decoration-none">مشاهده بیشتر ^</a>
+        </div>
     </div>
+
+    <!-- Footer Nav -->
+    <nav class="footer-nav">
+        <a class="nav-link" href="/"><i class="bi bi-house"></i><br>خانه</a>
+        <a class="nav-link" href{{ route('coaches.listing') }}"><i class="bi bi-receipt"></i><br>سفارشات</a>
+        <a class="nav-link" href="{{ route('coaches.create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
+        <a class="nav-link" href="{{ route('coaches.wallet') }}"><i class="bi bi-gear"></i><br>مدیریت</a>
+    </nav>
+</div>
 @endsection
 
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-
 <style>
     body {
         padding-bottom: 100px;
@@ -251,8 +298,16 @@
         }
 
         .shortcut-icon {
-            width: 60px;
-            height: 60px;
+            background-color: #0D47A1;
+            color: #fff;
+            padding: 20px;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
         }
 
         .footer-nav .nav-link {

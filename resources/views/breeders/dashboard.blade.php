@@ -81,15 +81,15 @@
 <!-- Header Info -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="d-flex align-items-center">
-        @foreach($clinics as $clinic)
+
             <div class="d-flex align-items-center me-3">
-                <img src="{{ $clinic->logo_url ?? asset('images/default-clinic.png') }}" width="40" class="rounded-circle me-2">
+                <img src="{{ $breeders->logo_url ?? asset('images/default-clinic.png') }}" width="40" class="rounded-circle me-2">
                 <div>
-                    <div>{{ $clinic->name }}</div>
-                    <small>اعتبار: {{ $clinic->credit ?? 0 }} تومان</small>
+                    <div>{{ $users->name }}</div>
+                    <small>اعتبار: {{ $user->credit ?? 0 }} تومان</small>
                 </div>
             </div>
-        @endforeach
+
     </div>
     <div><strong>Sepasiran</strong></div>
     <div style="font-size: 24px;">&#9776;</div>
@@ -117,18 +117,20 @@
 <div class="row text-center mb-4">
     @php
         $shortcuts = [
-            ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش'],
-            ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت'],
-            ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها'],
+            ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('breeders.dashboard')],
+            ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('breeders.dashboard')],
+            ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('breeders.wallet')],
         ];
     @endphp
 
     @foreach($shortcuts as $shortcut)
         <div class="col-4 mb-3">
-            <div class="shortcut-icon">
-                <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
-            </div>
-            <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            <a href="{{ $shortcut['url'] }}" class="text-decoration-none text-dark">
+                <div class="shortcut-icon">
+                    <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
+                </div>
+                <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
+            </a>
         </div>
     @endforeach
 </div>

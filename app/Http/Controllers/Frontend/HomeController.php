@@ -15,7 +15,7 @@ class HomeController extends Controller
         $title='سپاس ایران';
         $sliders = Slider::all();
         $services = Service::all();
-        $blogs = Blog::orderby('created_at')->take(3)->get();
+        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
         $statistics = [
             ['title'=>'تعداد مربی','counter'=>'53'],
             ['title'=>'پرورش دهندگان','counter'=>'53'],

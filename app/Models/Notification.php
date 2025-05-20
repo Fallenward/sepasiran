@@ -3,33 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Class Notification
- *
- * @property $id
- * @property $sender_id
- * @property $receiver_id
- * @property $title
- * @property $content
- * @property $type
- * @property $created_at
- * @property $updated_at
- *
- * @package App
- * @mixin \Illuminate\Database\Eloquent\Builder
- */
 class Notification extends Model
 {
-    
-    protected $perPage = 20;
+    protected $fillable = ['user_id', 'message'];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['sender_id', 'receiver_id', 'title', 'content', 'type'];
-
-
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

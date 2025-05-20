@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Booking extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -31,7 +31,17 @@ class Booking extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id', 'service_type', 'provider_id', 'city_id', 'appointment_date', 'status', 'notes'];
+    protected $fillable = ['user_id', 'bookable_type', 'bookable_id', 'status', 'booking_date', 'notes'];
 
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 
+    public function bookable() {
+        return $this->morphTo();
+    }
+
+    public function users() {
+        return $this->belongsToMany(User::class, 'booking_users');
+    }
 }

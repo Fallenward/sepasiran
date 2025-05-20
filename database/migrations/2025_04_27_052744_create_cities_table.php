@@ -12,10 +12,12 @@ return new class extends Migration
     public function up()
         {
         Schema::create('cities', function (Blueprint $table) {
-            $table->id(); // به طور پیش‌فرض این نوع 'bigIncrements' است
+            $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->string('name');
             $table->timestamps();
         });
+
 
     }
 
