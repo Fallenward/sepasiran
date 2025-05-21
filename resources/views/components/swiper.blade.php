@@ -102,7 +102,7 @@
                             @if($enabledLink)
                                 <div class="mt-auto d-flex justify-content-between gap-2">
                                     <a href="{{ $route }}" class="btn btn-primary w-50">مشاهده</a>
-                                    <button class="btn btn-outline-secondary w-50">{{ $roleLabel }}</button>
+                                    <button class="btn btn-outline-primary w-50">{{ $roleLabel }}</button>
                                 </div>
                             @endif
                         </div>
@@ -112,7 +112,7 @@
         </div>
     @endforeach
 @endif
-                                        
+
 </div>
 
 @if($type !== 'card-service')

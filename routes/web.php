@@ -111,8 +111,8 @@ Route::name('frontend.')->group(function () {
 
 
 
-Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');
-Route::post('/contact', [AboutController::class, 'store'])->name('contact.store');
+    Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');
+    Route::post('/contact', [AboutController::class, 'store'])->name('contact.store');
 
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
 
