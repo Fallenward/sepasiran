@@ -6,28 +6,18 @@
 
 <div id="{{ $id }}" class="{{ $type === 'card-service' ? '' : 'swiper-container' }}">
     @if($type === 'card-service')
-        @php
-            $chunks = $items->chunk(3);
-        @endphp
+        @php $chunks = $items->chunk(3); @endphp
         @foreach($chunks->take(2) as $chunk)
             <div class="row d-flex justify-content-center mb-4">
                 @foreach($chunk as $item)
                     <div class="col-12 col-sm-6 col-md-4 mb-4">
                         <a href="{{ $item->route_link ?? '#' }}" class="text-decoration-none">
                             <div class="card bg-white align-items-center">
-                                @php
-                                    $imagePath = $item->image ?? $item->profile_picture;
-                                @endphp
+                                @php $imagePath = $item->image ?? $item->profile_picture; @endphp
 
-                                @if($imagePath)
-                                    <img src="{{ asset($imagePath) }}"
-                                         class="img-fluid rounded-circle h-50 w-50 my-4 object-fit-cover"
-                                         alt="{{ $item->title ?? $item->name }}">
-                                @else
-                                    <img src="{{ asset('images/default-user.png') }}"
-                                         class="img-fluid rounded-circle h-50 w-50 my-4 object-fit-cover"
-                                         alt="No Image">
-                                @endif
+                                <img src="{{ asset($imagePath ?? 'images/default-user.png') }}"
+                                     class="img-fluid rounded-circle h-50 w-50 my-4 object-fit-cover"
+                                     alt="{{ $item->title ?? $item->name }}">
 
                                 <x-custom-divider></x-custom-divider>
                                 <div class="card-body text-center">
@@ -43,22 +33,14 @@
             </div>
         @endforeach
 
-@elseif($type === 'bests')
-    @php
-        $chunks = $items->chunk(3); // Same layout as card-service: 3 per row
-    @endphp
-
-    @foreach($chunks->take(2) as $chunk)
-        <div class="row d-flex justify-content-center mb-4">
-            @foreach($chunk as $item)
+    @elseif($type === 'bests')
+        <div class="swiper-wrapper">
+            @foreach($items as $item)
                 @php
                     $imagePath = $item->profile_picture ?? $item->photo ?? 'images/default-user.png';
-                    $role = optional($item->roles->first())->name ?? 'کاربر'; // Get first role name or default
-
-                    // Set role-based route and label
+                    $role = optional($item->roles->first())->name ?? 'کاربر';
                     $route = '#';
                     $roleLabel = 'نقش ندارد';
-
                     if ($role === 'coach') {
                         $route = route('frontend.coaches.show', $item->id);
                         $roleLabel = 'مربی';
@@ -71,17 +53,15 @@
                     }
                 @endphp
 
-                <div class="col-12 col-sm-6 col-md-4 mb-4">
+                <div class="swiper-slide">
                     <div class="card bg-white d-flex flex-column h-100 p-3">
                         <img src="{{ asset($imagePath) }}"
                              class="img-fluid rounded-circle h-50 w-50 my-4 object-fit-cover"
                              alt="{{ $item->name }}">
 
                         <x-custom-divider></x-custom-divider>
-
                         <div class="card-body d-flex flex-column flex-grow-1 text-center">
                             <h5 class="card-title fw-bold">{{ $item->name }} {{ $item->family ?? '' }}</h5>
-
                             @if($enabledDesc && $item->bio)
                                 <p class="text-center">{{ GenralHelpers::limitTextToTwoLines($item->bio) }}</p>
                             @else
@@ -110,10 +90,38 @@
                 </div>
             @endforeach
         </div>
-    @endforeach
-@endif
-                                        
+        <div class="swiper-pagination mt-3"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    @endif
 </div>
+
+@if($type !== 'card-service')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Swiper('#{{ $id }}', {
+                loop: false,
+                slidesPerView: 1,
+                spaceBetween: 10,
+                breakpoints: {
+                    576: { slidesPerView: {{ $slidesPerView ?? 2 }}, spaceBetween: 20 },
+                    768: { slidesPerView: {{ $slidesPerView ?? 3 }}, spaceBetween: 20 },
+                    992: { slidesPerView: {{ $slidesPerView ?? 4 }}, spaceBetween: 20 },
+                    1200: { slidesPerView: {{ $slidesPerView ?? 5 }}, spaceBetween: 20 }
+                },
+                pagination: {
+                    el: ".swiper-pagination",
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+        });
+    </script>
+@endif
+
 
 @if($type !== 'card-service')
     <script>
