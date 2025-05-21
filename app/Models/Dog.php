@@ -22,4 +22,9 @@ class Dog extends Model
     public function owner(){
         return $this->belongsTo(User::class);
     }
+    public function insurance()
+{
+    return $this->belongsTo(Insurance::class);
+}
+
 }

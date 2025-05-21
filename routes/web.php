@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\CoachController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TypeController;
-use App\Http\Controllers\Admin\CoachController;
-use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
@@ -19,10 +20,10 @@ use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
-use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\Frontend\BlogController as FrontendBlogController;
+use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
+use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OnlineCourseController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -103,6 +105,15 @@ Route::name('frontend.')->group(function () {
 
 
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
+    // web.php
+    Route::get('clinic/insurances/{insurance}', [ClinicInsuranceController::class, 'show'])->name('clinic.insurance.show');
+
+
+
+
+Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');
+Route::post('/contact', [AboutController::class, 'store'])->name('contact.store');
+
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
 
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
@@ -111,6 +122,7 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('course/{id}', [CourseController::class, 'showById'])->name('courses.show');
 

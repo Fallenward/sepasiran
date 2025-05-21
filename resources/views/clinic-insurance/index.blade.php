@@ -9,6 +9,7 @@
         :breadcrumbs="[
             ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
             ['label' => 'بیمه حیوانات', 'route' => route('frontend.clinic.insurance.index')]
+            ['label' => $insurance->name] 
         ]"
         bgColor="#0d47a1"
         extraClasses="text-align-center"
@@ -26,7 +27,7 @@
                 <div id="items-list" class="row g-4">
                     @foreach($insurances as $insurance)
                         <div class="col-md-4 col-6">
-                            <x-dog-card :item="$insurance" routeName="frontend.clinic.insurance.index" />
+                            <x-insurance-card :item="$insurance" routeName="frontend.clinic.insurance.index" />
                         </div>
                     @endforeach
                 </div>

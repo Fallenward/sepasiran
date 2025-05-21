@@ -10,7 +10,7 @@
             ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
             ['label' => 'فروشگاه', 'route' => route('frontend.stores.index')],
         ]"
-        bgColor="#0d47a1"
+        bgColor="linear-gradient(90deg, #0D47A1 0%, #051A3B 100%)"
     />
 
     <div class="container">

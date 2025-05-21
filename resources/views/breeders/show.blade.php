@@ -12,37 +12,7 @@
                     <p class="text-muted">{{ $trainer->bio ?? 'اطلاعاتی درباره مربی ثبت نشده است.' }}</p>
                 </div>
 
-                <!-- Features -->
-                <div class="row g-3 mt-4">
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-check-circle fa-2x text-success me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">احراز هویت شده</h6>
-                            <p class="mb-0 small">این مربی اطلاعات هویتی خود را تایید کرده است.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-star fa-2x text-warning me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">تجربه بالا</h6>
-                            <p class="mb-0 small">بیش از ۵ سال سابقه آموزش و تربیت حرفه‌ای سگ‌ها.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-thumbs-up fa-2x text-primary me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">رضایت مشتریان</h6>
-                            <p class="mb-0 small">مربی محبوب کاربران با امتیازهای مثبت فراوان.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-certificate fa-2x text-info me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">دارای گواهینامه</h6>
-                            <p class="mb-0 small">دارای مدارک معتبر از مراکز آموزشی رسمی.</p>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             <!-- Image and Contact -->
@@ -52,8 +22,6 @@
                      class="rounded-circle mb-3" width="160" height="160" style="object-fit: cover;">
 
                 <h5 class="fw-bold mb-3">{{ $trainer->name }} {{ $trainer->family }}</h5>
-
-                <a href="tel:{{ $trainer->phone ?? '#' }}" class="btn btn-primary">تماس با مربی</a>
             </div>
         </div>
     </div>

@@ -4,15 +4,15 @@
 
 @section('content')
     <!-- Page Header -->
-    <x-page-header
-        title="کلینیک ها"
-        :breadcrumbs="[
-            ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-            ['label' => 'کلینیک ها', 'route' => route('frontend.clinics.index')]
-        ]"
-        extraClasses="text-align-center"
-        bgColor="#0d47a1"
-    />
+<x-page-header
+    title="کلینیک ها"
+    :breadcrumbs="[
+        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
+        ['label' => 'کلینیک ها', 'route' => route('frontend.clinics.index')]
+    ]"
+    extraClasses="text-align-center"
+    :bgColor="'#0d47a1'"
+/>
 
     <div class="container">
     <div class="row">

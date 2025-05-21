@@ -9,39 +9,45 @@ use Illuminate\Http\Request;
 
 class ClinicInsuranceController extends Controller
 {
-    public function index(Request $request)
-    {
-        // Load filter data
-        $cities    = City::orderBy('name')->get();
-        $breeds    = Breed::orderBy('name')->get();
-        // If you have a durations list, define it here:
-        $durations = [
-            '6'  => '۶ ماهه',
-            '12' => '۱ ساله',
-            '24' => '۲ ساله',
-        ];
+public function index(Request $request)
+{
+    // Filter data
+    $cities = City::orderBy('name')->get();
 
-        // Build your insurance query (apply filters if you want)
-        $query = Insurance::query();
+    $durations = [
+        '6' => '۶ ماهه',
+        '12' => '۱ ساله',
+        '24' => '۲ ساله',
+    ];
 
-        if ($request->filled('city')) {
-            $query->whereIn('city_id', $request->input('city'));
-        }
-        // etc...
+    $query = Insurance::with('city'); // eager-load city
 
-        $insurances = $query->paginate(6);
-        $filters = [
-            'city'     => $cities,
-            'duration' => collect(array_keys($durations)), // چون durationها به صورت key => value هستند
-        ];
-
-        // Pass everything into the view
-        return view('clinic-insurance.index', compact(
-            'cities',
-            'breeds',
-            'durations',
-            'insurances',
-            'filters'
-        ));
+    if ($request->filled('city')) {
+        $query->where('city_id', $request->input('city'));
     }
+
+    $insurances = $query->paginate(6);
+
+    $filters = [
+        'city'     => $cities,
+        'duration' => collect(array_keys($durations)),
+    ];
+
+    return view('clinic-insurance.index', compact(
+        'cities',
+        'durations',
+        'insurances',
+        'filters'
+    ));
+}
+
+public function show($id)
+{
+    $insurance = Insurance::with('city')->findOrFail($id);
+
+    return view('clinic-insurance.show', compact('insurance'));
+}
+
+
+
 }
