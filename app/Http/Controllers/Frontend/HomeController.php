@@ -58,8 +58,12 @@ class HomeController extends Controller
             ['title' => 'سگ ها', 'counter' => $dogCount],
         ];
 
-        $bests = User::all();
+        $bestCoach = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->latest()->first();
+    $bestBreeder = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->latest()->first();
+    $bestClinic = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->latest()->first();
 
+    // Collect in array
+    $bests = collect([$bestCoach, $bestBreeder, $bestClinic])->filter();
         return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests'));
     }
 }

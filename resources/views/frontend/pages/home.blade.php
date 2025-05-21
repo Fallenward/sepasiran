@@ -111,7 +111,7 @@
 
         <div class="container">
             <div class="col-12 upper-box">
-                <x-swiper :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'bests'"
+                <x-swiper :id="'blogsCarousel'" :items="$bests" :slidesPerView="3" :type="'bests'"
                           :ride="false" :enabledDesc="false" :enabledLink="true" :viewLink="'frontend.blog.show'"/>
             </div>
         </div>
@@ -122,20 +122,21 @@
         <h5 class="fw-bold mb-4">پیوند به سایت‌های دیگر</h5>
         <div class="d-flex justify-content-center gap-4">
             <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/iran.png') }}" alt="دولت" class="rounded-circle" width="50"
+                <img src="{{ asset('images/rahbari.png') }}" alt="مقام معظم رهبری" class="rounded-circle" width="50"
+                     height="50">
+                <span class="ms-3 custom-text">پایگاه اطلاع رسانی دفتر مقام معظم رهبری</span>
+            </a>
+            <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
+                <img src="{{ asset('images/dolat.png') }}" alt="دولت" class="rounded-circle" width="50"
                      height="50">
                 <span class="ms-3 custom-text">پایگاه اطلاع رسانی دولت</span>
             </a>
             <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/iran.png') }}" alt="ریاست جمهوری" class="rounded-circle" width="50"
+                <img src="{{ asset('images/paygahaha.png') }}" alt="ریاست جمهوری" class="rounded-circle" width="50"
                      height="50">
                 <span class="ms-3 custom-text">پایگاه اطلاع رسانی ریاست جمهوری</span>
             </a>
-            <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/iran.png') }}" alt="مقام معظم رهبری" class="rounded-circle" width="50"
-                     height="50">
-                <span class="ms-3 custom-text">پایگاه اطلاع رسانی دفتر مقام معظم رهبری</span>
-            </a>
+
         </div>
     </div>
 
