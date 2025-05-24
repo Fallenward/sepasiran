@@ -85,14 +85,22 @@ class BlogController extends Controller
             ->with('success', 'Blog deleted successfully');
     }
 
-    public function showById()
-{
-    // Fetch the blog by ID or abort with 404 if not found
-    $blog = Blog::all(); // throws ModelNotFoundException if missing:contentReference[oaicite:0]{index=0}
+        public function showById()
+        {
+            // Fetch most reviewed blogs (assumes you have a 'views' or 'reviews_count' column)
+            $mostReviewedBlogs = Blog::where('type', 'blog')
+                ->orderByDesc('views') // or 'reviews_count' depending on your schema
+                ->take(3)
+                ->get();
 
-    // Return the Blade view with the blog data
-    return view('blog.index', compact('blog'));
-}
+            // Fetch latest blogs (newest)
+            $latestBlogs = Blog::where('type', 'blog')
+                ->latest()
+                ->take(6)
+                ->get();
+
+            return view('blog.index', compact('mostReviewedBlogs', 'latestBlogs'));
+        }
 
     public function kir()
 {
@@ -101,6 +109,23 @@ class BlogController extends Controller
     $title = 'onvan';
     // Return the Blade view with the blog data
     return view('frontend.pages.blogs.show', compact('title','blog'));
+}
+
+public function news()
+{
+    // Get the latest news post
+    $latestNews = Blog::where('type', 'news')->latest()->first();
+
+    // Get the next 8 news items (excluding the latest one)
+    $newsItems = Blog::where('type', 'news')
+        ->when($latestNews, function ($query) use ($latestNews) {
+            return $query->where('id', '!=', $latestNews->id);
+        })
+        ->latest()
+        ->take(8)
+        ->get();
+
+    return view('blog.news', compact('latestNews', 'newsItems'));
 }
 
 }

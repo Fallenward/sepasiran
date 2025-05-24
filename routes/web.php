@@ -34,6 +34,7 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Facades\Route;
 
 
@@ -80,7 +81,7 @@ Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/blogs', [BlogController::class, 'showById'])->name('blog-kir.index');
+    Route::get('/blogsix', [BlogController::class, 'showById'])->name('blog-kir.index');
         Route::get('/kir', [BlogController::class, 'kir'])->name('blog.kir');
 
 
@@ -109,7 +110,13 @@ Route::name('frontend.')->group(function () {
     Route::get('clinic/insurances/{insurance}', [ClinicInsuranceController::class, 'show'])->name('clinic.insurance.show');
 
 
+    Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('frontend.blogs.show');
+    Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('frontend.blogs.store.comment');
 
+
+
+    Route::get('/support-web', [AboutController::class, 'support'])->name('support-web.index');
+    Route::post('/support-web', [AboutController::class, 'storeSupport'])->name('support-web.store');
 
     Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');
     Route::post('/contact', [AboutController::class, 'store'])->name('contact.store');
@@ -118,6 +125,9 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
     Route::get('/breeders/{id}', [BreederController::class, 'show'])->name('breeders.show');
+
+
+    Route::get('/news', [BlogController::class, 'news'])->name('news.index');
 
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');

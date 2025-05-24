@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\AdminUserSeeder;
+
 use Database\Seeders\SlidersTableSeeder;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
@@ -365,7 +366,8 @@ class DatabaseSeeder extends Seeder
             BreedSeeder::class,
             CitiesTableSeeder::class,
             SpecialtySeeder::class,
-
+            BlogSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 

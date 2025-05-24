@@ -36,29 +36,77 @@
 </div>
 
 
-<!-- بخش سوالات متداول -->
-<div class="container mb-6">
-    <h3 class="fw-bold mb-4">سوالات متداول</h3>
-    <div class="bg-light p-4 rounded shadow-sm">
-        <div class="mb-4">
-            <h6 class="fw-bold">چطور می‌توانم به پناهگاه کمک کنم؟</h6>
-            <p>شما می‌توانید با اهدای غذا، وسایل مورد نیاز یا حمایت مالی از پناهگاه حمایت کنید.</p>
-        </div>
-        <div class="mb-4">
-            <h6 class="fw-bold">چه نوع حیواناتی در این پناهگاه نگهداری می‌شوند؟</h6>
-            <p>ما عمدتاً از سگ‌ها و گاهی گربه‌های بی‌سرپرست مراقبت می‌کنیم.</p>
-        </div>
-        <div class="mb-4">
-            <h6 class="fw-bold">چطور می‌توانم به عنوان داوطلب ثبت‌نام کنم؟</h6>
-            <p>از طریق فرم ثبت‌نام داوطلب در وب‌سایت می‌توانید اطلاعات خود را ارسال کرده و با ما همکاری کنید.</p>
-        </div>
-        <div>
-            <h6 class="fw-bold">آیا می‌توانم حیوانی را به سرپرستی قبول کنم؟</h6>
-            <p>بله، پس از بررسی شرایط شما و حیوان، فرآیند سرپرستی انجام می‌شود.</p>
+{{-- Section: FAQ --}}
+<section class="section-spacing text-center">
+    <h2 class="fw-bold section-title">سوالات متداول</h2>
+
+    <div class="bg-light rounded overflow-hidden mt-4">
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading1">
+                    <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                        جلسات چقدر طول می‌کشد؟
+                    </button>
+                </h2>
+                <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted text-end">
+                        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ...
+                    </div>
+                </div>
+            </div>
+
+            @foreach ([
+                'آیا امکان آموزش در خانه من هست؟',
+                'مربیان با چه نژادهایی کار می‌کنند؟',
+                'لورم ایپسوم متن ساختگی؟',
+                'لورم ایپسوم متن ساختگی؟'
+            ] as $index => $question)
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ $index + 2 }}">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index + 2 }}">
+                            {{ $question }}
+                        </button>
+                    </h2>
+                    <div id="collapse{{ $index + 2 }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted text-end">
+                            پاسخ مربوط به سوال: "{{ $question }}"
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
-</div>
+</section>
 
+<style>
+    /* Thick blue underline for the section title */
+    .section-title {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .section-title::after {
+        content: "";
+        display: block;
+        width: 120px;
+        height: 5px;
+        background-color: #0d47a1;
+        border-radius: 3px;
+        margin: 10px auto 0;
+    }
+
+    /* Light blue background for the open/active accordion item */
+    .accordion-button:not(.collapsed) {
+        background-color: #e3f2fd; /* Light blue */
+        color: #000;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+    }
+</style>
 
 
 

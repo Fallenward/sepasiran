@@ -17,22 +17,28 @@
 
 
     {{-- ======================= Blogs Section ======================= --}}
-    <section class="blogs-section">
+<section class="blogs-section">
+    <div class="container">
+        <x-section-header title="اخبار" buttonText="مشاهده همه" link="{{ route('frontend.news.index') }}"/>
+    </div>
 
+    <div class="mt-107"></div>
 
-        <div class="container">
-            <x-section-header title="اخبار" buttonText="مشاهده همه" link="#"/>
+    <div class="container">
+        <div class="col-12 upper-box">
+            <x-blogs-slider
+                :id="'blogsCarousel'"
+                :items="$blogs"
+                :slidesPerView="3"
+                :type="'card-with-date'"
+                :ride="false"
+                :enabledDesc="true"
+                :enabledLink="true"
+                :viewLink="'frontend.frontend.blogs.show'"/>
         </div>
+    </div>
+</section>
 
-        <div class="mt-107"></div>
-
-        <div class="container">
-            <div class="col-12 upper-box">
-                <x-blogs-slider :id="'blogsCarousel'" :items="$blogs" :slidesPerView="3" :type="'card-with-date'"
-                          :ride="false" :enabledDesc="true" :enabledLink="true" :viewLink="'frontend.blog.show'"/>
-            </div>
-        </div>
-    </section>
     {{-- ======================= End of Blogs Section ======================= --}}
 
 
@@ -120,20 +126,20 @@
 
     <div class="mt-5 text-center">
         <h5 class="fw-bold mb-4">پیوند به سایت‌های دیگر</h5>
-        <div class="d-flex justify-content-center gap-4">
-            <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/rahbari.png') }}" alt="مقام معظم رهبری" class="rounded-circle" width="50"
+        <div class="d-flex justify-content-center gap-4 custom-link-area">
+            <a href="#" class="card  custom-link-card p-4 text-decoration-none">
+                <img src="{{ asset('images/rahbari.png') }}" alt="مقام معظم رهبری" class="img-fluid mx-2 rounded-circle" width="75"
                      height="50">
                 <span class="ms-3 custom-text">پایگاه اطلاع رسانی دفتر مقام معظم رهبری</span>
             </a>
-            <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/dolat.png') }}" alt="دولت" class="rounded-circle" width="50"
-                     height="50">
+            <a href="#" class="card custom-link-card p-4 text-decoration-none">
+                <img src="{{ asset('images/dolat.png') }}" alt="دولت" class="img-fluid mx-2 rounded-circle" width="75"
+                     height="75">
                 <span class="ms-3 custom-text">پایگاه اطلاع رسانی دولت</span>
             </a>
-            <a href="#" class="card d-flex align-items-center custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/paygahaha.png') }}" alt="ریاست جمهوری" class="rounded-circle" width="50"
-                     height="50">
+            <a href="#" class="card custom-link-card p-4 text-decoration-none">
+                <img src="{{ asset('images/paygahaha.png') }}" alt="ریاست جمهوری" class="img-fluid mx-2 rounded-circle" width="75"
+                     height="75">
                 <span class="ms-3 custom-text">پایگاه اطلاع رسانی ریاست جمهوری</span>
             </a>
 

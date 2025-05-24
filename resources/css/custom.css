@@ -1842,5 +1842,16 @@ img {
     }
 }
 
+.custom-link-card{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
 
+/* Responsive */
+@media (max-width: 768px) {
+    .custom-link-area{
+      flex-direction: column !important;
+}
 
+}

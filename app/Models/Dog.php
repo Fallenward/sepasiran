@@ -27,4 +27,36 @@ class Dog extends Model
     return $this->belongsTo(Insurance::class);
 }
 
+
+public function fatherBreed()
+{
+    return $this->belongsTo(Breed::class, 'father_breed_id');
+}
+
+public function motherBreed()
+{
+    return $this->belongsTo(Breed::class, 'mother_breed_id');
+}
+
+public function maternalGrandmotherBreed()
+{
+    return $this->belongsTo(Breed::class, 'maternal_grandmother_breed_id');
+}
+
+public function maternalGrandfatherBreed()
+{
+    return $this->belongsTo(Breed::class, 'maternal_grandfather_breed_id');
+}
+
+public function paternalGrandmotherBreed()
+{
+    return $this->belongsTo(Breed::class, 'paternal_grandmother_breed_id');
+}
+
+public function paternalGrandfatherBreed()
+{
+    return $this->belongsTo(Breed::class, 'paternal_grandfather_breed_id');
+}
+
+
 }

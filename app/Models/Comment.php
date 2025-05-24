@@ -27,7 +27,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Comment extends Model
 {
-    
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
     protected $perPage = 20;
 
     /**
@@ -45,5 +49,5 @@ class Comment extends Model
     {
         return $this->hasMany(\App\Models\CommentAnswer::class, 'id', 'comment_id');
     }
-    
+
 }

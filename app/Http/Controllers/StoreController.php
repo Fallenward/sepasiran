@@ -16,7 +16,7 @@ class StoreController extends Controller
             ->when($request->filled('category'), fn($q) => $q->whereIn('category', $request->input('category')))
             ->paginate(9);
 
-        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
+        $blogs = Blog::where('type', 'blog')->orderBy('created_at', 'desc')->get();
         $filters = [
             'size' => ['mini' => 'کوچک', 'medium' => 'متوسط', 'large' => 'بزرگ'],
             'category' => [

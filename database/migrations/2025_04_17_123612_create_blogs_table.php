@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['blog', 'news', 'support', 'about-us'])->nullable(); // Moved here correctly
             $table->string('title');
             $table->string('slug')->unique();
             $table->longText('content');
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->boolean('comments_enabled')->default(true);
             $table->timestamps();
         });
+
     }
 
     /**

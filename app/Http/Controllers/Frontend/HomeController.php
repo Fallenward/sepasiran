@@ -42,7 +42,7 @@ class HomeController extends Controller
             }
             return $service;
         });
-        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
+        $blogs = Blog::where('type', 'blog')->orderBy('created_at', 'desc')->take(3)->get();
         $coachCount = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->count();
         $breederCount = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->count();
         $clinicCount = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->count();

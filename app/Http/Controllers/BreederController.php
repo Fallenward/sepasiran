@@ -222,7 +222,6 @@ public function wallet()
     ]);
 }
 
-
 public function show($id)
 {
     $trainer = \App\Models\User::select('users.*')
@@ -236,9 +235,27 @@ public function show($id)
     $dogsPending = $trainer->dogs()->where('status', 'pending')->get();
     $dogsReady = $trainer->dogs()->where('status', 'ready')->get();
 
-    $medals = []; // your medals array
+    // Example statistics (you can modify this dynamically)
+    $statistics = [
+        ['title' => 'سگ‌های آماده', 'counter' => $dogsReady->count()],
+        ['title' => 'سگ‌های در انتظار', 'counter' => $dogsPending->count()],
+        ['title' => 'تجربه (سال)', 'counter' => $trainer->experience_years ?? 0],
+        ['title' => 'مشتریان راضی', 'counter' => 120], // Example static number
+    ];
+
+    $medals = [
+        ['title' => 'مدال طلا', 'description' => 'بهترین مربی سال 2024', 'progress' => 80],
+        ['title' => 'مدال نقره', 'description' => 'پرورش‌دهنده برتر منطقه', 'progress' => 60],
+        ['title' => 'مدال برنز', 'description' => 'تلاش مداوم در آموزش سگ‌ها', 'progress' => 25],
+        ['title' => 'مدال پلاتین', 'description' => 'رضایت مشتریان بالا', 'progress' => 90],
+        ['title' => 'مدال الماس', 'description' => 'نوآوری در تربیت سگ‌ها', 'progress' => 95],
+        ['title' => 'مدال یاقوت', 'description' => 'خدمات برجسته به جامعه', 'progress' => 50],
+    ];
+
+
     $comments = [];
 
-    return view('breeders.show', compact('trainer', 'dogsPending', 'dogsReady', 'medals', 'comments'));
+    return view('breeders.show', compact('trainer', 'dogsPending', 'dogsReady', 'medals', 'comments', 'statistics'));
 }
+
 }

@@ -14,14 +14,14 @@
 <div class="container py-5">
     <div class="row g-5 align-items-center">
         <!-- اطلاعات تماس و تصویر -->
-        <div class="col-md-6 text-center">
-            <img src="/path-to-your-image.svg" alt="تماس با ما" class="img-fluid mb-4" style="max-height: 250px;">
-            <div class="text-muted">
-                <p>آدرس دفتر: تهران، خیابان مثال</p>
-                <p>تلفن: 09111111111</p>
-                <p>ایمیل: example@gmail.com</p>
-            </div>
+    <div class="col-md-6 text-center">
+        <img src="{{ asset('images/Contact.png') }}" alt="تماس با ما" class="img-fluid mb-4" style="max-height: 250px;">
+        <div class="text-muted">
+            <p>آدرس دفتر: تهران، خیابان مثال</p>
+            <p>تلفن: 09111111111</p>
+            <p>ایمیل: example@gmail.com</p>
         </div>
+    </div>
 
         <!-- فرم تماس -->
         <div class="col-md-6">

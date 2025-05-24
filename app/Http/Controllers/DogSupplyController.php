@@ -11,50 +11,50 @@ use Illuminate\Support\Facades\View;
 class DogSupplyController extends Controller
 {
 
-public function index(Request $request)
-{
-    $query = Dog::with([
-        'owner:id,name',       // eager load owner name
-        'city:id,name',        // eager load city name
-        'specialty:id,name',   // eager load specialty name
-    ]);
+    public function index(Request $request)
+    {
+        $query = Dog::with([
+            'owner:id,name',
+            'city:id,name',
+            'specialty:id,name',
+        ]);
 
-    if ($request->filled('city')) {
-        $query->whereIn('city_id', (array) $request->city);
-    }
+        // Optional filters
+        if ($request->filled('city')) {
+            $query->whereIn('city_id', (array) $request->city);
+        }
 
-    if ($request->filled('breed')) {
-        $query->whereIn('breed_id', (array) $request->breed);
-    }
+        if ($request->filled('breed')) {
+            $query->whereIn('breed_id', (array) $request->breed);
+        }
 
-    if ($request->filled('size')) {
-        $query->whereIn('size', (array) $request->size);
-    }
+        if ($request->filled('size')) {
+            $query->whereIn('size', (array) $request->size);
+        }
 
-    $dogs = $query->paginate(9)->appends($request->query());
+        $dogs = $query->paginate(9)->appends($request->query());
 
-    // Filters for sidebar etc.
-    $filters = [
-        'city' => City::select('id', 'name')->get(),
-        'breed' => \App\Models\Breed::select('id', 'name')->get(),
-        'size' => ['small', 'medium', 'large'],
-    ];
+        $filters = [
+            'city' => City::select('id', 'name')->get(),
+            'breed' => Breed::select('id', 'name')->get(),
+            'size' => ['small', 'medium', 'large'],
+        ];
 
-    if ($request->ajax()) {
+        if ($request->ajax()) {
             $html = '';
             foreach ($dogs as $dog) {
                 $html .= view('components.dog-card', ['item' => $dog])->render();
             }
 
-        return response()->json([
-            'html' => $html,
-            'hasMore' => $dogs->hasMorePages(),
-            'nextPage' => $dogs->currentPage() + 1,
-        ]);
-    }
+            return response()->json([
+                'html' => $html,
+                'hasMore' => $dogs->hasMorePages(),
+                'nextPage' => $dogs->currentPage() + 1,
+            ]);
+        }
 
-    return view('dog-supply.index', compact('dogs', 'filters'));
-}
+        return view('dog-supply.index', compact('dogs', 'filters'));
+    }
 
 public function show($id)
 {
@@ -62,10 +62,17 @@ public function show($id)
         'owner:id,name',
         'city:id,name',
         'specialty:id,name',
+        'fatherBreed:id,name',
+        'motherBreed:id,name',
+        'maternalGrandmotherBreed:id,name',
+        'maternalGrandfatherBreed:id,name',
+        'paternalGrandmotherBreed:id,name',
+        'paternalGrandfatherBreed:id,name',
     ])->findOrFail($id);
 
     return view('dogOrder.index', compact('dog'));
 }
+
 
 
 

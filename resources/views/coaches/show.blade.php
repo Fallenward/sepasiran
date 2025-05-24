@@ -192,21 +192,28 @@
 <div class="card shadow-sm p-4 mb-5">
     <h4 class="fw-bold mb-4">نظرات کاربران</h4>
 
+    <ul class="list-unstyled">
+        @foreach($comments as $comment)
+            <li class="mb-4 d-flex align-items-start">
+                <img src="{{ $comment->user->avatar ?? asset('images/default-avatar.png') }}"
+                     alt="{{ $comment->user->name ?? 'کاربر' }}"
+                     class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
 
-        <ul class="list-unstyled">
-            @foreach($comments as $comment)
-                <li class="mb-4 d-flex align-items-start">
-                    <img src="{{ $comment->user->avatar ?? asset('images/default-avatar.png') }}"
-                         alt="{{ $comment->user->name ?? 'کاربر' }}"
-                         class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
+                <div>
+                    <h6 class="mb-1 fw-bold">{{ $comment->user->name ?? 'کاربر' }}</h6>
 
-                    <div>
-                        <h6 class="mb-1 fw-bold">{{ $comment->user->name ?? 'کاربر' }}</h6>
-                        {{-- <small class="text-muted">{{ $comment->created_at->translatedFormat('Y/m/d') }}</small> --}}
-?                    </div>
-                </li>
-            @endforeach
-        </ul>
+                    <!-- Star rating under name -->
+                    <div class="text-warning mb-2">
+                        @for ($i = 0; $i < 5; $i++)
+                            <i class="fa fa-star"></i>
+                        @endfor
+                    </div>
+
+                    <p>{{ $comment->content ?? '' }}</p>
+                </div>
+            </li>
+        @endforeach
+    </ul>
 </div>
 
 

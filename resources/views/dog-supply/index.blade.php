@@ -24,15 +24,15 @@
 
         <!-- نمایش سگ‌ها -->
         <div class="col-md-8 col-12">
-            <div class="row g-4" id="dogs-list">
-                @foreach($dogs as $dog)
-                    <div class="col-md-4 col-12">
-                        <x-dog-card :item="$dog" />
-                    </div>
-                @endforeach
-
+    <div class="row">
+        @forelse($dogs as $dog)
+            <div class="col-md-4 mb-4">
+                @include('components.dog-card', ['item' => $dog])
             </div>
-
+        @empty
+            <p class="text-center">سگی یافت نشد.</p>
+        @endforelse
+    </div>
             <!-- دکمه مشاهده بیشتر -->
             <x-load-more-button :hasMore="$dogs->hasMorePages()" :nextPage="$dogs->currentPage() + 1" />
         </div>
