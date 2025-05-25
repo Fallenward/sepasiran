@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
 Route::middleware(['auth', 'is_admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -94,10 +95,13 @@ Route::name('frontend.')->group(function () {
     Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
-    Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');
 
 
-    Route::get('/online-courses', [OnlineCourseController::class, 'index'])->name('online.courses');
+    Route::prefix('course')->group(function () {
+        Route::get('/', [OnlineCourseController::class, 'index'])->name('online.courses');
+        Route::get('/{slug}', [OnlineCourseController::class, 'showCourse'])->name('courses.show');
+    });
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
 
@@ -110,10 +114,13 @@ Route::name('frontend.')->group(function () {
     Route::get('clinic/insurances/{insurance}', [ClinicInsuranceController::class, 'show'])->name('clinic.insurance.show');
 
 
-    Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('frontend.blogs.show');
-    Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('frontend.blogs.store.comment');
+    Route::get('/blogs/{slug}', [BlogController::class, 'showBlog'])->name('blogs.show');
+    Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('blogs.store.comment');
+
+    Route::post('/cart/show', [CartController::class, 'show'])->name('card.show');
 
 
+    Route::get('/course/filter',[OnlineCourseController::class, 'filter'])->name('courses.filter');
 
     Route::get('/support-web', [AboutController::class, 'support'])->name('support-web.index');
     Route::post('/support-web', [AboutController::class, 'storeSupport'])->name('support-web.store');
@@ -122,6 +129,8 @@ Route::name('frontend.')->group(function () {
     Route::post('/contact', [AboutController::class, 'store'])->name('contact.store');
 
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
+    Route::get('/clinics/{id}', [ClinicController::class, 'showClinicById'])->name('clinics.show');
+
 
     Route::get('/breeders', [BreederController::class, 'index'])->name('breeders.index');
     Route::get('/breeders/{id}', [BreederController::class, 'show'])->name('breeders.show');
@@ -130,11 +139,13 @@ Route::name('frontend.')->group(function () {
     Route::get('/news', [BlogController::class, 'news'])->name('news.index');
 
 
+
+    Route::get('/products/{id}', [StoreController::class, 'show'])->name('products.show');
+
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
-    Route::get('course/{id}', [CourseController::class, 'showById'])->name('courses.show');
 
 
     // Services

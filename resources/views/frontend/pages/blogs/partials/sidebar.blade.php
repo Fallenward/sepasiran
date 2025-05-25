@@ -1,22 +1,13 @@
 @php use Carbon\Carbon;use Morilog\Jalali\Jalalian; @endphp
-<div class="card mb-4 animate__animated animate__fadeInRight blog-box shadow bg-secondary">
-    <div class="card-body">
-        <form>
-            <div style="position: relative;">
-                <input type="text" class="form-control" placeholder="جستجو..." style="padding-right: 35px;">
-                <i class="fas fa-search"
-                   style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: gray;"></i>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 
 <div class="card mb-4 animate__animated animate__fadeInRight blog-box shadow">
     <div class="card-body p-0">
-        <h5 class="px-4 pt-3 card-title">
+        <h5 class="px-4 pt-3 card-title text-white" style="background-color: #0d47a1; padding-bottom: 0.75rem;">
             <i class="fa fa-heart"></i> آخرین پست ها
         </h5>
+
         <div class="border-bottom-sidebar"></div>
         <ul class="list-group p-0 border-0">
             @foreach($latestPosts as $post)
@@ -42,13 +33,14 @@
 
 <div class="card mb-4 animate__animated animate__fadeInRight blog-box shadow">
     <div class="card-body p-0">
-        <h5 class="px-4 pt-3 card-title">
-            <i class="fa fa-list"></i> دسته بندی ها
-        </h5>
+<h5 class="px-4 pt-3 card-title text-white" style="background-color: #0d47a1; padding-bottom: 0.75rem;">
+    <i class="fa fa-list"></i> دسته بندی ها
+</h5>
+
         <div class="border-bottom-sidebar"></div>
         <ul class="list-group p-0 border-0">
             @foreach($categories as $category)
-                <a target="_blank" href="{{ route('frontend.blogs.show.category', $category->slug) }}" class="text-decoration-none">
+                <a target="_blank" href="{{ route('frontend.blogs.show', $category->slug) }}" class="text-decoration-none">
                     <li class="list-group-item d-flex align-items-center border-bottom border-top-0">
                         <i class="fas fa-folder text-secondary" style="margin-left: 10px;"></i>
                         <span>{{ $category->name }}</span>

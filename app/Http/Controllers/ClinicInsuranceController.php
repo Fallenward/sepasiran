@@ -6,6 +6,9 @@ use App\Models\City;
 use App\Models\Breed;
 use App\Models\Insurance;  // assuming you have an Insurance model
 use Illuminate\Http\Request;
+use App\Models\Comment;
+
+
 
 class ClinicInsuranceController extends Controller
 {
@@ -42,11 +45,26 @@ public function index(Request $request)
 }
 
 public function show($id)
-{
-    $insurance = Insurance::with('city')->findOrFail($id);
+    {
+        $insurance = Insurance::with('city')->findOrFail($id);
 
-    return view('clinic-insurance.show', compact('insurance'));
-}
+        // Dummy statistics - replace with your actual logic
+        $statistics = [
+            ['title' => 'مراجعه‌کنندگان', 'counter' => 120],
+            ['title' => 'مراکز طرف قرارداد', 'counter' => 45],
+            ['title' => 'کاربران راضی', 'counter' => 98],
+            ['title' => 'نظرات ثبت‌شده', 'counter' => 70],
+        ];
+
+        $comments = Comment::with('user')
+            ->where('user_id', $insurance->id)
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('insurance.show', compact('insurance', 'statistics', 'comments'));
+    }
+
 
 
 

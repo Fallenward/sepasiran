@@ -44,13 +44,13 @@
                     <li class="course-group-item">
                         <div class="course-details">
                             <span class="first-span">درس</span>
-                            <span>{{$course->field->title}}</span>
+                        <span>{{ $course->field?->title ?? 'بدون رشته' }}</span>
                         </div>
                     </li>
                     <li class="course-group-item">
                         <div class="course-details">
                             <span class="first-span">پایه</span>
-                            <span>{{$course->level->title}}</span>
+                    <span>{{ optional($course->field)->title ?? 'بدون رشته' }}</span>
                         </div>
                     </li>
                     <li class="course-group-item">
@@ -62,9 +62,8 @@
                     @php
                         $supporCategories = [];
                     @endphp
-                    @foreach($course->categories as $category)
-                        @php($supporCategories[]=$category->name)
-                    @endforeach
+                    <span>{{ $course->category->name ?? 'بدون دسته بندی' }}</span>
+
                     <li class="course-group-item">
                         <div class="course-details">
                             <span class="first-span">دسته بندی</span>
@@ -104,12 +103,12 @@
                     <img src="{{ asset('storage/' . $course->image) }}" class="img-fluid"/>
                 </div>
                 <div class="mt-auto">
-                    <button id="addToCart" class="btn btn-secondary w-100 mt-2" @if(!auth()->check()) disabled @endif>
+                    <button id="addToCart" class="btn w-100 mt-2 text-white" style="background-color: #0d47a1;" @if(!auth()->check()) disabled @endif>
                         <span id="cartText">@if(auth()->check()) {{'افزودن به سبد خرید'}} @else {{'برای خرید دوره وارد شوید'}} @endif</span>
                         <span id="cartLoader" class="spinner-border spinner-border-sm d-none"></span>
                     </button>
-
                 </div>
+
             </div>
         </div>
 
@@ -137,69 +136,6 @@
                         <!-- Course Content Tab -->
                         <div class="tab-pane fade show active" id="home2" role="tabpanel">
                             @php($lessons = $course->lessons)
-                            <div class="accordion" id="lessonsAccordion">
-                                @foreach($lessons as $index => $lesson)
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="heading{{$index}}">
-                                            <button class="accordion-button {{$index === 0 ? '' : 'collapsed'}}"
-                                                    type="button" data-bs-toggle="collapse"
-                                                    data-bs-target="#collapse{{$index}}"
-                                                    aria-expanded="{{$index === 0 ? 'true' : 'false'}}"
-                                                    aria-controls="collapse{{$index}}">
-                                                @switch($lesson->type)
-                                                    @case(\App\Models\Lesson::TYPE_FILE)
-                                                        <i class="fa fa-file me-2"></i>
-                                                        @break
-                                                    @case(\App\Models\Lesson::TYPE_VIDEO)
-                                                        <i class="fa fa-video me-2"></i>
-                                                        @break
-                                                    @case(\App\Models\Lesson::TYPE_IMAGE)
-                                                        <i class="fa fa-image me-2"></i>
-                                                        @break
-                                                    @case(\App\Models\Lesson::TYPE_PDF)
-                                                        <i class="fa fa-file-pdf me-2"></i>
-                                                        @break
-                                                    @default
-                                                        <i class="fa fa-file me-2"></i>
-                                                        @break
-                                                @endswitch
-                                                <span class="me-2">{{$lesson->title}}</span>
-                                            </button>
-                                        </h2>
-                                        <div id="collapse{{$index}}"
-                                             class="accordion-collapse collapse {{$index === 0 ? 'show' : ''}}"
-                                             aria-labelledby="heading{{$index}}" data-bs-parent="#lessonsAccordion">
-                                            <div class="accordion-body">
-                                                @switch($lesson->type)
-                                                    @case(\App\Models\Lesson::TYPE_FILE)
-                                                    @case(\App\Models\Lesson::TYPE_PDF)
-                                                        <a href="{{ asset('storage/' . $lesson->file_path) }}"
-                                                           class="btn btn-primary" download>
-                                                            <i class="fa fa-download me-2"></i> دانلود فایل
-                                                        </a>
-                                                        @break
-                                                    @case(\App\Models\Lesson::TYPE_IMAGE)
-                                                        <img src="{{ asset('storage/' . $lesson->file_path) }}"
-                                                             class="img-fluid" alt="{{$lesson->title}}"
-                                                             style="max-width: 100%; height: auto;">
-                                                        @break
-                                                    @case(\App\Models\Lesson::TYPE_VIDEO)
-                                                        <video controls class="w-100"
-                                                               style="max-width: 100%; height: auto;">
-                                                            <source src="{{ asset('storage/' . $lesson->file_path) }}"
-                                                                    type="video/mp4">
-                                                            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-                                                        </video>
-                                                        @break
-                                                    @default
-                                                        <p>{{$lesson->content}}</p>
-                                                        @break
-                                                @endswitch
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
                         </div>
 
                         <!-- Comments Tab -->
@@ -257,11 +193,13 @@
                 <div class="normal-divider"></div>
                 <div class="col-12 d-flex align-items-center flex-column">
                     <div class="popular-course bg-secondary w-100">
-                        <div class="text-white d-flex p-2 align-items-center">
-                            <i class="fa fa-heart"></i><span class="me-2">محبوبترین پکیج ها</span>
-                        </div>
+                    <div class="text-white d-flex p-2 align-items-center" style="background-color: #0d47a1;">
+                        <i class="fa fa-heart"></i>
+                        <span class="me-2">محبوبترین پکیج ها</span>
                     </div>
-                    <div class="col-12 popular-course-items mt-4">
+
+                    </div>
+                    {{-- <div class="col-12 popular-course-items mt-4">
                         @foreach($popularCourses as $popularCourse)
                             <div class="col-12 d-flex justify-content-between">
                                 <div class="d-flex">
@@ -281,7 +219,7 @@
                                 <div class="border-popular-posts"></div>
                             @endif
                         @endforeach
-                    </div>
+                    </div> --}}
                 </div>
 
 
@@ -305,7 +243,7 @@
                                     بیان کنید تا بتوانیم بهبود یافته و بهتر خدمت‌رسانی کنیم.</p>
                             </div>
                             <div class="comment-form mt-4">
-                                <form action="{{ route('frontend.course.comment.store', $course->id) }}" method="POST">
+                                <form action="{{ route('frontend.courses.show', $course->id) }}" method="POST">
                                     @csrf
                                     <div class="form-group">
                                         <textarea name="content" class="form-control" rows="4"
@@ -330,7 +268,7 @@
                             </div>
                         </div>
 
-                        <!-- Rating Breakdown -->
+                        {{-- <!-- Rating Breakdown -->
                         <div class="col-md-6 col-12">
                             <div class="form-group ">
                                 <div class="d-flex mb-3 align-items-center">
@@ -365,7 +303,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -397,7 +335,7 @@
 
             // Script for displaying average rating
             document.addEventListener("DOMContentLoaded", function () {
-                const averageRating = parseFloat("{{ \App\Models\Comment::getAverageRatingForCourse($course->id) }}");
+                const averageRating = parseFloat("{{ $averageRating }}");
                 const starsInner = document.getElementById('starsInner');
                 const ratingInput = document.getElementById('ratingInput');
 
@@ -476,7 +414,7 @@
                     $('#cartLoader').removeClass('d-none');
 
                     $.ajax({
-                        url: '{{route('frontend.card.add')}}',
+                        url: '{{route('frontend.card.show')}}',
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',

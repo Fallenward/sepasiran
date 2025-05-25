@@ -102,6 +102,7 @@ namespace App\Models;
 
 
 
+
         /**
          * اینجا باید روابط واقعی مدل‌ها قرار گیرد.
          * به عنوان مثال، اگر مدل Blog وجود دارد و کاربر می‌تواند چندین وبلاگ داشته باشد:
@@ -110,6 +111,10 @@ namespace App\Models;
         {
             return $this->hasMany(\App\Models\Blog::class, 'author_id', 'id');
         }
+
+        // In User or Trainer model
+
+
 
         /**
          * روابط مشابه می‌توانند برای سایر مدل‌ها مانند Notifications و غیره ایجاد شوند.

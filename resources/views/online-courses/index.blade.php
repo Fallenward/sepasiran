@@ -35,27 +35,28 @@
         <a href="#" class="border px-4 py-2 text-decoration-none text-dark rounded">دوره‌های نگهبانی</a>
     </div>
 
-    <div class="swiper">
-        <div class="swiper-wrapper">
-            @foreach(range(1, 10) as $index)
-                <div class="swiper-slide" style="width: 250px;">
-                    <div class="card h-100">
-                        <img src="{{ asset('storage/dogPicture.jpg') }}" class="card-img-top" alt="دوره {{ $index }}">
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="fw-bold">دوره {{ $index }}</h6>
-                            <p class="text-muted small mb-3">توضیحات نمونه برای دوره {{ $index }}...</p>
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <span>تومان 500,000</span>
-                                <a href="#" class="btn btn-outline-primary btn-sm">مشاهده دوره</a>
-                            </div>
+<div class="swiper">
+    <div class="swiper-wrapper">
+        @foreach($courses as $course)
+            <div class="swiper-slide" style="width: 250px;">
+                <div class="card h-100">
+                    <img src="{{ asset('storage/' . $course->image_path) }}" class="card-img-top" alt="دوره {{ $course->title }}">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="fw-bold">{{ $course->title }}</h6>
+                        <p class="text-muted small mb-3">{{ Str::limit($course->description, 60) }}</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span>تومان {{ number_format($course->price) }}</span>
+                            <a href="{{ route('frontend.show', $course->id) }}" class="btn btn-primary btn-sm">مشاهده دوره</a>
                         </div>
                     </div>
                 </div>
-            @endforeach
-        </div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
+            </div>
+        @endforeach
     </div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+</div>
+
 </div>
 
 <!-- Swiper JS -->
@@ -87,7 +88,7 @@
                         <p class="text-muted small mb-3">توضیحات نمونه برای دوره محبوب {{ $i }}...</p>
                         <div class="mt-auto d-flex justify-content-between align-items-center">
                             <span>تومان 500,000</span>
-                            <a href="#" class="btn btn-outline-primary btn-sm">مشاهده دوره</a>
+                            <a href="#" class="btn btn-primary btn-sm">مشاهده دوره</a>
                         </div>
                     </div>
                 </div>

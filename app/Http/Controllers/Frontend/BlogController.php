@@ -17,7 +17,7 @@ class BlogController extends Controller
         return view('frontend.pages.blogs.index', compact('blogs','title'));
     }
 
-        public function show($slug)
+        public function showBlog($slug)
     {
         $blog = Blog::where('slug', $slug)
             ->with(['comments' => function ($query) {

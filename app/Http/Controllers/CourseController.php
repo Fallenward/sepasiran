@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\CourseRequest;
@@ -81,5 +82,20 @@ class CourseController extends Controller
 
         return Redirect::route('courses.index')
             ->with('success', 'Course deleted successfully');
+    }
+
+
+        public function showCourse($slug)
+    {
+        $course = Course::where('slug', $slug)->firstOrFail();
+        $latestCourses = Course::latest()->take(5)->get();
+        $categories = Category::all(); // if you have course categories
+
+        return view('frontend.pages.courses.show', [
+            'course' => $course,
+            'title' => $course->title,
+            'latestCourses' => $latestCourses,
+            'categories' => $categories,
+        ]);
     }
 }

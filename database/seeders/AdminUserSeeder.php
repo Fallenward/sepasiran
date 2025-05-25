@@ -50,18 +50,22 @@ class AdminUserSeeder extends Seeder
             $roleId = DB::table('roles')->where('name', $role)->value('id');
 
             for ($i = 1; $i <= $count; $i++) {
-                $user = User::create([
+            $user = User::updateOrCreate(
+                ['email' => "{$role}{$i}@example.com"],
+                [
                     'name' => ucfirst($role) . $i,
                     'family' => ucfirst($role) . ' Family',
-                    'email' => "{$role}{$i}@example.com",
                     'password' => Hash::make('password'),
                     'is_admin' => false,
-                ]);
+                ]
+            );
 
-                DB::table('role_user')->insert([
-                    'user_id' => $user->id,
-                    'role_id' => $roleId,
-                ]);
+
+                DB::table('role_user')->updateOrInsert(
+                    ['user_id' => $user->id, 'role_id' => $roleId],
+                    []
+                );
+
 
                 // Store one user to use later (e.g., for transactions)
                 if ($role === 'coach' && $i === 1) {

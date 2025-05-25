@@ -57,6 +57,11 @@ public function paternalGrandfatherBreed()
 {
     return $this->belongsTo(Breed::class, 'paternal_grandfather_breed_id');
 }
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
+
 
 
 }

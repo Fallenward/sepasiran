@@ -20,65 +20,64 @@
                 <x-filter-form :filters="$filters" />
             </div>
 
-            <!-- آیتم‌ها -->
-            <div class="col-md-8">
+            <!-- محصولات -->
+            <div class="col-lg-8 col-md-7 col-12">
                 <div class="row g-4">
-                    @foreach($dogs as $dog)
+                    @foreach($products as $product)
                         <div class="col-md-4">
-                            <x-dog-card :item="$dog" />
+                            <x-product-card :item="$product" :showRoute="'frontend.products.show'" />
                         </div>
                     @endforeach
                 </div>
-
-                <div class="text-center mt-4">
-                </div>
             </div>
         </div>
     </div>
 
-<!-- Blog Slider Section -->
-<div class="mt-5 container">
-    <!-- Section Header with circle and divider -->
-    <div class="d-flex align-items-center mb-4">
-        <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-        <h3 class="fw-bold mb-0 ms-3">بلاگ‌ها</h3>
-        <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
-    </div>
+    <!-- Blog Slider Section -->
+    <div class="mt-5 container">
+        <!-- Section Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
+            <h3 class="fw-bold mb-0 ms-3">بلاگ‌ها</h3>
+            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
+        </div>
 
-    <div class="position-relative">
-        <div class="swiper blog-swiper px-3">
-            <div class="swiper-wrapper">
-                @foreach($blogs as $blog)
-                    <div class="swiper-slide">
-                        <div class="card h-100 border-0 shadow-sm d-flex flex-column">
-                            <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                                 class="card-img-top"
-                                 alt="{{ $blog->title }}"
-                                 style="object-fit: cover; height: 180px; width: 100%;">
-                            <div class="card-body d-flex flex-column justify-content-between align-items-center text-center px-3" style="min-height: 190px;">
-                                <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                                <p class="card-text text-muted small flex-grow-1"
-                                   style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                    {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                                </p>
-                                <a href="{{ route('frontend.blog.show', $blog->slug) }}"
-                                   class="btn btn-outline-primary btn-sm mt-2"
-                                   style="border-color: #0d47a1; color: #0d47a1;">
-                                    بیشتر بخوانید
-                                </a>
+        <div class="position-relative">
+            <div class="swiper blog-swiper px-3">
+                <div class="swiper-wrapper">
+                    @forelse($blogs as $blog)
+                        <div class="swiper-slide">
+                            <div class="card h-100 border-0 shadow-sm d-flex flex-column">
+                                <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
+                                     class="card-img-top"
+                                     alt="{{ $blog->title }}"
+                                     style="object-fit: cover; height: 180px; width: 100%;">
+                                <div class="card-body d-flex flex-column justify-content-between align-items-center text-center px-3" style="min-height: 190px;">
+                                    <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
+                                    <p class="card-text text-muted small flex-grow-1"
+                                       style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
+                                        {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
+                                    </p>
+                                    <a href="{{ route('frontend.blogs.show', $blog->slug) }}"
+                                       class="btn btn-outline-primary btn-sm mt-2"
+                                       style="border-color: #0d47a1; color: #0d47a1;">
+                                        بیشتر بخوانید
+                                    </a>
+                                </div>
+                                <div style="border-bottom: 4px solid #0d47a1;"></div>
                             </div>
-                            <div style="border-bottom: 4px solid #0d47a1;"></div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @empty
+                        <p class="text-center text-muted">هیچ بلاگی یافت نشد.</p>
+                    @endforelse
+                </div>
 
-            <!-- Navigation Arrows -->
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
+                <!-- Navigation Arrows -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
         </div>
     </div>
-</div>
 
 @endsection
 
@@ -87,7 +86,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 
 <style>
-    /* Swiper slide fixed width and spacing */
     .swiper-slide {
         width: auto !important;
         max-width: 350px;
@@ -97,14 +95,12 @@
         flex-direction: column;
     }
 
-    /* Equal height cards using flex */
     .swiper-slide .card {
         height: 420px;
         display: flex;
         flex-direction: column;
     }
 
-    /* Fixed image height */
     .swiper-slide .card-img-top {
         height: 180px;
         object-fit: cover;
@@ -112,9 +108,8 @@
         flex-shrink: 0;
     }
 
-    /* Card body with fixed min-height and flex */
     .swiper-slide .card-body {
-        min-height: 190px; /* fixes height */
+        min-height: 190px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -125,7 +120,6 @@
         flex-grow: 1;
     }
 
-    /* Clamp the description text lines to 4 lines */
     .swiper-slide .card-text {
         overflow: hidden;
         display: -webkit-box;
@@ -133,7 +127,6 @@
         -webkit-box-orient: vertical;
     }
 
-    /* Larger navigation arrows with aura outside cards */
     .swiper-button-next,
     .swiper-button-prev {
         color: #0d47a1;
@@ -146,14 +139,13 @@
     }
 
     .swiper-button-next {
-        right: -60px; /* outside right */
+        right: -60px;
     }
 
     .swiper-button-prev {
-        left: -60px; /* outside left */
+        left: -60px;
     }
 
-    /* Increase arrow font size */
     .swiper-button-next::after,
     .swiper-button-prev::after {
         font-size: 24px;

@@ -20,7 +20,7 @@
         <small class="text-muted d-block">{{ $cityName }} | {{ $specialtyName }}</small>
     </div>
 
-    <a href="{{ route('frontend.clinics.index', $item->id) }}"
+    <a href="{{ route('frontend.clinics.show', $item->id) }}"
        class="btn btn-outline-primary btn-sm position-absolute start-0 bottom-0 m-2">
         مشاهده
     </a>

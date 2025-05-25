@@ -66,6 +66,34 @@ namespace App\Models;
 }
 
 
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+public function getDisplayPrice()
+{
+    // If you want to show discounted price if available
+    if ($this->discount_price && $this->discount_price < $this->price) {
+        return '<del>' . number_format($this->price) . ' تومان</del> ' . number_format($this->discount_price) . ' تومان';
+    }
+    // Otherwise, just show price or "رایگان" if zero
+    return $this->price == 0 ? 'رایگان' : number_format($this->price) . ' تومان';
+}
+
+public function getPriceUnit()
+{
+    return 'تومان';
+}
+
+public function getPaymentTypeLabel()
+{
+    return $this->price == 0 ? 'رایگان' : 'پولی';
+}
 
 
+public static function getAverageRatingForCourse($courseId)
+{
+    return self::where('course_id', $courseId)
+               ->avg('rate') ?? 0;
+}
     }

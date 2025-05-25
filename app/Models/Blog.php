@@ -81,6 +81,10 @@ class Blog extends Model
     {
         return $this->hasMany(BlogRating::class, 'blog_id', 'id');
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'blog_id', 'id');
+    }
 
     /**
      * Accessor to get average rating.

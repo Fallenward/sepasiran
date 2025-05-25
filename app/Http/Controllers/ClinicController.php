@@ -86,4 +86,37 @@ $query = \App\Models\User::select('users.*')
         return view('admin.clinics.dashboard', compact('clinics'));
     }
 
+
+
+    public function showClinicById($id)
+{
+    $clinic = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'clinic') // 👈 Filter by clinic role
+        ->where('users.id', $id)
+        ->with(['city', 'speciality', 'roles']) // include roles for blade logic
+        ->firstOrFail();
+
+    // Optional: rename if needed
+    $services = [];
+
+    $medals = [
+        ['title' => 'کلینیک برتر منطقه', 'icon' => 'medal1.png'],
+        ['title' => 'تجهیزات مدرن', 'icon' => 'medal2.png'],
+        ['title' => 'بیشترین بازدید', 'icon' => 'medal3.png'],
+        ['title' => 'پیشنهاد کاربران', 'icon' => 'medal4.png'],
+    ];
+
+    $comments = \App\Models\Comment::where('user_id', $id)->with('user')->get(); // assuming real comments
+
+    return view('clinics.show', [
+        'trainer' => $clinic,
+        'dogs' => [], // or pets if applicable
+        'medals' => $medals,
+        'comments' => $comments,
+    ]);
+}
+
+
 }

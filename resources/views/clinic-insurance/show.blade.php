@@ -3,16 +3,7 @@
 @section('title', $insurance->name)
 
 @section('content')
-    <x-page-header
-        title="{{ $insurance->name }}"
-        :breadcrumbs="[
-            ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-            ['label' => 'بیمه حیوانات', 'route' => route('frontend.clinic.insurance.index')],
-            ['label' => $insurance->name]
-        ]"
-        bgColor="#0d47a1"
-        extraClasses="text-align-center"
-    />
+
 
     <div class="container my-5">
         <div class="row g-4 align-items-center">

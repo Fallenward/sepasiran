@@ -34,7 +34,7 @@
                 :ride="false"
                 :enabledDesc="true"
                 :enabledLink="true"
-                :viewLink="'frontend.frontend.blogs.show'"/>
+                :viewLink="'frontend.blogs.show'"/>
         </div>
     </div>
 </section>

@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Service extends Model
 {
-    
+
     protected $perPage = 20;
 
     /**
@@ -30,5 +30,9 @@ class Service extends Model
      */
     protected $fillable = ['title', 'slug', 'description', 'image'];
 
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
 }

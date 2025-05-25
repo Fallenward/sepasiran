@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
+use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -94,6 +95,21 @@ class CourseController extends Controller
         $popularCourses = Course::where('is_featured', true)->take(5)->get(); // Example for popular courses
 
         return view('fronted.course.show', compact('course', 'popularCourses'));
+    }
+
+
+        public function showCourse($slug)
+    {
+        $course = Course::where('slug', $slug)->firstOrFail();
+        $latestCourses = Course::latest()->take(5)->get();
+        $categories = Category::all(); // if you have course categories
+
+        return view('frontend.pages.courses.show', [
+            'course' => $course,
+            'title' => $course->title,
+            'latestCourses' => $latestCourses,
+            'categories' => $categories,
+        ]);
     }
 
 }
