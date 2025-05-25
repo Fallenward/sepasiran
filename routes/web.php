@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CoachController;
 use App\Http\Controllers\Admin\CourseController;
@@ -164,7 +165,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/breeder/dogs-listing', [BreederController::class, 'dogsListing'])->name('breeder.dogs.listing');
 Route::get('/breeder/dashboard-create', [BreederController::class, 'create'])->name('breeders.dashboard-create');
 Route::post('/breeder/dashboard/store', [BreederController::class, 'store'])->name('breeders.dashboard-store');
-Route::get('/breeder/wallet', [BreederController::class, 'wallet'])->name('breeders.wallet');
+Route::get('/breederwallet/', [BreederController::class, 'wallet'])->name('breeders.wallet');
 
 
 Route::get('/coaches/dashboard', [CoachController::class, 'dashboard'])->name('coaches.dashboard');
@@ -208,4 +209,9 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::middleware(['auth'])->group(function () {
     Route::get('/breeder/dashboard', [DashboardController::class, 'index'])->middleware('role:breeder');
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/wallet', [AdminWalletController::class, 'index'])->name('wallet.index');
 });
