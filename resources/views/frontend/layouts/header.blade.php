@@ -16,41 +16,35 @@
                 <!-- Logo and Brand -->
                 <div class="d-flex align-items-center mx-3">
                     <a class="navbar-brand" href="{{ route('frontend.home') }}">
-{{--                        <img class="img-fluid logo-icon" src="{{asset($settings->footer_setting_logo ?? '')}}"/>--}}
                         <img src="{{ asset('images/fav.png') }}" alt="لوگو سپاس ایران" height="50">
                     </a>
                 </div>
             </div>
 
+            <!-- Auth Buttons for Small Devices -->
             <div class="d-lg-none">
                 @if(is_null(auth()->user()))
-                    <a href="#" class="btn btn-primary me-2">ورود / ثبت نام</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary me-2">ورود / ثبت نام</a>
                 @else
-                    <a href="#" class="btn btn-primary">داشبورد</a>
-                    <a href="{{route('logout')}}" class="btn btn-danger me-2 d-none d-md-block">خروج</a>
+                    <a href="{{ route('coach.dashboard') }}" class="btn btn-primary">داشبورد</a>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline d-none d-md-block me-2">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">خروج</button>
+                    </form>
                 @endif
             </div>
 
             <!-- Collapsible Content for Desktop -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">صفحه اصلی</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">میز خدمت</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">معرفی سازمان</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">اخبار</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">پشتیبانی</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="#">صفحه اصلی</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">میز خدمت</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">معرفی سازمان</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">اخبار</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">پشتیبانی</a></li>
                 </ul>
 
+                <!-- Search Form -->
                 <form class="d-flex me-auto">
                     <div class="input-group search-area">
                         <button class="input-group-text bg-white search-btn"><i class="fas fa-search"></i></button>
@@ -58,12 +52,16 @@
                     </div>
                 </form>
 
+                <!-- Auth Buttons for Desktop -->
                 <div class="d-none d-lg-block">
                     @if(is_null(auth()->user()))
-                        <a href="#" class="btn btn-primary me-2">ورود / ثبت نام</a>
+                        <a href="{{ route('login') }}" class="btn btn-primary me-2">ورود / ثبت نام</a>
                     @else
-                        <a href="#" class="btn btn-primary me-2">داشبورد</a>
-                        <a href="#" class="btn btn-danger">خروج</a>
+                        <a href="{{ route('coach.dashboard') }}" class="btn btn-primary me-2">داشبورد</a>
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-danger">خروج</button>
+                        </form>
                     @endif
                 </div>
             </div>
@@ -86,12 +84,16 @@
                 <li class="nav-item"><a class="nav-link" href="#">مقالات</a></li>
             </ul>
 
+            <!-- Auth Buttons in Mobile Sidebar -->
             <div class="mt-4">
                 @if(is_null(auth()->user()))
-                    <a href="#" class="btn btn-primary w-100">ورود / ثبت نام</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary w-100">ورود / ثبت نام</a>
                 @else
-                    <a href="#" class="btn btn-primary w-100 mb-2">داشبورد</a>
-                    <a href="#" class="btn btn-danger w-100">خروج</a>
+                    <a href="{{ route('breeder.dashboard') }}" class="btn btn-primary w-100 mb-2">داشبورد</a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger w-100">خروج</button>
+                    </form>
                 @endif
             </div>
         </div>

@@ -67,6 +67,14 @@ namespace App\Models;
             return $this->hasMany(Service::class, 'provider_id');
         }
 
+        // In App\Models\User.php
+
+        public function scopeRole($query, string $role)
+        {
+            return $query->whereHas('roles', fn($q) => $q->where('name', $role));
+        }
+
+
 
 
         /**

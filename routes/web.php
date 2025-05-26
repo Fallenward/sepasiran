@@ -78,13 +78,17 @@ Route::middleware('guest')->group(function () {
     Route::get('/login',  [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
 Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 
 Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/blogsix', [BlogController::class, 'showById'])->name('blog-kir.index');
-        Route::get('/kir', [BlogController::class, 'kir'])->name('blog.kir');
+    Route::get('/blogsix', [BlogController::class, 'showById'])->name('blog-all.index');
+        Route::get('/blogfive', [BlogController::class, 'kir'])->name('blog.show.byone');
 
 
 
@@ -157,7 +161,6 @@ Route::name('frontend.')->group(function () {
     Route::post('/service/{serviceId}/rate', [FrontendServiceController::class, 'rateService']);
 });
 
-Route::get('/dashboard-breeders', [BreederController::class, 'dashboard'])->name('breeders.dashboard');
 Route::middleware(['auth'])->group(function () {
     Route::get('/breeder/profile', [BreederController::class, 'profile'])->name('profile');
     // Route::post('/profile', [BreederController::class, 'updateProfile']);
@@ -168,7 +171,6 @@ Route::post('/breeder/dashboard/store', [BreederController::class, 'store'])->na
 Route::get('/breederwallet/', [BreederController::class, 'wallet'])->name('breeders.wallet');
 
 
-Route::get('/coaches/dashboard', [CoachController::class, 'dashboard'])->name('coaches.dashboard');
 Route::middleware(['auth'])->group(function () {
     Route::get('/coach/profile', [CoachController::class, 'editProfile'])->name('coach.profile.edit');
     Route::post('/coach/profile', [CoachController::class, 'updateProfile'])->name('coach.profile.update');
@@ -179,12 +181,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/coach/{coachId}/products', [CoachController::class, 'listing'])->name('coaches.listing');
+    Route::get('/coach/{coachId?}/products', [CoachController::class, 'listing'])->name('coaches.listing');
     Route::get('/coaches/create', [CoachController::class, 'createList'])->name('coaches.create');
     Route::post('/coaches/store', [CoachController::class, 'storeList'])->name('coaches.store');
     Route::delete('/coaches/{id}', [CoachController::class, 'destroyList'])->name('coaches.destroy');
     Route::get('/coaches/wallet', [CoachController::class, 'coachWallet' ])->name('coaches.wallet');
-    Route::get('coach/profile', [CoachController::class, 'editProfile'])->name('profile.edit');
+    Route::get('coach/profile', [CoachController::class, 'editProfile'])->name('coach.profile.edit');
 
 // Handle form submission
 Route::post('/profile', [CoachController::class, 'updateProfile'])->name('profile');
@@ -193,25 +195,40 @@ Route::post('/profile', [CoachController::class, 'updateProfile'])->name('profil
 
 Route::prefix('admin/clinics')->middleware(['auth'])->group(function () {
     Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('admin.clinics.wallet');
-    Route::get('dashboard', [ClinicController::class, 'dashboard'])->name('admin.clinics.dashboard');
 });
-
-
-///
 
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/clinic/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic');
+    Route::get('breeder/profile', [BreederController::class, 'edit'])->name('breeder.profile.edit');
+    Route::post('breeder/profile', [BreederController::class, 'update'])->name('breeder.profile');
 });
+
+
+
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('/coach/dashboard', [DashboardController::class, 'index'])->middleware('role:coach');
-});
-Route::middleware(['auth'])->group(function () {
-    Route::get('/breeder/dashboard', [DashboardController::class, 'index'])->middleware('role:breeder');
+
+    Route::get('/clinic/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:clinic')
+        ->name('clinic.dashboard');
+
+    Route::get('/coach/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:coach')
+        ->name('coach.dashboard');
+
+    Route::get('/breeder/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:breeder')
+        ->name('breeder.dashboard');
+
+    Route::get('/wallet', [AdminWalletController::class, 'index'])
+        ->name('wallet.index');
 });
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/wallet', [AdminWalletController::class, 'index'])->name('wallet.index');
+    Route::get('clinic/profile', [ClinicController::class, 'edit'])->name('clinic.profile.edit');
+    Route::post('clinic/profile', [ClinicController::class, 'update'])->name('clinic.profile.update');
 });
+
+

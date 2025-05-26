@@ -48,6 +48,7 @@ class DashboardController extends Controller
                 ['status', 'COMPLETED'],
             ])->sum('price');
 
+
             $activeDoctors = User::whereHas('roles', fn($q) => $q->where('name', 'doctor'))
                 ->whereHas('bookings', fn($q) => $q->where('provider_id', $users->id)->where('service_type', 'CLINIC'))
                 ->count();
@@ -64,38 +65,52 @@ class DashboardController extends Controller
                 ->whereDate('created_at', Carbon::today())
                 ->get();
             $coachProducts = Product::where('user_id', $users->id)->get();
+            $coachId = $users->id;  // assign coachId variable
 
             return view('coaches.dashboard', compact(
-                'title', 'users', 'notifications', 'teacherCourses', 'todaysAppointments', 'coachProducts'
+                'title', 'users', 'notifications', 'teacherCourses', 'todaysAppointments', 'coachProducts', 'coachId'
             ));
+
+
         } else if ($users->hasRole('breeder')) {
-            $title = 'داشبورد پرورش‌دهنده';
+    $title = 'داشبورد پرورش‌دهنده';
 
-            $teacherCourses = Course::where('user_id', $users->id)->get();
+    // Courses created by breeder
+    $teacherCourses = Course::where('user_id', $users->id)->get();
 
-            $readyDogs = Dog::where('status', 'ready')->count();
-            $totalDogs = Dog::count();
-            $pendingDogs = Dog::where('status', 'pending')->count();
-            $soldDogs = Dog::where('status', 'sold')->count();
-            $waitingDogs = Dog::where('status', 'waiting')->count();
+    // Dog status counts
+    $readyDogs = Dog::where('status', 'ready')->count();
+    $totalDogs = Dog::count();
+    $pendingDogs = Dog::where('status', 'pending')->count();
+    $soldDogs = Dog::where('status', 'sold')->count();
+    $waitingDogs = Dog::where('status', 'waiting')->count();
 
-            $pendingBookings = Booking::where([
-                ['service_type', 'BREEDER'],
-                ['provider_id', $users->id],
-                ['status', 'PENDING']
-            ])->count();
+    // Booking status counts for breeder
+    $pendingBookings = Booking::where([
+        ['service_type', 'BREEDER'],
+        ['provider_id', $users->id],
+        ['status', 'PENDING']
+    ])->count();
 
-            $openBookings = Booking::where([
-                ['service_type', 'BREEDER'],
-                ['provider_id', $users->id],
-                ['status', 'CONFIRMED']
-            ])->count();
+    $openBookings = Booking::where([
+        ['service_type', 'BREEDER'],
+        ['provider_id', $users->id],
+        ['status', 'CONFIRMED']
+    ])->count();
 
-            return view('breeders.dashboard', compact(
-                'title', 'users', 'notifications', 'teacherCourses',
-                'readyDogs', 'totalDogs', 'pendingDogs', 'soldDogs', 'waitingDogs',
-                'pendingBookings', 'openBookings'
-            ));
+    // Example clinic income calculation (adjust according to your schema)
+    $clinicIncome = $users->transactions()->sum('amount') ?? 0;
+
+    // Count active doctors (adjust if you want related only to this breeder)
+    $activeDoctors = User::role('doctor')->where('status', 'active')->count();
+
+    return view('breeders.dashboard', compact(
+        'title', 'users', 'notifications', 'teacherCourses',
+        'readyDogs', 'totalDogs', 'pendingDogs', 'soldDogs', 'waitingDogs',
+        'pendingBookings', 'openBookings', 'activeDoctors', 'clinicIncome'
+    ));
+
+
         } else if ($users->hasRole('admin')) {
             $title = 'داشبورد ادمین';
 

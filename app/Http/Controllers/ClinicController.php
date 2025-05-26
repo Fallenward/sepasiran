@@ -117,6 +117,47 @@ $query = \App\Models\User::select('users.*')
         'comments' => $comments,
     ]);
 }
+ public function edit()
+    {
+        $user = Auth::user();
 
+        return view('admin.clinics.profile', [
+            'user' => $user,
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+           $data = $request->validate([
+        'clinic_name' => 'nullable|string|max:255',
+        'phone' => 'nullable|string|max:20',
+        'working_hours' => 'nullable|string|max:255',
+        'animals' => 'nullable|array',
+        'social' => 'nullable|string|max:255',
+        'description' => 'nullable|string',
+        'province' => 'nullable|string|max:255',
+        'city' => 'nullable|string|max:255',
+        'full_address' => 'nullable|string|max:255',
+    ]);
+
+    $user->name = $data['clinic_name'];
+    $user->phone = $data['phone'];
+    $user->working_hours = $data['working_hours'] ?? null;
+    $user->animals = isset($data['animals']) ? implode(',', $data['animals']) : null;
+    $user->social = $data['social'] ?? null;
+    $user->bio = $data['description'];
+    $user->province = $data['province'] ?? null;
+    $user->city = $data['city'] ?? null;
+    $user->address = $data['full_address'];
+
+
+
+
+        $user->save();
+
+        return redirect()->route('profile.edit')->with('success', 'اطلاعات با موفقیت به‌روزرسانی شد.');
+    }
 
 }

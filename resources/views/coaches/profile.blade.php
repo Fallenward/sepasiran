@@ -93,6 +93,8 @@
             <input type="text" class="form-control" name="bank_info" value="{{ old('bank_info', $users->bank_info) }}">
         </div>
 
-        <button class="btn btn-primary w-100 mb-4">ذخیره</button>
+    <button class="btn w-100 mb-4" style="background-color: #0d47a1; border-color: #0d47a1; color: white;">
+        ذخیره
+    </button>
     </form>
 @endsection

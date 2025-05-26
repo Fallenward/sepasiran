@@ -182,10 +182,10 @@ public function showById($id)
 
         public function editProfile()
         {
-            $user = auth()->user();
+            $users = auth()->user();
             $breeds = Breed::all();
 
-            return view('coaches.profile', compact('user', 'breeds'));
+            return view('coaches.profile', compact('users', 'breeds'));
         }
 
 

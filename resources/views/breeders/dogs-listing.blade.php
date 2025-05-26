@@ -90,6 +90,7 @@
                 <option value="">نژاد سگ</option>
                 <option value="doberman">دوبرمن</option>
                 <option value="rottweiler">روتوایلر</option>
+                <!-- Add more options if needed -->
             </select>
         </div>
         <div class="col-6 col-md-2">
@@ -104,6 +105,7 @@
                 <option value="">سن</option>
                 <option value="1">1 سال</option>
                 <option value="2">2 سال</option>
+                <!-- Add more if needed -->
             </select>
         </div>
         <div class="col-6 col-md-2">
@@ -144,7 +146,7 @@
                 @forelse ($dogs as $dog)
                     <tr>
                         <td>{{ $dog->name }}</td>
-                        <td>{{ $dog->breed }}</td>
+                        <td>{{ $dog->breed->name ?? '-' }}</td>
                         <td>{{ $dog->age }} سال</td>
                         <td>
                             <span class="badge bg-{{ $dog->vaccinated ? 'success' : 'secondary' }}">
@@ -179,7 +181,7 @@
 
 @section('footer')
 <nav class="footer-nav">
-    <a class="nav-link" href="{{ route('breeders.dashboard') }}">
+    <a class="nav-link" href="{{ route('breeder.dashboard') }}">
         <i class="bi bi-house"></i><br>داشبورد
     </a>
     <a class="nav-link" href="#">
