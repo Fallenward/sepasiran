@@ -118,68 +118,62 @@
     </nav>
 
 
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="{{ url('/') }}" class="brand-link">
-            <img src="{{ asset('images/fav.png') }}"
-                 alt="{{ config('app.name') }}"
-                 class="img-fluid w-50 me-2">
-        </a>
+<!-- Sidebar (unchanged structure, only behavior improved if needed) -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="{{ url('/') }}" class="brand-link">
+        <img src="{{ asset('images/fav.png') }}"
+             alt="{{ config('app.name') }}"
+             class="img-fluid w-50 me-2">
+    </a>
 
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                @php
+                    $menus = [
+                        ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
+                        ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
+                        ['route' => 'admin.dogs.index',         'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-paw',              'text' => __('تهیه سگ')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
+                        ['route' => 'admin.coaches.index',      'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
+                        ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
+                        ['route' => 'admin.blogs.index',        'icon' => 'fas fa-blog',             'text' => __('وبلاگ‌ها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-newspaper',        'text' => __('اخبار')],
+                        ['route' => 'admin.sliders.index',      'icon' => 'fas fa-sliders-h',        'text' => __('اسلایدرها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-shield-alt',       'text' => __('بیمه حیوانات')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-clinic-medical',   'text' => __('کلینیک‌ها')],
+                        ['route' => 'coming.soon',              'icon' => 'fas fa-home',             'text' => __('پناهگاه‌ها')],
+                    ];
+                @endphp
 
-        <div class="sidebar">
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    @php
-                        $menus = [
-     // ➊ بخش‌های فعال و حیاتی
-     ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
-     ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
-     ['route' => 'admin.dogs.index',              'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-paw',              'text' => __('تهیه سگ')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
-
-     // ➋ خدمات، آموزش و پشتیبانی
-     ['route' => 'admin.coaches.index',              'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
-     ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
-
-     // ➌ محتوا و اطلاع‌رسانی
-     ['route' => 'admin.blogs.index',        'icon' => 'fas fa-blog',             'text' => __('وبلاگ‌ها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-newspaper',        'text' => __('اخبار')],
-
-     // ➍ تنظیمات و امکانات جانبی
-     ['route' => 'admin.sliders.index',      'icon' => 'fas fa-sliders-h',        'text' => __('اسلایدرها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-shield-alt',       'text' => __('بیمه حیوانات')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-clinic-medical',   'text' => __('کلینیک‌ها')],
-     ['route' => 'coming.soon',              'icon' => 'fas fa-home',             'text' => __('پناهگاه‌ها')],
- ];
-
-                    @endphp
-
-                    @foreach ($menus as $menu)
+                @foreach ($menus as $menu)
+                    @if (\App\Helpers\GenralHelpers::shouldShowMenu($menu['route'], auth()->user()))
                         <li class="nav-item">
                             <a href="{{ route($menu['route']) }}" class="nav-link {{ request()->routeIs($menu['route']) ? 'active' : '' }}">
                                 <i class="nav-icon {{ $menu['icon'] }}"></i>
                                 <p>{{ $menu['text'] }}</p>
                             </a>
                         </li>
-                    @endforeach
+                    @endif
+                @endforeach
 
-                    <li class="nav-item mt-3">
-                        <a href="javascript:void(0);" id="logout-button" class="nav-link">
-                            <i class="nav-icon fas fa-sign-out-alt"></i>
-                            <p>{{ __('خروج') }}</p>
-                        </a>
-                        <form id="logout-form" class="d-none" action="#" method="POST">
-                            @csrf
-                        </form>
-                    </li>
-                </ul>
+                <li class="nav-item mt-3">
+                    <a href="javascript:void(0);" id="logout-button" class="nav-link">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>{{ __('خروج') }}</p>
+                    </a>
+                    <form id="logout-form" class="d-none" action="#" method="POST">
+                        @csrf
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
 
-            </nav>
-        </div>
-    </aside>
 
     <div class="content-wrapper">
         <div class="content">

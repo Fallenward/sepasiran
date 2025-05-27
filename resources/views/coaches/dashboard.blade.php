@@ -56,7 +56,7 @@
                         <h5 class="card-title">ملاقات با {{ $appointment->user->name ?? 'کاربر ناشناس' }}</h5>
                         <p class="card-text text-muted small">
                             نوع خدمت: {{ $appointment->service_type }} <br>
-                            ساعت: {{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}
+                            ساعت: {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('H:i') }}
                         </p>
                         <div class="row text-muted small">
                             <div class="col-md-6">وضعیت: {{ $appointment->status }}</div>

@@ -62,10 +62,11 @@ class DashboardController extends Controller
 
             $teacherCourses = Course::where('user_id', $users->id)->get();
             $todaysAppointments = Booking::where('provider_id', $users->id)
-                ->whereDate('created_at', Carbon::today())
+                ->whereDate('appointment_date', Carbon::today())
+                ->with('user') // eager loading
                 ->get();
             $coachProducts = Product::where('user_id', $users->id)->get();
-            $coachId = $users->id;  // assign coachId variable
+            $coachId = $users->id;
 
             return view('coaches.dashboard', compact(
                 'title', 'users', 'notifications', 'teacherCourses', 'todaysAppointments', 'coachProducts', 'coachId'

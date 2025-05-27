@@ -33,6 +33,17 @@ class Cart extends Model
      * @var array<int, string>
      */
     protected $fillable = ['user_id', 'course_id', 'quantity', 'price', 'discount_id', 'status'];
+public function transactions()
+{
+    return $this->belongsToMany(Transaction::class, 'cart_transaction');
+}
+
+public function bookings()
+{
+    return $this->belongsToMany(Booking::class, 'booking_cart');
+}
+
+
 
 
 }

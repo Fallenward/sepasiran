@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\File;
@@ -9,9 +8,7 @@ class GenralHelpers
 {
     public static function limitTextToTwoLines($text, $maxLength = 7)
     {
-
         $words = explode(' ', $text);
-
 
         $line1 = implode(' ', array_slice($words, 0, $maxLength));
         $line2 = implode(' ', array_slice($words, $maxLength, $maxLength));
@@ -25,21 +22,26 @@ class GenralHelpers
 
     public function copyImage(string $sourcePath, string $destinationFolder): ?string
     {
-        // Check if the source file exists
         if (!File::exists($sourcePath)) {
             return null;
         }
 
-        // Get the file name
         $fileName = basename($sourcePath);
-
-        // Full destination path
         $destinationPath = $destinationFolder . '/' . $fileName;
-
-        // Copy the file to the destination folder
         Storage::put($destinationPath, File::get($sourcePath));
 
-        // Return the file name for database storage
         return $fileName;
     }
+        public static function shouldShowMenu($route, $user) {
+            $clinicHidden = ['admin.sliders.index', 'admin.transactions.index'];
+            $breederHidden = ['admin.coaches.index', 'admin.courses.index', 'coming.soon'];
+            $coachHidden = ['admin.blogs.index', 'admin.dogs.index', 'admin.coaches.index', 'admin.courses.index', 'coming.soon' ,];
+
+            if ($user->hasRole('clinic') && in_array($route, $clinicHidden)) return false;
+            if ($user->hasRole('breeder') && in_array($route, $breederHidden)) return false;
+            if ($user->hasRole('coach') && in_array($route, $coachHidden)) return false;
+
+            return true;
+        }
+
 }

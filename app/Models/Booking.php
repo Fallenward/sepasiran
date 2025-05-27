@@ -40,6 +40,12 @@ class Booking extends Model
     public function bookable() {
         return $this->morphTo();
     }
+    public function carts()
+{
+    return $this->belongsToMany(Cart::class, 'booking_cart', 'booking_id', 'cart_id')
+                ->withTimestamps();
+}
+
 
     public function users() {
         return $this->belongsToMany(User::class, 'booking_users');

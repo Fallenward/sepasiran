@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Admin\TransactionController;
-use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
@@ -19,9 +18,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
-use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
-use App\Http\Controllers\Frontend\BlogController as FrontendBlogController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
@@ -231,4 +228,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('clinic/profile', [ClinicController::class, 'update'])->name('clinic.profile.update');
 });
 
+
+
+use App\Http\Controllers\FrontendController;
+
+
+Route::get('/proposals', [FrontendController::class, 'proposals']);
+Route::get('/select-time', [FrontendController::class, 'selectTime']);
+Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
+Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerType']);
+Route::get('/summary', [FrontendController::class, 'summary']);
 

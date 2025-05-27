@@ -47,5 +47,14 @@ class Transaction extends Model
         // اگر کلید خارجی متفاوت است:
         // return $this->belongsTo(User::class, 'user_id', 'id');
     }
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
+    public function carts()
+{
+    return $this->belongsToMany(Cart::class, 'cart_transaction');
+}
+
 
 }

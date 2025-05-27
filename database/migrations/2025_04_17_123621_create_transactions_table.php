@@ -14,21 +14,26 @@ return new class extends Migration
 Schema::create('transactions', function (Blueprint $table) {
     $table->id();
     $table->unsignedBigInteger('user_id');
-    $table->string('transaction_id');
-    $table->json('cart_ids')->nullable();
+    $table->unsignedBigInteger('booking_id')->nullable();
+    $table->string('transaction_id')->unique();
     $table->text('description')->nullable();
     $table->string('card_number')->nullable();
     $table->string('ref_id')->nullable();
+    $table->string('cart_ids')->nullable();
+    $table->string('cart_price')->nullable();
     $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
     $table->decimal('amount', 10, 2);
-    $table->decimal('cart_price', 10, 2);
-    $table->decimal('tax', 10, 2);
-    $table->decimal('discount', 10, 2);
-    $table->enum('payment_method',['online', 'offline'])->default('online');
+    $table->decimal('tax', 10, 2)->default(0);
+    $table->decimal('discount', 10, 2)->default(0);
+    $table->decimal('base_price', 10, 2)->default(0);
+
+    $table->enum('payment_method', ['online', 'offline'])->default('online');
     $table->timestamps();
 
-    $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
 });
+
+
 
     }
 

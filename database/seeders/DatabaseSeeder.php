@@ -58,56 +58,10 @@ class BlogRatingSeeder extends Seeder
     }
 }
 
-class BookingSeeder extends Seeder
-{
-    public function run(): void
-    {
-        $faker       = Faker::create();
-        // مقادیر مجاز دقیقاً مطابق Enum
-        $types       = ['TRAINER', 'CLINIC', 'BREEDER'];
-        $statuses    = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
-
-        foreach (range(1, 50) as $i) {
-            DB::table('bookings')->insert([
-                [
-                    'user_id' => 3,
-                    'service_type' => 'TRAINER',
-                    'provider_id' => 5,
-                    'city_id' => 20,
-                    'appointment_date' => '2025-05-27 08:48:45',
-                    'booking_date' => now(), // ✅ Add this line
-                    'status' => 'PENDING',
-                    'notes' => 'Some notes here...',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-
-            ]);
-        }
-    }
-}
 
 
-class CartSeeder extends Seeder
-{
-    public function run(): void
-    {
-        $statuses = ['active', 'expired', 'purchased'];
 
-        foreach (range(1, 30) as $i) {
-            DB::table('carts')->insert([
-                'user_id'     => rand(1, 20),
-                'course_id'   => rand(1, 10),
-                'quantity'    => rand(1, 3),
-                'price'       => rand(50, 100) * 1000,
-                'discount_id' => rand(1, 5),
-                'status'      => $statuses[array_rand($statuses)],
-                'created_at'  => Carbon::now()->subDays(rand(1, 10)),
-                'updated_at'  => Carbon::now(),
-            ]);
-        }
-    }
-}
+
 class CategorySeeder extends Seeder
 {
     public function run(): void
@@ -308,39 +262,6 @@ class SkillSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-    }
-}
-class TransactionSeeder extends Seeder
-{
-    public function run()
-    {
-        // Get an existing user (e.g., first coach)
-        $user = User::whereHas('roles', function ($q) {
-            $q->where('name', 'coach');
-        })->first();
-
-        // Fallback if no coach user exists
-        if (! $user) {
-            $this->command->warn('No coach user found to attach transaction to.');
-            return;
-        }
-
-        Transaction::create([
-            'user_id' => $user->id,
-            'transaction_id' => Str::uuid(),
-            'cart_ids' => json_encode([1, 2]),
-            'description' => 'پرداخت تستی',
-            'card_number' => '610433******1234',
-            'ref_id' => 'RF' . rand(1000000000000, 9999999999999),
-            'status' => 'completed',
-            'amount' => 150000,
-            'cart_price' => 150000,
-            'tax' => 0,
-            'discount' => 0,
-            'payment_method' => 'online',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 }
 
