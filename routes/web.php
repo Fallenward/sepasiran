@@ -205,15 +205,15 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/clinic/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:clinic')
+//        ->middleware('role:clinic')
         ->name('clinic.dashboard');
 
     Route::get('/coach/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:coach')
+//        ->middleware('role:coach')
         ->name('coach.dashboard');
 
     Route::get('/breeder/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:breeder')
+//        ->middleware('role:breeder')
         ->name('breeder.dashboard');
 
     Route::get('/wallet', [AdminWalletController::class, 'index'])
@@ -240,6 +240,6 @@ Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerTyp
 Route::get('/summary', [FrontendController::class, 'summary']);
 
 
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });

@@ -1,7 +1,7 @@
 @extends('frontend.layouts.header-dashboard')
 
 @section('content')
-<div class="container" style="max-width: 600px; margin: 40px auto; font-family: Tahoma, sans-serif; direction: rtl;">
+<div class="container" style="max-width: 600px; margin: 40px auto; direction: rtl;">
 
     <!-- 🔵 Progress Bar -->
     <div class="progress mb-4" style="height: 8px; background-color: #e0e0e0; border-radius: 10px; overflow: hidden;">
