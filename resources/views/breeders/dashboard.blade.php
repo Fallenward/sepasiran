@@ -133,7 +133,7 @@
         <div class="col-4">
             <div class="square-card">
                 <i class="bi bi-clipboard2-check fs-3"></i>
-                <div class="mt-2">ویزیت‌های فعال</div>
+                <div class="mt-2">تعداد سفارشات باز</div>
                 <div class="h4 mt-1">{{ $openBookings }}</div>
                 <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
             </div>
@@ -141,15 +141,15 @@
         <div class="col-4">
             <div class="square-card">
                 <i class="bi bi-cash-stack fs-3"></i>
-                <div class="mt-2">درآمد کلینیک</div>
-                <div class="h4 mt-1">{{ number_format($clinicIncome) }} تومان</div>
+                <div class="mt-2">سفارشات در انتظار ارسال</div>
+                <div class="h4 mt-1">{{ number_format($clinicIncome) }} </div>
                 <a href="{{ route('wallet.index') }}" class="btn btn-light btn-sm">مشاهده</a>
             </div>
         </div>
         <div class="col-4">
             <div class="square-card">
                 <i class="bi bi-people fs-3"></i>
-                <div class="mt-2">پزشکان فعال</div>
+                <div class="mt-2">مبلغ کل درآم</div>
                 <div class="h4 mt-1">{{ $activeDoctors }}</div>
                 <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
             </div>
@@ -159,10 +159,10 @@
     {{-- Footer Navigation --}}
     <nav class="footer-nav">
         <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-        <a class="nav-link" href="#"><i class="bi bi-journal-text"></i><br>ویزیت‌ها</a>
-        <a class="nav-link" href="#"><i class="bi bi-plus-circle"></i><br>افزودن</a>
-        <a class="nav-link" href="#"><i class="bi bi-gear"></i><br>تنظیمات</a>
-        <a class="nav-link" href="#"><i class="bi bi-person"></i><br>پروفایل</a>
+        <a class="nav-link" href="{{ route('breeder.dogs.listing') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
+        <a class="nav-link" href="{{ route('breeders.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
+        <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-gear"></i><br>کیف پول</a>
+        <a class="nav-link" href="{{ route('breeder.profile') }}"><i class="bi bi-person"></i><br>پروفایل</a>
     </nav>
 </div>
 @endsection
