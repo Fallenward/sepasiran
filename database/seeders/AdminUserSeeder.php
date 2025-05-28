@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +13,7 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         // 1. Create roles
-        $roles = ['admin', 'coach', 'breeder', 'clinic' ];
+        $roles = ['admin', 'coach', 'breeder', 'clinic', 'user']; // Added 'user' role
 
         foreach ($roles as $roleName) {
             DB::table('roles')->updateOrInsert(['name' => $roleName]);
@@ -42,6 +41,7 @@ class AdminUserSeeder extends Seeder
             'coach' => 3,
             'breeder' => 3,
             'clinic' => 3,
+            'user' => 5, // Add count for users you want to create
         ];
 
         $testUser = null;
@@ -50,22 +50,20 @@ class AdminUserSeeder extends Seeder
             $roleId = DB::table('roles')->where('name', $role)->value('id');
 
             for ($i = 1; $i <= $count; $i++) {
-            $user = User::updateOrCreate(
-                ['email' => "{$role}{$i}@example.com"],
-                [
-                    'name' => ucfirst($role) . $i,
-                    'family' => ucfirst($role) . ' Family',
-                    'password' => Hash::make('password'),
-                    'is_admin' => false,
-                ]
-            );
-
+                $user = User::updateOrCreate(
+                    ['email' => "{$role}{$i}@example.com"],
+                    [
+                        'name' => ucfirst($role) . $i,
+                        'family' => ucfirst($role) . ' Family',
+                        'password' => Hash::make('password'),
+                        'is_admin' => false,
+                    ]
+                );
 
                 DB::table('role_user')->updateOrInsert(
                     ['user_id' => $user->id, 'role_id' => $roleId],
                     []
                 );
-
 
                 // Store one user to use later (e.g., for transactions)
                 if ($role === 'coach' && $i === 1) {

@@ -229,6 +229,8 @@ Route::middleware(['auth'])->group(function () {
 
 
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\User\UserDashboardController;
+
 
 Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
 Route::get('/proposals', [FrontendController::class, 'proposals']);
@@ -237,3 +239,7 @@ Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
 Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerType']);
 Route::get('/summary', [FrontendController::class, 'summary']);
 
+
+Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+});
