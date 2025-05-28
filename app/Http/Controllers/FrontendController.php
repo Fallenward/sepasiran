@@ -7,11 +7,7 @@ use Illuminate\Http\Request;
 class FrontendController extends Controller
 {
     // Show the Dashboard Page
-    public function dashboard()
-    {
-        return view('frontend.dashboard');
-    }
-
+    
     // Show the Proposals Page
     public function proposals()
     {
@@ -40,5 +36,11 @@ class FrontendController extends Controller
     public function summary()
     {
         return view('frontend.pages.summary');
+    }
+
+        public function myOrder()
+    {
+        // You can pass real data here if needed
+        return view('frontend.pages.my-order');
     }
 }

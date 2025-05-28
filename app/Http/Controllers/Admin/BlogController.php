@@ -104,7 +104,7 @@ class BlogController extends Controller
             return view('blog.index', compact('mostReviewedBlogs', 'latestBlogs'));
         }
 
-    public function kir()
+    public function showByOne()
 {
     // Fetch the blog by ID or abort with 404 if not found
     $blog = Blog::all(); // throws ModelNotFoundException if missing:contentReference[oaicite:0]{index=0}

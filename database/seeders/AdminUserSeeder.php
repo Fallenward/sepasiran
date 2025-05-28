@@ -14,7 +14,7 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         // 1. Create roles
-        $roles = ['admin', 'coach', 'breeder', 'clinic'];
+        $roles = ['admin', 'coach', 'breeder', 'clinic' ];
 
         foreach ($roles as $roleName) {
             DB::table('roles')->updateOrInsert(['name' => $roleName]);

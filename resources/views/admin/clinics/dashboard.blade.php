@@ -182,10 +182,9 @@
     </div>
     <nav class="footer-nav">
     <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-    <a class="nav-link" href="#"><i class="bi bi-journal-text"></i><br>ویزیت‌ها</a>
-    <a class="nav-link" href="#"><i class="bi bi-plus-circle"></i><br>افزودن</a>
-    <a class="nav-link" href="#"><i class="bi bi-gear"></i><br>تنظیمات</a>
-    <a class="nav-link" href="#"><i class="bi bi-person"></i><br>پروفایل</a>
+    <a class="nav-link" href="{{ route('clinic.profile.edit') }}"><i class="bi bi-journal-text">جلسات   </i><br></a>
+    <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-plus-circle"></i><br>کیف پول</a>
+    <a class="nav-link" href="{{ route('linic.profile.edit') }}"><i class="bi bi-person"></i><br>پروفایل</a>
 </nav>
 </div>
 @endsection

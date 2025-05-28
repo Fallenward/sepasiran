@@ -85,7 +85,7 @@ Route::name('frontend.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::get('/blogsix', [BlogController::class, 'showById'])->name('blog-all.index');
-        Route::get('/blogfive', [BlogController::class, 'kir'])->name('blog.show.byone');
+        Route::get('/blogfive', [BlogController::class, 'showByOne'])->name('blog.show.byone');
 
 
 
@@ -159,13 +159,11 @@ Route::name('frontend.')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/breeder/profile', [BreederController::class, 'profile'])->name('profile');
-    // Route::post('/profile', [BreederController::class, 'updateProfile']);
+    Route::get('/breeder/profile', [BreederController::class, 'profile'])->name('breeder.profile');
 });
 Route::get('/breeder/dogs-listing', [BreederController::class, 'dogsListing'])->name('breeder.dogs.listing');
 Route::get('/breeder/dashboard-create', [BreederController::class, 'create'])->name('breeders.dashboard-create');
 Route::post('/breeder/dashboard/store', [BreederController::class, 'store'])->name('breeders.dashboard-store');
-Route::get('/breederwallet/', [BreederController::class, 'wallet'])->name('breeders.wallet');
 
 
 Route::middleware(['auth'])->group(function () {
@@ -232,7 +230,7 @@ Route::middleware(['auth'])->group(function () {
 
 use App\Http\Controllers\FrontendController;
 
-
+Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
 Route::get('/proposals', [FrontendController::class, 'proposals']);
 Route::get('/select-time', [FrontendController::class, 'selectTime']);
 Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
