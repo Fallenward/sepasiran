@@ -74,11 +74,4 @@ class ProductController extends Controller
             ->with('success', 'Product updated successfully');
     }
 
-    public function destroy($id): RedirectResponse
-    {
-        Product::find($id)->delete();
-
-        return Redirect::route('products.index')
-            ->with('success', 'Product deleted successfully');
-    }
 }

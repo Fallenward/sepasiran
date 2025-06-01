@@ -101,9 +101,9 @@
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             خروج
                         </a>
-                        <form id="logout-form" action="#" method="POST" class="d-none">
-                            @csrf
-                        </form>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
                     </div>
                 </li>
 
@@ -133,10 +133,10 @@
                     $menus = [
                         ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
                         ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
+                        ['route' => 'admin.products.index',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
                         ['route' => 'admin.dogs.index',         'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-paw',              'text' => __('تهیه سگ')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
+                        ['route' => 'admin.permissions.index',              'icon' => 'fas fa-paw',              'text' => __('role permission')],
+                        ['route' => 'admin.roles.index',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
                         ['route' => 'admin.coaches.index',      'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
                         ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
                         ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],

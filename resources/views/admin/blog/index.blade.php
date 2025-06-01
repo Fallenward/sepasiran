@@ -47,7 +47,7 @@
                                     <a href="{{ route('admin.blogs.show', $blog) }}">
                                         {{ $blog->title }}
                                     </a>
-                                </td>
+                                </t
 
                                 <td>{{ $blog->category?->name ?? '—' }}</td>
                                 <td>{{ $blog->author?->name ?? '—' }}</td>

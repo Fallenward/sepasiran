@@ -22,18 +22,40 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        logger()->info('📥 Login submitted', $request->all());
+public function store(LoginRequest $request): RedirectResponse
+{
+    logger()->info('📥 Login submitted', $request->all());
 
-        $request->authenticate();
+    $request->authenticate();
+    logger()->info('✅ Authentication passed');
 
-        logger()->info('✅ Authentication passed');
+    $request->session()->regenerate();
 
-        $request->session()->regenerate();
+    $user = Auth::user();
 
-        return redirect()->intended(route('admin.dashboard.index', absolute: false));
+    // ✅ Only system-level admin
+    if ($user->is_admin) {
+        return redirect()->route('admin.dashboard.index');
     }
+
+    // ✅ Use roles for everything else
+    if ($user->hasRole('breeder')) {
+        return redirect()->route('breeder.dashboard');
+    }
+
+    if ($user->hasRole('clinic')) {
+        return redirect()->route('clinic.dashboard');
+    }
+
+    if ($user->hasRole('coach')) {
+        return redirect()->route('coach.dashboard');
+    }
+
+    // ❌ Default fallback: unknown role
+    Auth::logout();
+    return redirect()->route('login')->withErrors(['role' => 'شما به هیچ داشبوردی دسترسی ندارید.']);
+}
+
 
     /**
      * Destroy an authenticated session.
