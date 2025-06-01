@@ -36,10 +36,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Foreign key constraints
-            // $table->foreign('level_id')->references('id')->on('levels')->onDelete('set null');
-            // $table->foreign('grade_id')->references('id')->on('grades')->onDelete('set null');
-            // $table->foreign('city_id')->references('id')->on('iran_cities')->onDelete('set null');
+
         });
 
         // Roles Table
@@ -52,8 +49,8 @@ return new class extends Migration
         // Permissions Table
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('slug')->unique();
+            $table->string('name');
+            $table->string('slug');
             $table->text('description')->nullable();
             $table->timestamps();
         });

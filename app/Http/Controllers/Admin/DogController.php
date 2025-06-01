@@ -19,45 +19,54 @@ class DogController extends Controller
 
     public function create()
     {
+        $dogs = Dog::all();
         $cities = City::all();
         $breeds = Breed::all();
-        $specialties = Specialty::all(); // اضافه کردن تخصص‌ها
-        return view('admin.dogs.create', compact('cities', 'breeds', 'specialties')); // ارسال تخصص‌ها به ویو
+        $specialties = Specialty::all();
+        return view('admin.dogs.create', compact('cities','dogs', 'breeds', 'specialties'));
     }
 
     public function store(Request $request)
     {
-        // اعتبارسنجی داده‌ها
+        // Validation
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id', // اطمینان از وجود شهر در جدول cities
-            'breed_id' => 'required|exists:breeds,id', // اطمینان از وجود نژاد در جدول breeds
-            'size' => 'required|string', // سایز سگ
-            'description' => 'required|string',
-            'image' => 'required|image', // تصویر سگ (اختیاری می‌توانید اضافه کنید)
+            'title' => 'required|string|max:255',
+            'city_id' => 'nullable|exists:cities,id',
+            'breed_id' => 'nullable|exists:breeds,id',
+            'age' => 'nullable|integer',
+            'birth_date' => 'nullable|date',
+            'cover_type' => 'nullable|string|max:50',
+            'eye_color' => 'nullable|string|max:50',
+            'shajare' => 'nullable|boolean',
+            'father_name' => 'nullable|string|max:255',
+            'father_breed_id' => 'nullable|exists:breeds,id',
+            'mother_name' => 'nullable|string|max:255',
+            'mother_breed_id' => 'nullable|exists:breeds,id',
+            'maternal_grandmother_name' => 'nullable|string|max:255',
+            'maternal_grandmother_breed_id' => 'nullable|exists:breeds,id',
+            'maternal_grandfather_name' => 'nullable|string|max:255',
+            'maternal_grandfather_breed_id' => 'nullable|exists:breeds,id',
+            'paternal_grandmother_name' => 'nullable|string|max:255',
+            'paternal_grandmother_breed_id' => 'nullable|exists:breeds,id',
+            'paternal_grandfather_name' => 'nullable|string|max:255',
+            'paternal_grandfather_breed_id' => 'nullable|exists:breeds,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        // ذخیره سگ جدید
-        $dog = new Dog();
-        $dog->name = $validated['name'];
-        $dog->city_id = $validated['city_id'];
-        $dog->breed_id = $validated['breed_id'];
-        $dog->size = $validated['size'];
-        $dog->description = $validated['description'];
-
-        // ذخیره تصویر
-        if ($request->hasFile('image')) {
-            $dog->image = $request->file('image')->store('dogs', 'public');
-        }
-
-        $dog->save();
+        Dog::create($validated);
 
         return redirect()->route('admin.dogs.index')->with('success', 'Dog created successfully');
     }
 
     public function show($id)
     {
-        $dog = Dog::with(['city', 'breed'])->findOrFail($id);
+        $dog = Dog::with([
+            'city', 'breed',
+            'fatherBreed', 'motherBreed',
+            'maternalGrandmotherBreed', 'maternalGrandfatherBreed',
+            'paternalGrandmotherBreed', 'paternalGrandfatherBreed'
+        ])->findOrFail($id);
+
         return view('admin.dogs.show', compact('dog'));
     }
 
@@ -66,37 +75,40 @@ class DogController extends Controller
         $dog = Dog::findOrFail($id);
         $cities = City::all();
         $breeds = Breed::all();
-        $specialties = Specialty::all(); // اضافه کردن تخصص‌ها
-        return view('admin.dogs.edit', compact('dog', 'cities', 'breeds', 'specialties')); // ارسال تخصص‌ها به ویو
+        $specialties = Specialty::all();
+        return view('admin.dogs.edit', compact('dog', 'cities', 'breeds', 'specialties'));
     }
 
     public function update(Request $request, $id)
     {
         $dog = Dog::findOrFail($id);
 
-        // اعتبارسنجی داده‌ها
+        // Validation same as store
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id',
-            'breed_id' => 'required|exists:breeds,id',
-            'size' => 'required|string',
-            'description' => 'required|string',
-            'image' => 'nullable|image', // تصویر اختیاری
+            'title' => 'required|string|max:255',
+            'city_id' => 'nullable|exists:cities,id',
+            'breed_id' => 'nullable|exists:breeds,id',
+            'age' => 'nullable|integer',
+            'birth_date' => 'nullable|date',
+            'cover_type' => 'nullable|string|max:50',
+            'eye_color' => 'nullable|string|max:50',
+            'shajare' => 'nullable|boolean',
+            'father_name' => 'nullable|string|max:255',
+            'father_breed_id' => 'nullable|exists:breeds,id',
+            'mother_name' => 'nullable|string|max:255',
+            'mother_breed_id' => 'nullable|exists:breeds,id',
+            'maternal_grandmother_name' => 'nullable|string|max:255',
+            'maternal_grandmother_breed_id' => 'nullable|exists:breeds,id',
+            'maternal_grandfather_name' => 'nullable|string|max:255',
+            'maternal_grandfather_breed_id' => 'nullable|exists:breeds,id',
+            'paternal_grandmother_name' => 'nullable|string|max:255',
+            'paternal_grandmother_breed_id' => 'nullable|exists:breeds,id',
+            'paternal_grandfather_name' => 'nullable|string|max:255',
+            'paternal_grandfather_breed_id' => 'nullable|exists:breeds,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        // به‌روزرسانی داده‌ها
-        $dog->name = $validated['name'];
-        $dog->city_id = $validated['city_id'];
-        $dog->breed_id = $validated['breed_id'];
-        $dog->size = $validated['size'];
-        $dog->description = $validated['description'];
-
-        // اگر تصویر جدیدی انتخاب شده باشد، آن را ذخیره کنید
-        if ($request->hasFile('image')) {
-            $dog->image = $request->file('image')->store('dogs', 'public');
-        }
-
-        $dog->save();
+        $dog->update($validated);
 
         return redirect()->route('admin.dogs.index')->with('success', 'Dog updated successfully');
     }
@@ -108,25 +120,25 @@ class DogController extends Controller
 
         return redirect()->route('admin.dogs.index')->with('success', 'Dog deleted successfully');
     }
+
     public function indexFront(Request $request)
     {
-        // فیلترها را از درخواست می‌گیریم
         $cities = City::all();
         $breeds = Breed::all();
-        $dogs = Dog::with(['city', 'breed']); // رابطه سگ با شهر و نژاد
 
-        // اعمال فیلترها
+        $dogs = Dog::with(['city', 'breed']);
+
+        // Filtering by city, breed, size (if these fields exist)
         if ($request->has('city')) {
-            $dogs->whereIn('city_id', $request->city);
+            $dogs->whereIn('city_id', (array) $request->city);
         }
         if ($request->has('breed')) {
-            $dogs->whereIn('breed_id', $request->breed);
+            $dogs->whereIn('breed_id', (array) $request->breed);
         }
         if ($request->has('size')) {
-            $dogs->whereIn('size', $request->size);
+            $dogs->whereIn('size', (array) $request->size);
         }
 
-        // گرفتن سگ‌ها با توجه به فیلترها
         $dogs = $dogs->paginate(6);
 
         return view('frontend.dog.supply.index', compact('dogs', 'cities', 'breeds'));

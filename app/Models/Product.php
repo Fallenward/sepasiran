@@ -22,12 +22,13 @@ protected $fillable = [
     'sku',
     'barcode',
     'category_id',
-    // 'brand_id',  <-- remove this
     'thumbnail',
     'images',
     'buy_link',
     'created_by',
     'updated_by',
+    'brand_id',
+    'category_id'
 ];
 
 // And remove the brand() function from the model
@@ -45,7 +46,7 @@ protected $fillable = [
         return $this->belongsTo(Category::class);
     }
 
- 
+
 
     public function creator()
     {
@@ -61,4 +62,18 @@ protected $fillable = [
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+        public function getBrandNameAttribute()
+        {
+            $brands = [
+                1 => 'Brand A',
+                2 => 'Brand B',
+                3 => 'Brand C',
+                // Add more as needed
+            ];
+
+            return $brands[$this->brand_id] ?? '—';
+        }
+
+
 }

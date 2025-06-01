@@ -1,56 +1,42 @@
 @extends('admin.layout')
 
 @section('template_title')
-    {{ $dog->name ?? "Dog Details" }}
+    نمایش سگ
 @endsection
 
 @section('content')
-    <section class="content container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow-lg rounded-lg">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Dog Details</h5>
-                        <a href="{{ route('admin.dogs.index') }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-                    </div>
+<div class="container-fluid">
+    <h2 class="mb-4">جزئیات سگ: {{ $dog->title }}</h2>
 
-                    <div class="card-body bg-light">
-                        <div class="row">
-                            <!-- نام -->
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Name:</strong>
-                                <span class="text-dark">{{ $dog->name }}</span>
-                            </div>
+    <ul class="nav nav-tabs" id="dogInfoTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">اطلاعات عمومی</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="mother-tab" data-bs-toggle="tab" data-bs-target="#mother" type="button" role="tab">اطلاعات مادر</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="father-tab" data-bs-toggle="tab" data-bs-target="#father" type="button" role="tab">اطلاعات پدر</button>
+        </li>
+    </ul>
 
-                            <!-- شهر -->
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">City:</strong>
-                                <span class="text-dark">{{ $dog->city->name }}</span>
-                            </div>
-
-                            <!-- نژاد -->
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Breed:</strong>
-                                <span class="text-dark">{{ $dog->breed->name }}</span>
-                            </div>
-
-                            <!-- اندازه -->
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Size:</strong>
-                                <span class="text-dark">{{ $dog->size }}</span>
-                            </div>
-
-                            <!-- توضیحات -->
-                            <div class="col-md-12">
-                                <strong class="d-block text-muted">Description:</strong>
-                                <p class="text-dark">{{ $dog->description }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="tab-content mt-3">
+        <!-- General Info -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+            @include('admin.dogs.partials.general-info')
         </div>
-    </section>
+
+        <!-- Mother Info -->
+        <div class="tab-pane fade" id="mother" role="tabpanel">
+            @include('admin.dogs.partials.mother-info')
+        </div>
+
+        <!-- Father Info -->
+        <div class="tab-pane fade" id="father" role="tabpanel">
+            @include('admin.dogs.partials.father-info')
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

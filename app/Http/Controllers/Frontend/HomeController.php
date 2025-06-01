@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Models\Dog;
 use App\Models\Service;
-use App\Models\Slider;
 use App\Models\User;
+use App\Models\Slider;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(){
-        $title='سپاس ایران';
+    public function index()
+    {
+        $title = 'سپاس ایران';
+
         $sliders = Slider::all();
+
         $services = Service::all()->map(function ($service) {
             // Assign route names based on slug or other logic
             switch ($service->slug) {
@@ -24,16 +27,16 @@ class HomeController extends Controller
                 case 'thyh-sg':
                     $service->route_link = route('frontend.dog.supply.index');
                     break;
-                    case 'dorh-hay-anlayn':
+                case 'dorh-hay-anlayn':
                     $service->route_link = route('frontend.online.courses');
                     break;
-                    case 'froshgah-ha':
+                case 'froshgah-ha':
                     $service->route_link = route('frontend.stores.index');
                     break;
-                    case 'klynyk-ha-o-bymh-hyoanat':
+                case 'klynyk-ha-o-bymh-hyoanat':
                     $service->route_link = route('frontend.clinics.index');
                     break;
-                    case 'prorsh-dhndh':
+                case 'prorsh-dhndh':
                     $service->route_link = route('frontend.breeders.index');
                     break;
                 default:
@@ -42,7 +45,10 @@ class HomeController extends Controller
             }
             return $service;
         });
-        $blogs = Blog::where('type', 'blog')->orderBy('created_at', 'desc')->take(3)->get();
+
+        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
+
+        // Count users by role
         $coachCount = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->count();
         $breederCount = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->count();
         $clinicCount = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->count();
@@ -50,7 +56,7 @@ class HomeController extends Controller
         // Count dogs
         $dogCount = Dog::count();
 
-        // Statistics array
+        // Statistics array for display
         $statistics = [
             ['title' => 'تعداد مربی', 'counter' => $coachCount],
             ['title' => 'پرورش دهندگان', 'counter' => $breederCount],
@@ -58,12 +64,14 @@ class HomeController extends Controller
             ['title' => 'سگ ها', 'counter' => $dogCount],
         ];
 
+        // Get latest users for each role
         $bestCoach = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->latest()->first();
-    $bestBreeder = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->latest()->first();
-    $bestClinic = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->latest()->first();
+        $bestBreeder = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->latest()->first();
+        $bestClinic = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->latest()->first();
 
-    // Collect in array
-    $bests = collect([$bestCoach, $bestBreeder, $bestClinic])->filter();
-        return view('frontend.pages.home',compact('sliders','blogs','title','services','statistics','bests'));
+        // Collect non-null best users
+        $bests = collect([$bestCoach, $bestBreeder, $bestClinic])->filter();
+
+        return view('frontend.pages.home', compact('sliders', 'blogs', 'title', 'services', 'statistics', 'bests'));
     }
 }

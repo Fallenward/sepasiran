@@ -289,7 +289,9 @@ class DatabaseSeeder extends Seeder
             SpecialtySeeder::class,
             BlogSeeder::class,
             ReviewSeeder::class,
-            CourseSeeder::class
+            CourseSeeder::class,
+            PermissionSeeder::class,
+            UsersTableSeeder::class
         ]);
     }
 

@@ -168,16 +168,6 @@ public function showById($id)
 }
 
 
-    public function dashboard()
-
-    {
-        // Get the authenticated user and any necessary data
-        $users = User::all();
-        // Example: You can fetch a count of dogs or any other relevant data
-        $dogsCount = Dog::count();  // You can fetch dogs that belong to this coach if applicable
-
-        return view('coaches.dashboard', compact('users', 'dogsCount'));
-    }
 
 
         public function editProfile()

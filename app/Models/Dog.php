@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -17,11 +18,13 @@ class Dog extends Model
         'user_id',
     ];
 
+    // Main breed
     public function breed()
     {
         return $this->belongsTo(Breed::class, 'breed_id');
     }
 
+    // City relation (you have city_id in migration but missing in fillable, consider adding if used)
     public function city()
     {
         return $this->belongsTo(City::class, 'city_id');
@@ -32,6 +35,7 @@ class Dog extends Model
         return $this->belongsTo(Specialty::class);
     }
 
+    // Owner relation (User)
     public function owner()
     {
         return $this->belongsTo(User::class);
@@ -42,36 +46,43 @@ class Dog extends Model
         return $this->belongsTo(Insurance::class);
     }
 
+    // Father breed
     public function fatherBreed()
     {
         return $this->belongsTo(Breed::class, 'father_breed_id');
     }
 
+    // Mother breed
     public function motherBreed()
     {
         return $this->belongsTo(Breed::class, 'mother_breed_id');
     }
 
+    // Maternal grandmother breed
     public function maternalGrandmotherBreed()
     {
         return $this->belongsTo(Breed::class, 'maternal_grandmother_breed_id');
     }
 
+    // Maternal grandfather breed
     public function maternalGrandfatherBreed()
     {
         return $this->belongsTo(Breed::class, 'maternal_grandfather_breed_id');
     }
 
+    // Paternal grandmother breed
     public function paternalGrandmotherBreed()
     {
         return $this->belongsTo(Breed::class, 'paternal_grandmother_breed_id');
     }
 
+    // Paternal grandfather breed
     public function paternalGrandfatherBreed()
     {
         return $this->belongsTo(Breed::class, 'paternal_grandfather_breed_id');
     }
 
+    // User relation (alias for owner?)
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

@@ -19,7 +19,11 @@
     {{-- ======================= Blogs Section ======================= --}}
 <section class="blogs-section">
     <div class="container">
-        <x-section-header title="اخبار" buttonText="مشاهده همه" link="{{ route('frontend.news.index') }}"/>
+        <x-section-header
+            title="اخبار"
+            buttonText="مشاهده همه"
+            :link="route('frontend.news.index')"
+        />
     </div>
 
     <div class="mt-107"></div>
@@ -27,17 +31,19 @@
     <div class="container">
         <div class="col-12 upper-box">
             <x-blogs-slider
-                :id="'blogsCarousel'"
+                id="blogsCarousel"
                 :items="$blogs"
                 :slidesPerView="3"
-                :type="'card-with-date'"
+                type="card-with-date"
                 :ride="false"
                 :enabledDesc="true"
                 :enabledLink="true"
-                :viewLink="'frontend.blogs.show'"/>
+                viewLink="frontend.blogs.show"
+            />
         </div>
     </div>
 </section>
+
 
     {{-- ======================= End of Blogs Section ======================= --}}
 

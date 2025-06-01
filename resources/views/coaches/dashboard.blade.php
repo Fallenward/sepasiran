@@ -12,8 +12,8 @@
 <div class="container mt-5">
     <div class="row g-3 align-items-center">
         <div class="col-12 col-lg-8">
-            <h4 class="mb-3">{{ $users->name }}</h4>
-            @php $firstUser = $users->first(); @endphp
+            <h4 class="mb-3">{{ $user->name }}</h4>
+            @php $firstUser = $user->first(); @endphp
             @if ($firstUser)
                 <div class="d-flex align-items-center flex-wrap">
                     <img src="{{ $firstUser->avatar_url ?? asset('images/default-avatar.png') }}" width="50" class="rounded-circle me-2 mb-2" alt="User Avatar">
@@ -122,8 +122,8 @@
     <div class="row text-center mb-4">
         @php
             $shortcuts = [
-                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('coach.dashboard')],
-                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('coach.dashboard')],
+                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('coaches.dashboard')],
+                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('coaches.dashboard')],
                 ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('wallet.index')],
             ];
         @endphp
@@ -167,13 +167,13 @@
     </div>
 
         <nav class="footer-nav">
-            <a class="nav-link" href="{{ route('coach.dashboard') }}">
+            <a class="nav-link" href="{{ route('coaches.dashboard') }}">
                 <i class="bi bi-house fs-4" style="color:#000;"></i><br>خانه
             </a>
             <a class="nav-link" href="{{ route('coaches.listing', ['coachId' => $coachId]) }}">
                 <i class="bi bi-receipt fs-4" style="color:#000;"></i><br>سفارشات
             </a>
-            <a class="nav-link" href="{{ route('coach.profile.edit') }}">
+            <a class="nav-link" href="{{ route('coaches.profile.edit') }}">
                 <i class="bi bi-plus-circle fs-4" style="color:#000;"></i><br>افزودن
             </a>
             <a class="nav-link" href="{{ route('wallet.index') }}">

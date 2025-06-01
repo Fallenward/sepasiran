@@ -12,9 +12,9 @@ class AdminUserSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Create roles
-        $roles = ['admin', 'coach', 'breeder', 'clinic', 'user']; // Added 'user' role
+        $roles = ['admin', 'coach', 'breeder', 'clinic', 'user'];
 
+        // 1. Insert roles if they don't exist
         foreach ($roles as $roleName) {
             DB::table('roles')->updateOrInsert(['name' => $roleName]);
         }
@@ -25,23 +25,24 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'family' => 'User',
-                'password' => Hash::make('your_secure_password'),
+                'password' => Hash::make('password123'),
                 'is_admin' => true,
             ]
         );
 
         $adminRoleId = DB::table('roles')->where('name', 'admin')->value('id');
+
         DB::table('role_user')->updateOrInsert([
             'user_id' => $admin->id,
             'role_id' => $adminRoleId,
         ]);
 
-        // 3. Create coach, breeder, clinic users
+        // 3. Create other users and assign roles
         $roleUsers = [
             'coach' => 3,
             'breeder' => 3,
             'clinic' => 3,
-            'user' => 5, // Add count for users you want to create
+            'user' => 5,
         ];
 
         $testUser = null;
@@ -60,19 +61,18 @@ class AdminUserSeeder extends Seeder
                     ]
                 );
 
-                DB::table('role_user')->updateOrInsert(
-                    ['user_id' => $user->id, 'role_id' => $roleId],
-                    []
-                );
+                DB::table('role_user')->updateOrInsert([
+                    'user_id' => $user->id,
+                    'role_id' => $roleId,
+                ]);
 
-                // Store one user to use later (e.g., for transactions)
                 if ($role === 'coach' && $i === 1) {
                     $testUser = $user;
                 }
             }
         }
 
-        // 4. Create test transaction for the selected user
+        // 4. Create test transaction for first coach
         if ($testUser) {
             DB::table('transactions')->insert([
                 'user_id' => $testUser->id,
