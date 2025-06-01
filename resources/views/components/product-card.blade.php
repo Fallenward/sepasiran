@@ -37,10 +37,10 @@
             <small class="text-muted mb-0">{{ $ownerName }}</small>
         </div>
     @endif
+        <a href="{{ route($showRoute, ['id' => $item->id]) }}"
+        class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2"
+        style="z-index: 10;">
+            مشاهده
+        </a>
 
-    <a href="{{ route('frontend.products.show') }}"
-       class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2"
-       style="z-index: 10;">
-        مشاهده
-    </a>
 </div>

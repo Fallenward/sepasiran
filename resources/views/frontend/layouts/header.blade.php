@@ -26,7 +26,7 @@
                 @if(is_null(auth()->user()))
                     <a href="{{ route('login') }}" class="btn btn-primary me-2">ورود / ثبت نام</a>
                 @else
-                    <a href="{{ route('coach.dashboard') }}" class="btn btn-primary">داشبورد</a>
+                    <a href="{{ route('coaches.dashboard') }}" class="btn btn-primary">داشبورد</a>
                     <form action="{{ route('logout') }}" method="POST" class="d-inline d-none d-md-block me-2">
                         @csrf
                         <button type="submit" class="btn btn-danger">خروج</button>
@@ -57,7 +57,7 @@
                     @if(is_null(auth()->user()))
                         <a href="{{ route('login') }}" class="btn btn-primary me-2">ورود / ثبت نام</a>
                     @else
-                        <a href="{{ route('coach.dashboard') }}" class="btn btn-primary me-2">داشبورد</a>
+                        <a href="{{ route('coaches.dashboard') }}" class="btn btn-primary me-2">داشبورد</a>
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-danger">خروج</button>

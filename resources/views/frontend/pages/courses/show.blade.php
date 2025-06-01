@@ -414,7 +414,7 @@
                     $('#cartLoader').removeClass('d-none');
 
                     $.ajax({
-                        url: '{{route('frontend.card.show')}}',
+                        url: '{{route('frontend.cart.show')}}',
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',

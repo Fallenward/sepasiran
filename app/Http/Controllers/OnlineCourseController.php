@@ -7,7 +7,7 @@ use App\Models\Course;  // import your Course model
 use App\Models\Category;
 use App\Models\Level;
 use App\Models\User;
-use App\Models\comment;
+use App\Models\Comment;
 
 
 
