@@ -127,7 +127,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('clinic')->name('clinic.')->group(function () {
         Route::get('/profile/edit', [ClinicController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [ClinicController::class, 'update'])->name('profile.update');
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic')->name('dashboard');
     });
 
     // User dashboard with role:user
