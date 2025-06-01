@@ -11,7 +11,7 @@
     </div>
 
     <!-- Proposals Section -->
-    <div class="proposals" style="max-width: 600px; margin: 40px auto; padding: 20px; direction: rtl;">
+    <div class="proposals" style="max-width: 600px; margin: 40px auto; padding: 20px; font-family: Arial, sans-serif; direction: rtl;">
         <h1 style="text-align: center; margin-bottom: 30px;">پیشنهادات</h1>
 
         <!-- Profile Image and Description -->

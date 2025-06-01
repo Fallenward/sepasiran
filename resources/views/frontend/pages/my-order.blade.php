@@ -41,7 +41,7 @@
                 </div>
                 <div>
                     <div class="step-circle bg-primary text-white">
-                        <i class="bi bi-check-lg fs-5"></i>1
+                        <i class="bi bi-check-lg fs-5"></i>
                     </div>
                     <small class="d-block mt-2">ثبت سفارش</small>
                 </div>

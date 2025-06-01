@@ -1,7 +1,7 @@
 @extends('frontend.layouts.header-dashboard')
 
 @section('content')
-<div class="select-trainer-type" style="max-width: 600px; margin: 40px auto; padding: 20px; direction: rtl;">
+<div class="select-trainer-type" style="max-width: 600px; margin: 40px auto; padding: 20px; font-family: Arial, sans-serif; direction: rtl;">
 
     <!-- Progress Bar -->
     <div class="progress mb-4" style="height: 8px; background-color: #e0e0e0; border-radius: 10px; overflow: hidden;">

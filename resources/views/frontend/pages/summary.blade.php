@@ -1,7 +1,7 @@
 @extends('frontend.layouts.header-dashboard')
 
 @section('content')
-<div class="summary-modern-wrapper py-5" style="direction: rtl;>
+<div class="summary-modern-wrapper py-5" style="direction: rtl; font-family: 'Vazirmatn', sans-serif;">
 
     <!-- Progress Bar -->
     <div class="container mb-4" style="max-width: 720px;">
