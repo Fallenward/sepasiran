@@ -64,25 +64,40 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Main search suggestions (dog titles)
+    function submitFilters() {
+        const pageInput = form.querySelector('input[name="page"]');
+        if (pageInput) pageInput.remove();
+        form.submit();
+    }
+
+    // Main search suggestions (dog titles) + live submit
     const mainSearch = form.querySelector('input[name="q"][data-suggest-type="dog"]');
     if (mainSearch) {
         const panel = mainSearch.closest('.sp-filters__group').querySelector('[data-suggest-panel]');
-        const run = debounce(async function () {
+        const runSuggest = debounce(async function () {
             const q = mainSearch.value.trim();
-            if (q.length < 1) { hidePanels(); return; }
+            if (q.length < 1) {
+                hidePanels();
+                return;
+            }
             const results = await fetchSuggest('dog', q);
             hidePanels(panel);
             renderPanel(panel, results, function (item) {
                 mainSearch.value = item.name;
-                form.submit();
+                submitFilters();
             });
         }, 280);
-        mainSearch.addEventListener('input', run);
+        const runLiveSearch = debounce(function () {
+            submitFilters();
+        }, 550);
+        mainSearch.addEventListener('input', function () {
+            runSuggest();
+            runLiveSearch();
+        });
         mainSearch.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                form.submit();
+                submitFilters();
             }
         });
     }

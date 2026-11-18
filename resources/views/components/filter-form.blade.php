@@ -172,6 +172,5 @@
             </section>
         @endforeach
 
-        <button type="submit" class="btn btn-primary sp-filters__submit">اعمال فیلتر</button>
     </form>
 </aside>
