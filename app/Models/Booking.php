@@ -3,17 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Booking extends Model
 {
     protected $perPage = 20;
 
     protected $fillable = [
+        'booking_code',
         'user_id',
         'service_type',
         'provider_id',
         'city_id',
+        'breed_id',
+        'training_type',
         'appointment_date',
+        'slot',
         'booking_date',
         'price',
         'tax',
@@ -24,6 +29,8 @@ class Booking extends Model
         'transaction_id',
         'status',
         'notes',
+        'contact_name',
+        'contact_phone',
     ];
 
     protected $casts = [
@@ -34,6 +41,24 @@ class Booking extends Model
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Booking $booking) {
+            if (empty($booking->booking_code)) {
+                $booking->booking_code = static::generateCode();
+            }
+        });
+    }
+
+    public static function generateCode(): string
+    {
+        do {
+            $code = 'SP-'.random_int(100000, 999999);
+        } while (static::query()->where('booking_code', $code)->exists());
+
+        return $code;
+    }
 
     public function user()
     {
@@ -48,6 +73,11 @@ class Booking extends Model
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function breed()
+    {
+        return $this->belongsTo(Breed::class);
     }
 
     public function carts()

@@ -24,6 +24,7 @@ use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\BookingController as FrontendBookingController;
+use App\Http\Controllers\Frontend\BookingApiController as FrontendBookingApiController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
@@ -223,20 +224,35 @@ Route::name('frontend.')->group(function () {
 
     // Public reservation / booking
     Route::get('/booking', [FrontendBookingController::class, 'index'])->name('booking.index');
-    Route::get('/booking/providers', [FrontendBookingController::class, 'providers'])->name('booking.providers');
-    Route::post('/booking', [FrontendBookingController::class, 'store'])->name('booking.store');
-    Route::get('/booking/success/{id}', [FrontendBookingController::class, 'success'])->name('booking.success');
+    Route::post('/booking', [FrontendBookingController::class, 'store'])
+        ->middleware('auth')
+        ->name('booking.store');
+    Route::get('/booking/success/{code}', [FrontendBookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/providers', [FrontendBookingController::class, 'providersShim'])->name('booking.providers');
+
+    Route::prefix('booking/api')->name('booking.api.')->group(function () {
+        Route::get('/meta', [FrontendBookingApiController::class, 'meta'])->name('meta');
+        Route::get('/breeds', [FrontendBookingApiController::class, 'breeds'])->name('breeds');
+        Route::get('/providers', [FrontendBookingApiController::class, 'providers'])->name('providers');
+        Route::get('/slots', [FrontendBookingApiController::class, 'slots'])->name('slots');
+        Route::post('/', [FrontendBookingApiController::class, 'store'])
+            ->middleware('auth')
+            ->name('store');
+        Route::get('/{booking_code}', [FrontendBookingApiController::class, 'show'])
+            ->middleware('auth')
+            ->name('show');
+    });
 });
 
 // Misc public routes
 Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 
 Route::middleware('throttle:payment')->group(function () {
-    Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
-    Route::get('/summary', [FrontendController::class, 'summary']);
+    Route::redirect('/order-summary', '/booking')->name('order.summary');
+    Route::redirect('/summary', '/booking');
 });
 
-Route::get('/proposals', [FrontendController::class, 'proposals']);
-Route::get('/select-time', [FrontendController::class, 'selectTime']);
-Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
-Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerType']);
+Route::redirect('/proposals', '/booking');
+Route::redirect('/select-time', '/booking');
+Route::redirect('/select-breed', '/booking');
+Route::redirect('/select-trainer-type', '/booking');

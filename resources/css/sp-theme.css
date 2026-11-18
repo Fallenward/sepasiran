@@ -2203,3 +2203,52 @@ body.sp-body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.sp-booking__provider-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.sp-booking__provider {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: right;
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.sp-booking__provider.is-active {
+  border-color: rgba(79, 191, 120, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(79, 191, 120, 0.18);
+}
+
+.sp-booking__provider span {
+  color: var(--sp-text-subtle);
+  font-size: 0.85rem;
+}
+
+.sp-booking__slot.is-disabled,
+.sp-booking__slot:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sp-booking__steps {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .sp-booking__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
