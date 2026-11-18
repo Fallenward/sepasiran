@@ -5,6 +5,7 @@ defineProps({
   lede: { type: String, default: 'بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.' },
   dogsUrl: { type: String, required: true },
   servicesUrl: { type: String, required: true },
+  bookingUrl: { type: String, default: '' },
   heroImage: { type: String, default: '' },
 });
 
@@ -36,7 +37,7 @@ function onParallax(e) {
       <p class="hero__lede">{{ lede }}</p>
       <div class="hero__cta">
         <a class="btn btn-primary" :href="dogsUrl">مشاهده سگ‌ها</a>
-        <a class="btn btn-ghost" :href="servicesUrl">رزرو خدمات</a>
+        <a class="btn btn-ghost" :href="bookingUrl || servicesUrl">رزرو خدمات</a>
       </div>
     </div>
   </section>

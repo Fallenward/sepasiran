@@ -35,6 +35,7 @@
             'lede' => 'بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.',
             'dogsUrl' => route('frontend.dog.supply.index'),
             'servicesUrl' => route('frontend.services.index'),
+            'bookingUrl' => route('frontend.booking.index'),
             'heroImage' => $heroImage,
         ];
     @endphp
@@ -255,7 +256,7 @@
                 </div>
                 <div class="sp-final-cta__actions">
                     <a class="btn btn-primary" href="{{ route('frontend.dog.supply.index') }}">مشاهده سگ‌ها</a>
-                    <a class="btn btn-ghost" href="{{ route('frontend.coaches.index') }}">رزرو مربی</a>
+                    <a class="btn btn-ghost" href="{{ route('frontend.booking.index', ['type' => 'coach']) }}">رزرو مربی</a>
                 </div>
             </div>
         </div>
