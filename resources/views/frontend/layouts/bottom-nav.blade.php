@@ -17,12 +17,12 @@
     </a>
     @auth
         <a href="{{ route('user.dashboard') }}"
-           class="{{ request()->routeIs('user.dashboard') ? 'is-active' : '' }}">
-            <span><i class="far fa-user"></i></span>حساب
+           class="{{ request()->routeIs('user.*') ? 'is-active' : '' }}">
+            <span><i class="far fa-user"></i></span>حساب من
         </a>
     @else
         <a href="{{ route('login') }}">
-            <span><i class="far fa-user"></i></span>حساب
+            <span><i class="far fa-user"></i></span>ورود
         </a>
     @endauth
 </nav>

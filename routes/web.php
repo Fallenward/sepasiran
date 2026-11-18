@@ -140,8 +140,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic')->name('dashboard');
     });
 
-    // User dashboard with role:user
-    Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
+    // User / customer account hub (any authenticated user)
+    Route::prefix('user')->name('user.')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     });
 

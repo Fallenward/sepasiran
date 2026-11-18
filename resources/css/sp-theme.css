@@ -244,6 +244,60 @@ a:hover {
   flex-shrink: 0;
 }
 
+.sp-nav__account {
+  position: relative;
+}
+
+.sp-nav__account-btn {
+  min-width: 96px;
+}
+
+.sp-nav__account-menu {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  min-width: 220px;
+}
+
+.sp-nav__account:hover > .sp-nav__account-menu,
+.sp-nav__account:focus-within > .sp-nav__account-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sp-nav__account-name {
+  padding: 8px 12px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--sp-text);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.sp-menu__logout {
+  margin: 0;
+}
+
+.sp-menu__logout button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--sp-radius-sm);
+  background: transparent;
+  color: var(--sp-text-muted);
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sp-menu__logout button:hover,
+.sp-menu__logout button:focus-visible {
+  color: var(--sp-text);
+  background: rgba(220, 80, 80, 0.12);
+  outline: none;
+}
+
 /* Site footer */
 .sp-footer {
   margin-top: 48px;

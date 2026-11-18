@@ -1,3 +1,38 @@
+@php
+    $authUser = auth()->user();
+    $accountLinks = [];
+    if ($authUser) {
+        if (!empty($authUser->is_admin) || (method_exists($authUser, 'hasRole') && ($authUser->hasRole('admin') || $authUser->hasRole('administrator')))) {
+            $accountLinks[] = ['label' => 'پنل ادمین', 'url' => route('admin.dashboard.index')];
+        }
+        if (method_exists($authUser, 'hasRole') && $authUser->hasRole('breeder')) {
+            $accountLinks[] = ['label' => 'داشبورد پرورش‌دهنده', 'url' => route('breeder.dashboard')];
+            $accountLinks[] = ['label' => 'افزودن سگ', 'url' => route('breeder.dashboard-create')];
+            $accountLinks[] = ['label' => 'لیست سگ‌های من', 'url' => route('breeder.dogs.listing')];
+        }
+        if (method_exists($authUser, 'hasRole') && $authUser->hasRole('coach')) {
+            $accountLinks[] = ['label' => 'داشبورد مربی', 'url' => route('coaches.dashboard')];
+            $accountLinks[] = ['label' => 'کیف پول مربی', 'url' => route('coaches.wallet')];
+        }
+        if (method_exists($authUser, 'hasRole') && $authUser->hasRole('clinic')) {
+            $accountLinks[] = ['label' => 'داشبورد کلینیک', 'url' => route('clinic.dashboard')];
+        }
+        $accountLinks[] = ['label' => 'داشبورد من', 'url' => route('user.dashboard')];
+        $accountLinks[] = ['label' => 'رزرو خدمت', 'url' => route('frontend.booking.index')];
+        if (Route::has('wallet.index')) {
+            $accountLinks[] = ['label' => 'کیف پول', 'url' => route('wallet.index')];
+        }
+        // de-dupe by url
+        $seen = [];
+        $accountLinks = array_values(array_filter($accountLinks, function ($row) use (&$seen) {
+            if (isset($seen[$row['url']])) {
+                return false;
+            }
+            $seen[$row['url']] = true;
+            return true;
+        }));
+    }
+@endphp
 <header class="sp-nav">
     <a class="sp-brand" href="{{ route('frontend.home') }}">
         <span class="sp-brand__fa">سپاسیران</span>
@@ -42,12 +77,15 @@
                 <button type="button" class="sp-menu__trigger" aria-haspopup="true">حساب</button>
                 <div class="sp-menu__dropdown" role="menu">
                     @guest
-                        <a href="{{ route('login') }}">ورود / ثبت‌نام</a>
+                        <a href="{{ route('login') }}">ورود</a>
+                        <a href="{{ route('register') }}">ثبت‌نام</a>
                     @else
-                        <a href="{{ route('user.dashboard') }}">داشبورد کاربر</a>
-                        <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        @foreach($accountLinks as $link)
+                            <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                        @endforeach
+                        <form action="{{ route('logout') }}" method="POST" class="sp-menu__logout">
                             @csrf
-                            <button type="submit" class="sp-menu__trigger w-100 text-start border-0 bg-transparent">خروج</button>
+                            <button type="submit">خروج</button>
                         </form>
                     @endguest
                     <a href="{{ route('frontend.about') }}">درباره ما</a>
@@ -62,8 +100,23 @@
             <a class="btn btn-ghost" href="{{ route('login') }}">ورود</a>
             <a class="btn btn-primary" href="{{ route('register') }}">ثبت‌نام</a>
         @else
-            <a class="btn btn-ghost" href="{{ route('user.dashboard') }}">حساب من</a>
-            <a class="btn btn-primary" href="{{ route('frontend.stores.index') }}">فروشگاه</a>
+            <div class="sp-nav__account">
+                <button type="button" class="btn btn-ghost sp-nav__account-btn" aria-haspopup="true" aria-expanded="false">
+                    حساب من
+                </button>
+                <div class="sp-menu__dropdown sp-nav__account-menu" role="menu">
+                    <div class="sp-nav__account-name">
+                        {{ trim(($authUser->name ?? '').' '.($authUser->family ?? '')) ?: 'کاربر' }}
+                    </div>
+                    @foreach($accountLinks as $link)
+                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                    @endforeach
+                </div>
+            </div>
+            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                @csrf
+                <button type="submit" class="btn btn-primary">خروج</button>
+            </form>
         @endguest
     </div>
 </header>

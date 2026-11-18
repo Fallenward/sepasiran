@@ -12,9 +12,10 @@ class UserDashboardController extends Controller
     {
         $user = Auth::user();
 
-        $nearbyClinics = User::role('clinic')
+        $nearbyClinics = User::query()
+            ->role('clinic')
             ->where('id', '!=', $user->id)
-            ->where('city_id', $user->city_id)
+            ->when($user->city_id, fn ($q) => $q->where('city_id', $user->city_id))
             ->paginate(12);
 
         return view('frontend.pages.user.dashboard', [
