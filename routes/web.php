@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\BlogRatingController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BreedController;
@@ -42,50 +43,59 @@ use Illuminate\Support\Facades\Route;
 // ----------------------------------------------
 // Admin Routes with auth + is_admin middleware
 // ----------------------------------------------
-Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-    // Resource controllers
-    Route::resources([
-        'users' => UserController::class,
-        'blogs' => BlogController::class,
-        'blog_ratings' => BlogRatingController::class,
-        'carts' => CartController::class,
-        'coaches' => CoachController::class,
-        'categories' => CategoryController::class,
-        'discounts' => DiscountController::class,
-        'menus' => MenuController::class,
-        'sliders' => SliderController::class,
-        'transactions' => TransactionController::class,
-        'services' => ServiceController::class,
-        'dogs' => DogController::class,
-        'courses' => CourseController::class,
-        'insurances' => InsuranceController::class,
-        'skills' => SkillController::class,
-        'bookings' => BookingController::class,
-        'breeds' => BreedController::class,
-    ]);
+        // Resource controllers
+        Route::resources([
+            'users' => UserController::class,
+            'blogs' => BlogController::class,
+            'blog_ratings' => BlogRatingController::class,
+            'carts' => CartController::class,
+            'coaches' => CoachController::class,
+            'categories' => CategoryController::class,
+            'discounts' => DiscountController::class,
+            'menus' => MenuController::class,
+            'sliders' => SliderController::class,
+            'transactions' => TransactionController::class,
+            'services' => ServiceController::class,
+            'dogs' => DogController::class,
+            'courses' => CourseController::class,
+            'insurances' => InsuranceController::class,
+            'skills' => SkillController::class,
+            'bookings' => BookingController::class,
+            'breeds' => BreedController::class,
+        ]);
 
-    // Products CRUD routes
-    Route::resource('products', AdminProductController::class);
+        // Products CRUD routes
+        Route::resource('products', AdminProductController::class);
 
-    // Permissions & Roles
-    Route::resource('permissions', PermissionController::class);
-    Route::resource('roles', RoleController::class);
+        // Permissions & Roles
+        Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
 
-    // Clinics wallet under admin prefix
-    Route::prefix('clinics')->group(function () {
-        Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
+        // Clinics wallet under admin prefix
+        Route::prefix('clinics')->group(function () {
+            Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
+        });
     });
-});
 
 // ----------------------------------------------
 // Guest routes
 // ----------------------------------------------
 Route::middleware('guest')->group(function () {
-    Route::get('/login',  [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:login');
+});
+
+Route::middleware('throttle:otp')->prefix('otp')->name('otp.')->group(function () {
+    Route::post('/send', [OtpController::class, 'send'])->name('send');
+    Route::post('/verify', [OtpController::class, 'verify'])->name('verify');
 });
 
 // ----------------------------------------------
@@ -94,8 +104,10 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
-    // Wallet
-    Route::get('/wallet', [AdminWalletController::class, 'index'])->name('wallet.index');
+    // Wallet / checkout-adjacent
+    Route::get('/wallet', [AdminWalletController::class, 'index'])
+        ->middleware('throttle:payment')
+        ->name('wallet.index');
 
     // Breeder routes
     Route::prefix('breeder')->name('breeder.')->group(function () {
@@ -177,7 +189,9 @@ Route::name('frontend.')->group(function () {
     Route::get('/blogs/{slug}', [BlogController::class, 'showBlog'])->name('blogs.show');
     Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('blogs.store.comment');
 
-    Route::post('/cart/show', [CartController::class, 'show'])->name('cart.show');
+    Route::post('/cart/show', [CartController::class, 'show'])
+        ->middleware('throttle:payment')
+        ->name('cart.show');
 
     Route::get('/support-web', [AboutController::class, 'support'])->name('support-web.index');
     Route::post('/support-web', [AboutController::class, 'storeSupport'])->name('support-web.store');
@@ -209,9 +223,12 @@ Route::name('frontend.')->group(function () {
 // Misc public routes
 Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 
-Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
+Route::middleware('throttle:payment')->group(function () {
+    Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
+    Route::get('/summary', [FrontendController::class, 'summary']);
+});
+
 Route::get('/proposals', [FrontendController::class, 'proposals']);
 Route::get('/select-time', [FrontendController::class, 'selectTime']);
 Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
 Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerType']);
-Route::get('/summary', [FrontendController::class, 'summary']);

@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register middleware aliases
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
-            'role'     => \App\Http\Middleware\RoleMiddleware::class, // ✅ Your custom middleware
+            'role'     => \App\Http\Middleware\RoleMiddleware::class,
+            'throttle.mutations' => \App\Http\Middleware\ThrottleMutations::class,
         ]);
 
         // Optionally add middleware to groups
