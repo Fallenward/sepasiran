@@ -25,15 +25,13 @@
     :bgColor="'#0d47a1'"
 />
 
-    <div class="container">
-    <div class="row">
-        <!-- Filter Section -->
-        <div class="col-md-4 col-12">
+<div class="wrap sp-listing" style="padding-bottom:48px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
             <x-filter-form :filters="$filters" />
         </div>
 
-        <!-- Clinic Cards Section -->
-        <div class="col-md-8 col-12">
+        <div class="sp-listing__results">
             <div id="items-list" class="row g-4">
                 @foreach($clinics as $clinic)
                     <div class="col-md-6 col-lg-4 col-12">
@@ -42,16 +40,14 @@
                 @endforeach
             </div>
 
-            <!-- Load More Button -->
             @if($clinics->hasMorePages())
                 <div class="mt-4 text-center">
                     <button id="load-more" data-next-page="{{ $clinics->currentPage() + 1 }}" class="btn btn-primary">
-                        Load More Clinics
+                        مشاهده بیشتر
                     </button>
                 </div>
             @endif
 
-            <!-- Pagination Links -->
             <div class="mt-4">
                 {{ $clinics->appends(request()->only(['city', 'specialty']))->links() }}
             </div>

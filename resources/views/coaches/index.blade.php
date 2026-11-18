@@ -12,15 +12,13 @@
     bgColor="linear-gradient(90deg, #0D47A1 0%, #051A3B 100%)"
 />
 
-<div class="container">
-    <div class="row">
-        <!-- Filters -->
-        <div class="col-md-4 col-12">
+<div class="wrap sp-listing" style="padding-bottom:48px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
             <x-filter-form :filters="$filters" />
         </div>
 
-        <!-- Coaches List -->
-        <div class="col-md-8 col-12">
+        <div class="sp-listing__results">
             <div class="row g-4" id="coaches-list">
                 @foreach($coaches as $coach)
                     <div class="col-md-4 col-12">

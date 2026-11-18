@@ -1,5 +1,5 @@
 /* Sepasiran design preview — tokens from docs/ui-design-system.md */
-@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap");
 @import "../fonts/css/fontiran.css";
 
 :root {
@@ -32,8 +32,8 @@
   --sp-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --sp-duration-fast: 160ms;
   --sp-duration: 280ms;
-  --font-ui: dana, Tahoma, sans-serif;
-  --font-latin: Syne, dana, sans-serif;
+  --font-ui: "Vazirmatn", dana, Tahoma, sans-serif;
+  --font-latin: Syne, "Vazirmatn", dana, sans-serif;
   --content: 1200px;
 }
 
@@ -1121,4 +1121,193 @@ body.sp-body {
 .sp-shell [style*="color:#0D47A1"] {
   color: var(--sp-green) !important;
   background-color: transparent !important;
+}
+
+/* Typography — Vazirmatn primary UI */
+.sp-body,
+.sp-shell,
+body.sp-body {
+  font-family: var(--font-ui) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sp-shell h1,
+.sp-shell h2,
+.sp-shell h3,
+.sp-shell .hero__brand,
+.sp-shell .sp-brand__fa,
+.sp-shell .sp-page-title,
+.sp-shell .sp-page-header__title {
+  font-family: var(--font-ui);
+  letter-spacing: 0;
+}
+
+/* Listing layout */
+.sp-listing__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.sp-listing__layout {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 992px) {
+  .sp-listing__layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.sp-listing__filters {
+  position: sticky;
+  top: 88px;
+}
+
+/* Filters — Sepasiran chips */
+.sp-filters {
+  background: var(--sp-bg-elevated);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-lg);
+  box-shadow: var(--sp-shadow-extrude);
+  padding: 18px 16px 20px;
+  width: 100%;
+  max-width: none;
+  direction: rtl;
+}
+
+.sp-filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sp-border);
+}
+
+.sp-filters__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--sp-text);
+}
+
+.sp-filters__clear {
+  font-size: 0.82rem;
+  color: var(--sp-gold-soft);
+}
+
+.sp-filters__clear:hover {
+  color: var(--sp-gold);
+}
+
+.sp-filters__active {
+  margin-bottom: 14px;
+}
+
+.sp-filters__group {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--sp-bg-sunken);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-md);
+}
+
+.sp-filters__group:last-child {
+  margin-bottom: 0;
+}
+
+.sp-filters__group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sp-filters__group-head h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sp-gold);
+}
+
+.sp-filters__more {
+  border: 0;
+  background: transparent;
+  color: var(--sp-green-soft);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sp-filters__chips {
+  margin-bottom: 0;
+}
+
+.sp-filter-chip {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sp-filter-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sp-filter-chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.sp-filter-chip.is-active,
+.sp-filter-chip:has(input:checked) {
+  background: rgba(79, 191, 120, 0.16);
+  border-color: var(--sp-border-strong);
+  color: var(--sp-green-soft);
+}
+
+.sp-filters .chip {
+  color: var(--sp-text-muted);
+}
+
+.sp-filters .chip:hover {
+  border-color: var(--sp-border-strong);
+  color: var(--sp-text);
+}
+
+@media (max-width: 991px) {
+  .sp-listing__filters {
+    position: static;
+  }
+
+  .sp-filters {
+    padding: 14px;
+  }
+
+  .sp-filters__group {
+    background: transparent;
+    border: 0;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--sp-border);
+    border-radius: 0;
+  }
+
+  .sp-filters__chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
 }

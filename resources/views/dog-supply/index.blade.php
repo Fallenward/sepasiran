@@ -3,26 +3,27 @@
 @section('title', 'سگ‌ها')
 
 @section('content')
-<div class="wrap" style="padding-top:24px;padding-bottom:48px">
-    <h1 class="sp-page-title">سگ‌ها</h1>
-    <p class="sp-count num">
-        {{ method_exists($dogs, 'total') ? $dogs->total() : $dogs->count() }} آگهی
-    </p>
+<div class="wrap sp-listing" style="padding-top:24px;padding-bottom:48px">
+    <header class="sp-listing__head">
+        <div>
+            <h1 class="sp-page-title">سگ‌ها</h1>
+            <p class="sp-count num">
+                {{ method_exists($dogs, 'total') ? $dogs->total() : $dogs->count() }} آگهی
+            </p>
+        </div>
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>سگ‌ها</span>
+        </nav>
+    </header>
 
-    <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
-        <a href="{{ route('frontend.home') }}">خانه</a>
-        <span class="sp-breadcrumb__sep">/</span>
-        <span>سگ‌ها</span>
-    </nav>
-
-    <div class="row g-4">
-        <div class="col-md-4 col-12">
-            <div class="panel">
-                <x-filter-form :filters="$filters" />
-            </div>
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
+            <x-filter-form :filters="$filters" />
         </div>
 
-        <div class="col-md-8 col-12">
+        <div class="sp-listing__results">
             <div class="grid grid-3">
                 @forelse($dogs as $dog)
                     @include('components.dog-card', ['item' => $dog])

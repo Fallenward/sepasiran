@@ -15,42 +15,37 @@
 />
 
 
-    <div class="container">
-        <div class="row">
-            <!-- Filter Sidebar -->
-            <div class="col-md-4 col-12 mb-4">
-                <x-filter-form :filters="$filters" :action="request()->url()" />
+<div class="wrap sp-listing" style="padding-bottom:48px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
+            <x-filter-form :filters="$filters" :action="request()->url()" />
+        </div>
+
+        <div class="sp-listing__results">
+            <div id="items-list" class="row g-4">
+                @foreach($breeders as $breeder)
+                    <div class="col-md-4 col-6">
+                        <x-breeder-card :item="$breeder" />
+                    </div>
+                @endforeach
             </div>
 
-
-            <div class="col-md-8 col-12">
-                <div id="items-list" class="row g-4">
-                    @foreach($breeders as $breeder)
-                        <div class="col-md-4 col-6">
-                            <x-breeder-card :item="$breeder" />
-                        </div>
-                    @endforeach
+            @if($breeders->hasMorePages())
+                <div class="text-center mt-4">
+                    <button id="load-more"
+                            data-next-page="{{ $breeders->currentPage() + 1 }}"
+                            class="btn btn-primary">
+                        مشاهده بیشتر
+                    </button>
                 </div>
+            @endif
 
-                @if($breeders->hasMorePages())
-                    <div class="text-center mt-4">
-                        <button id="load-more"
-                                data-next-page="{{ $breeders->currentPage() + 1 }}"
-                                class="btn btn-primary">
-                            مشاهده بیشتر
-                        </button>
-                    </div>
-                @endif
-
-
-                <!-- Pagination -->
-                <div class="mt-4">
-                    {{ $breeders->appends(request()->only(['city', 'breed', 'size']))->links() }}
-                </div>
-
+            <div class="mt-4">
+                {{ $breeders->appends(request()->only(['city', 'breed', 'size']))->links() }}
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')

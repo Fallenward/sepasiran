@@ -40,6 +40,7 @@
     <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet"/>
     <script src="{{ asset('assets/js/select2.min.js') }}"></script>
     @vite(['resources/js/app-front.js', 'resources/js/vue/main.js'])
+    @stack('scripts')
     @yield('scripts')
 </body>
 </html>

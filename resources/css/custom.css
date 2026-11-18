@@ -22,7 +22,7 @@
 
 /* General Styles */
 body, h1, h2, h3, h4, h5, h6, input, textarea {
-    font-family: dana !important;
+    font-family: "Vazirmatn", dana, Tahoma, sans-serif !important;
 }
 
 /* Buttons */

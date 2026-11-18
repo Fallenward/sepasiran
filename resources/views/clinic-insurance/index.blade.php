@@ -14,15 +14,13 @@
         extraClasses="text-align-center"
     />
 
-    <div class="container">
-        <div class="row">
-            <!-- Filter Sidebar -->
-            <div class="col-md-4 col-12 mb-4">
-                <x-filter-form :filters="$filters "/>
-            </div>
+<div class="wrap sp-listing" style="padding-bottom:48px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
+            <x-filter-form :filters="$filters" />
+        </div>
 
-            <!-- Insurance Cards -->
-            <div class="col-md-8 col-12">
+        <div class="sp-listing__results">
                 <div id="items-list" class="row g-4">
                     @foreach($insurances as $insurance)
                         <div class="col-md-4 col-6">
@@ -42,13 +40,12 @@
                     </div>
                 @endif
 
-                <!-- Pagination Links -->
                 <div class="mt-4">
                     {{ $insurances->appends(request()->only(['city', 'duration']))->links() }}
                 </div>
-            </div>
         </div>
     </div>
+</div>
 
 <!-- Card Section -->
 <div class="card shadow-sm p-3 mb-4 w-100" style="height: 480px;">
