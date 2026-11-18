@@ -1,186 +1,98 @@
-@extends('admin.layout')
-@section('title', 'کیف پول پرورش‌دهنده')
+@extends('frontend.layouts.app')
+
+@section('title', 'کیف پول — سپاسیران')
 
 @section('content')
-<div class="container-fluid pt-4 pb-5" style="background-color: #f9f9f9;">
-
-    <!-- Wallet Balance -->
-    <div class="card text-white mb-5" style="background-color: #0D47A1;">
-        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h5 class="mb-0">موجودی کیف پول</h5>
-            <h4 class="mb-0">{{ number_format($walletBalance) }} تومان</h4>
-            <button class="btn btn-light">افزایش موجودی</button>
+@php
+    $statusLabel = fn ($status) => $status === 'completed' ? ['موفق', 'is-active'] : ['ناموفق', 'is-danger'];
+@endphp
+<div class="sp-dash sp-dash--customer">
+    <div class="sp-dash__inner">
+        <div class="sp-dash__brand" aria-label="برند">
+            <p class="sp-dash__brand-fa">سپاسیران</p>
+            <p class="sp-dash__brand-en latin">Wallet</p>
         </div>
+
+        <section class="sp-dash__hero">
+            <div class="sp-dash__hero-main">
+                <div class="sp-dash__avatar" aria-hidden="true"><i class="fas fa-wallet"></i></div>
+                <div>
+                    <p class="sp-dash__eyebrow">{{ $roleLabel ?? 'حساب' }}</p>
+                    <h1 class="sp-dash__title">کیف پول</h1>
+                    <p class="sp-dash__lede">موجودی، واریز و برداشت‌های حساب شما در یک نگاه.</p>
+                </div>
+            </div>
+            <aside class="sp-dash__hero-cta">
+                <div>
+                    <strong>بازگشت به داشبورد</strong>
+                    <p>به خلاصه حساب نقش خود برگردید.</p>
+                </div>
+                <a class="sp-btn sp-btn--ghost" href="{{ $backUrl ?? route('user.dashboard') }}">داشبورد من</a>
+            </aside>
+        </section>
+
+        @include('frontend.partials.dashboard-metrics', [
+            'metrics' => [
+                ['label' => 'موجودی کیف پول', 'value' => number_format($walletBalance) . ' ت', 'hint' => 'قابل استفاده', 'icon' => 'fas fa-wallet'],
+                ['label' => 'درآمد این ماه', 'value' => number_format($monthlyIncome) . ' ت', 'hint' => 'واریزهای موفق', 'icon' => 'fas fa-arrow-down'],
+                ['label' => 'هزینه این ماه', 'value' => number_format($monthlyExpense) . ' ت', 'hint' => 'برداشت‌ها', 'icon' => 'fas fa-arrow-up'],
+            ],
+        ])
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>سود خالص این ماه</h2>
+                <span class="sp-dash__chip {{ $netProfit >= 0 ? 'is-active' : 'is-danger' }} latin">{{ number_format($netProfit) }} ت</span>
+            </header>
+            <p class="sp-dash__muted">اختلاف واریز و برداشت تکمیل‌شده در ماه جاری.</p>
+        </section>
+
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spWalletFinanceChart',
+            'chartLinkUrl' => route('wallet.index'),
+            'chartLinkLabel' => 'به‌روز',
+        ])
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>تراکنش‌های اخیر</h2>
+            </header>
+
+            <div class="sp-dash__list">
+                @forelse($transactions as $transaction)
+                    @php [$stLabel, $stClass] = $statusLabel($transaction->status); @endphp
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon">
+                            <i class="fas {{ $transaction->amount >= 0 ? 'fa-plus' : 'fa-minus' }}"></i>
+                        </span>
+                        <div>
+                            <strong>{{ $transaction->description ?: ($transaction->amount >= 0 ? 'واریز' : 'برداشت') }}</strong>
+                            <p class="sp-dash__muted">
+                                {{ class_exists(\Morilog\Jalali\Jalalian::class) ? \Morilog\Jalali\Jalalian::fromDateTime($transaction->created_at)->format('Y/m/d') : $transaction->created_at->format('Y-m-d') }}
+                                · {{ $transaction->amount >= 0 ? 'واریزی' : 'برداشت' }}
+                            </p>
+                        </div>
+                        <div class="sp-dash__row-meta">
+                            <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
+                            <span class="sp-dash__muted latin">{{ number_format((float) $transaction->amount) }} ت</span>
+                        </div>
+                    </article>
+                @empty
+                    <div class="sp-dash__empty">
+                        <div class="sp-dash__empty-visual" aria-hidden="true"></div>
+                        <p>هنوز تراکنشی ثبت نشده است.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            @if(method_exists($transactions, 'links') && $transactions->hasPages())
+                <div class="sp-dash__pager">
+                    {{ $transactions->links() }}
+                </div>
+            @endif
+        </section>
     </div>
-
-    <!-- Filters -->
-    <form class="row g-3 mb-5">
-        <div class="col-12 col-md-3">
-            <input type="text" class="form-control" placeholder="تاریخ تراکنش">
-        </div>
-        <div class="col-12 col-md-3">
-            <select class="form-select">
-                <option>نوع تراکنش</option>
-                <option>ویزیت حیوان</option>
-                <option>واکسیاسیون</option>
-                <option>خرید دارو</option>
-            </select>
-        </div>
-        <div class="col-12 col-md-3">
-            <select class="form-select">
-                <option>وضعیت تراکنش</option>
-                <option>موفق</option>
-                <option>ناموفق</option>
-            </select>
-        </div>
-        <div class="col-12 col-md-3">
-            <button class="btn text-white w-100" style="background-color: #0D47A1;">نمایش نتایج</button>
-        </div>
-    </form>
-
-    <!-- Transactions Table -->
-    <div class="mb-5 p-4 border rounded" style="background-color: #fff;">
-        <div class="px-3 py-2 rounded-top" style="background-color: #0d47a1; color: #fff;">
-            <h5 class="mb-0">تراکنش‌های اخیر</h5>
-        </div>
-
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered mb-0 text-center">
-                <thead class="table-light">
-                    <tr>
-                        <th>تاریخ تراکنش</th>
-                        <th>نوع تراکنش</th>
-                        <th>مبلغ</th>
-                        <th>وضعیت تراکنش</th>
-                        <th>جزئیات</th>
-                        <th>واریزی / برداشت</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php $visible = 5; @endphp
-
-                    {{-- Show first 5 transactions --}}
-                    @foreach ($transactions->take($visible) as $transaction)
-                        <tr>
-                            <td>{{ \Morilog\Jalali\Jalalian::fromDateTime($transaction->created_at)->format('Y/m/d') }}</td>
-                            <td>{{ $transaction->description ?? '---' }}</td>
-                            <td>{{ number_format($transaction->amount) }} تومان</td>
-                            <td class="{{ $transaction->status === 'completed' ? 'text-success' : 'text-danger' }}">
-                                {{ $transaction->status === 'completed' ? 'موفق' : 'ناموفق' }}
-                            </td>
-                            <td><a href="#">مشاهده</a></td>
-                            <td>{{ $transaction->amount >= 0 ? 'واریزی' : 'برداشت' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Show "Show More" button & collapsible section if more than 5 --}}
-        @if ($transactions->count() > $visible)
-            <div class="text-center my-3">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#moreTransactions" aria-expanded="false" aria-controls="moreTransactions">
-                    نمایش تراکنش‌های بیشتر
-                </button>
-            </div>
-
-            <div class="collapse" id="moreTransactions">
-                <div class="table-responsive">
-                    <table class="table table-bordered text-center">
-                        <tbody>
-                            @foreach ($transactions->skip($visible) as $transaction)
-                                <tr>
-                                    <td>{{ \Morilog\Jalali\Jalalian::fromDateTime($transaction->created_at)->format('Y/m/d') }}</td>
-                                    <td>{{ $transaction->description ?? '---' }}</td>
-                                    <td>{{ number_format($transaction->amount) }} تومان</td>
-                                    <td class="{{ $transaction->status === 'completed' ? 'text-success' : 'text-danger' }}">
-                                        {{ $transaction->status === 'completed' ? 'موفق' : 'ناموفق' }}
-                                    </td>
-                                    <td><a href="#">مشاهده</a></td>
-                                    <td>{{ $transaction->amount >= 0 ? 'واریزی' : 'برداشت' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="row text-center mb-5">
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card h-100 border-0">
-                <div class="card-body">
-                    <div class="summary-icon"><i class="bi bi-graph-up"></i></div>
-                    <div class="summary-label">سود خالص این ماه</div>
-                    <div class="summary-value">{{ number_format($netProfit) }} تومان</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card h-100 border-0">
-                <div class="card-body">
-                    <div class="summary-icon"><i class="bi bi-wallet2"></i></div>
-                    <div class="summary-label">موجودی کیف پول کلینیک</div>
-                    <div class="summary-value">{{ number_format($walletBalance) }} تومان</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card h-100 border-0">
-                <div class="card-body">
-                    <div class="summary-icon"><i class="bi bi-cash-stack"></i></div>
-                    <div class="summary-label">هزینه‌های این ماه</div>
-                    <div class="summary-value">{{ number_format($monthlyExpense) }} تومان</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card h-100 border-0">
-                <div class="card-body">
-                    <div class="summary-icon"><i class="bi bi-currency-dollar"></i></div>
-                    <div class="summary-label">درآمد این ماه</div>
-                    <div class="summary-value">{{ number_format($monthlyIncome) }} تومان</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!-- Income Chart -->
-    <div class="card mb-5">
-        <div class="card-header">نمودار درآمد ماهانه</div>
-        <div class="card-body">
-            <canvas id="incomeChart"></canvas>
-        </div>
-    </div>
-
-
-
 </div>
-
-<!-- Chart.js -->
-<script src="{{ asset('assets/js/chart.js') }}"></script>
-<script>
-    const ctx = document.getElementById('incomeChart').getContext('2d');
-
-    const incomeData = @json($monthlyIncomeChart);
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'],
-            datasets: [{
-                label: 'درآمد ماهانه',
-                data: incomeData,
-                borderColor: '#0D47A1',
-                backgroundColor: 'rgba(13, 71, 161, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        }
-    });
-</script>
 @endsection

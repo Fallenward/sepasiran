@@ -12,7 +12,7 @@
         }
         if (method_exists($authUser, 'hasRole') && $authUser->hasRole('coach')) {
             $accountLinks[] = ['label' => 'داشبورد مربی', 'url' => route('coaches.dashboard')];
-            $accountLinks[] = ['label' => 'کیف پول مربی', 'url' => route('coaches.wallet')];
+            $accountLinks[] = ['label' => 'کیف پول مربی', 'url' => route('wallet.index')];
         }
         if (method_exists($authUser, 'hasRole') && $authUser->hasRole('clinic')) {
             $accountLinks[] = ['label' => 'داشبورد کلینیک', 'url' => route('clinic.dashboard')];

@@ -52,36 +52,10 @@ public function index(Request $request)
     return view('clinics.index', compact('clinics', 'filters'));
 }
 
-    public function clinicwallet(){
-
-        $clinic = Auth::user(); // assuming the authenticated user is the clinic
-        $baseQuery = Transaction::where('user_id', $clinic->id);
-
-        $walletBalance = (clone $baseQuery)->sum('amount');
-
-        $monthlyIncome = (clone $baseQuery)
-            ->where('amount', '>', 0)
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('amount');
-
-        $monthlyExpense = (clone $baseQuery)
-            ->where('amount', '<', 0)
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('amount');
-
-        $netProfit = $monthlyIncome + $monthlyExpense;
-        $transactions = $baseQuery->latest()->paginate(20);
-
-        return view('admin.clinics.wallet-balance', [
-            'transactions' => $transactions,
-            'walletBalance' => $walletBalance,
-            'monthlyIncome' => $monthlyIncome,
-            'monthlyExpense' => abs($monthlyExpense),
-            'netProfit' => $netProfit,
-        ]);
-
+    public function clinicwallet()
+    {
+        return redirect()->route('wallet.index');
     }
-
 
         public function dashboard()
     {

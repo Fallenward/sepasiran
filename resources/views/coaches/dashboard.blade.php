@@ -41,7 +41,7 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'کیف پول مربی', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('coaches.wallet'), 'icon' => 'fas fa-wallet'],
+                ['label' => 'کیف پول مربی', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'لیست مربی‌گری', 'hint' => 'نمایش عمومی', 'url' => route('coaches.listing'), 'icon' => 'fas fa-list'],
                 ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('coaches.profile.edit'), 'icon' => 'far fa-user'],
                 ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],

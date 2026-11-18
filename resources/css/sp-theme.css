@@ -3268,3 +3268,42 @@ body.sp-body {
   border-color: var(--sp-green);
   color: var(--sp-green-soft);
 }
+
+
+.sp-dash__pager {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sp-border);
+}
+
+.sp-dash__pager nav,
+.sp-dash__pager .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sp-dash__pager .page-link {
+  display: inline-flex;
+  min-width: 36px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: var(--sp-radius-sm);
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text-muted);
+  text-decoration: none;
+}
+
+.sp-dash__pager .active .page-link,
+.sp-dash__pager .page-item.active .page-link {
+  background: var(--sp-green);
+  border-color: transparent;
+  color: #0c1210;
+}
