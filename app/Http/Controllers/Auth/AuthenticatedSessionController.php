@@ -34,18 +34,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('admin.dashboard.index'));
         }
 
-        if (method_exists($user, 'hasRole')) {
-            if ($user->hasRole('breeder')) {
-                return redirect()->intended(route('breeder.dashboard'));
-            }
-            if ($user->hasRole('clinic')) {
-                return redirect()->intended(route('clinic.dashboard'));
-            }
-            if ($user->hasRole('coach')) {
-                return redirect()->intended(route('coach.dashboard'));
-            }
-        }
-
         return redirect()->intended(route('frontend.home'));
     }
 

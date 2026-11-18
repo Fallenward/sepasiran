@@ -227,7 +227,7 @@
     <nav class="footer-nav">
         <a class="nav-link" href="{{ route('frontend.home') }}"><i class="bi bi-house"></i><br>خانه</a>
         <a class="nav-link" href="{{ route('frontend.dog.supply.index') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
-        <a class="nav-link" href="{{ route('breeder.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
+        <a class="nav-link" href="{{ route('frontend.booking.index') }}"><i class="bi bi-plus-circle"></i><br>رزرو</a>
         <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-gear"></i><br>کیف پول</a>
         <a class="nav-link" href="{{ route('user.dashboard') }}"><i class="bi bi-person"></i><br>پروفایل</a>
     </nav>
