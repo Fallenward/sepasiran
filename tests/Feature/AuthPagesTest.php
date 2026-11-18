@@ -31,7 +31,7 @@ class AuthPagesTest extends TestCase
             'role' => 'user',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('frontend.home'));
+        ])->assertRedirect(route('user.dashboard'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
@@ -46,7 +46,7 @@ class AuthPagesTest extends TestCase
         $this->post(route('login.store'), [
             'login' => '09121234567',
             'password' => 'password123',
-        ])->assertRedirect();
+        ])->assertRedirect(route('user.dashboard'));
 
         $this->assertAuthenticated();
     }
@@ -60,7 +60,7 @@ class AuthPagesTest extends TestCase
             'role' => 'coach',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('frontend.home'));
+        ])->assertRedirect(route('coaches.dashboard'));
 
         $user = User::query()->where('phone', '09123334455')->first();
         $this->assertNotNull($user);
@@ -81,7 +81,7 @@ class AuthPagesTest extends TestCase
         $this->post(route('login.store'), [
             'login' => 'member@example.com',
             'password' => 'secret123',
-        ])->assertRedirect();
+        ])->assertRedirect(route('user.dashboard'));
 
         $this->assertAuthenticatedAs($user);
     }

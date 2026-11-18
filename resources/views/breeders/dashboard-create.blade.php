@@ -1,164 +1,100 @@
-@extends('admin.layout') {{-- or your dashboard layout --}}
+@extends('frontend.layouts.app')
+
+@section('title', 'افزودن سگ — سپاسیران')
 
 @section('content')
-<div class="container">
-    <h2>افزودن سگ جدید</h2>
+<div class="sp-dash">
+    <div class="sp-dash__inner">
+        <section class="sp-dash__hero">
+            <div class="sp-dash__hero-copy">
+                <p class="sp-dash__eyebrow">پرورش‌دهنده</p>
+                <h1 class="sp-dash__title">افزودن سگ</h1>
+                <p class="sp-dash__lede">مشخصات اصلی را وارد کنید؛ شجره اختیاری است.</p>
+            </div>
+            <a class="sp-btn sp-btn--ghost" href="{{ route('breeder.dashboard') }}">بازگشت به داشبورد</a>
+        </section>
 
-    <form action="{{ route('breeder.dashboard-store') }}" method="POST">
-        @csrf
-
-        <div class="form-group">
-            <label>نام سگ (title)</label>
-            <input type="text" name="title" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>رنگ</label>
-            <input type="text" name="color" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>وضعیت (status)</label>
-            <select name="status" class="form-control">
-                <option value="ready">آماده</option>
-                <option value="pending">در انتظار</option>
-                <option value="sold">فروخته شده</option>
-                <option value="waiting">منتظر</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>سن</label>
-            <input type="number" name="age" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>تاریخ تولد</label>
-            <input type="date" name="birth_date" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نوع پوشش</label>
-            <input type="text" name="cover_type" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>رنگ چشم</label>
-            <input type="text" name="eye_color" class="form-control">
-        </div>
-
-        <div class="form-check">
-            <input type="checkbox" name="shajare" value="1" class="form-check-input">
-            <label class="form-check-label">دارای شجره نامه</label>
-        </div>
-
-        <div class="form-group">
-            <label>نژاد</label>
-            <select name="breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
+        <form class="panel sp-dash__panel" action="{{ route('breeder.dashboard-store') }}" method="POST">
+            @csrf
+            <div class="field">
+                <label for="title">نام سگ</label>
+                <input id="title" type="text" name="title" value="{{ old('title') }}" required>
+            </div>
+            <div class="field">
+                <label for="color">رنگ</label>
+                <input id="color" type="text" name="color" value="{{ old('color') }}">
+            </div>
+            <div class="field">
+                <label for="status">وضعیت</label>
+                <select id="status" name="status">
+                    <option value="ready">آماده</option>
+                    <option value="pending">در انتظار</option>
+                    <option value="sold">فروخته شده</option>
+                    <option value="waiting">منتظر</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="age">سن</label>
+                <input id="age" type="number" name="age" value="{{ old('age') }}">
+            </div>
+            <div class="field">
+                <label for="birth_date">تاریخ تولد</label>
+                <input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date') }}">
+            </div>
+            <div class="field">
+                <label for="cover_type">نوع پوشش</label>
+                <input id="cover_type" type="text" name="cover_type" value="{{ old('cover_type') }}">
+            </div>
+            <div class="field">
+                <label for="eye_color">رنگ چشم</label>
+                <input id="eye_color" type="text" name="eye_color" value="{{ old('eye_color') }}">
+            </div>
+            <div class="field">
+                <label><input type="checkbox" name="shajare" value="1" @checked(old('shajare'))> دارای شجره‌نامه</label>
+            </div>
+            <div class="field">
+                <label for="breed_id">نژاد</label>
+                <select id="breed_id" name="breed_id">
+                <option value="">— انتخاب کنید —</option>
                 @foreach($breeds as $breed)
                     <option value="{{ $breed->id }}">{{ $breed->name }}</option>
                 @endforeach
-            </select>
-        </div>
 
-        <hr>
-        <h4>اطلاعات والدین</h4>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label>نام پدر</label>
-            <input type="text" name="father_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد پدر</label>
-            <select name="father_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
+            <h2 class="sp-dash__panel-head" style="margin-top:12px">اطلاعات والدین</h2>
+            <div class="field">
+                <label for="father_name">نام پدر</label>
+                <input id="father_name" type="text" name="father_name">
+            </div>
+            <div class="field">
+                <label for="father_breed_id">نژاد پدر</label>
+                <select id="father_breed_id" name="father_breed_id">
+                <option value="">— انتخاب کنید —</option>
                 @foreach($breeds as $breed)
                     <option value="{{ $breed->id }}">{{ $breed->name }}</option>
                 @endforeach
-            </select>
-        </div>
 
-        <div class="form-group">
-            <label>نام مادر</label>
-            <input type="text" name="mother_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد مادر</label>
-            <select name="mother_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="mother_name">نام مادر</label>
+                <input id="mother_name" type="text" name="mother_name">
+            </div>
+            <div class="field">
+                <label for="mother_breed_id">نژاد مادر</label>
+                <select id="mother_breed_id" name="mother_breed_id">
+                <option value="">— انتخاب کنید —</option>
                 @foreach($breeds as $breed)
                     <option value="{{ $breed->id }}">{{ $breed->name }}</option>
                 @endforeach
-            </select>
-        </div>
 
-        <hr>
-        <h4>پدربزرگ و مادربزرگ‌ها</h4>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label>مادربزرگ مادری</label>
-            <input type="text" name="maternal_grandmother_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد مادربزرگ مادری</label>
-            <select name="maternal_grandmother_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
-                @foreach($breeds as $breed)
-                    <option value="{{ $breed->id }}">{{ $breed->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>پدربزرگ مادری</label>
-            <input type="text" name="maternal_grandfather_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد پدربزرگ مادری</label>
-            <select name="maternal_grandfather_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
-                @foreach($breeds as $breed)
-                    <option value="{{ $breed->id }}">{{ $breed->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>مادربزرگ پدری</label>
-            <input type="text" name="paternal_grandmother_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد مادربزرگ پدری</label>
-            <select name="paternal_grandmother_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
-                @foreach($breeds as $breed)
-                    <option value="{{ $breed->id }}">{{ $breed->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>پدربزرگ پدری</label>
-            <input type="text" name="paternal_grandfather_name" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>نژاد پدربزرگ پدری</label>
-            <select name="paternal_grandfather_breed_id" class="form-control">
-                <option value="">-- انتخاب کنید --</option>
-                @foreach($breeds as $breed)
-                    <option value="{{ $breed->id }}">{{ $breed->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-success mt-3">ثبت اطلاعات</button>
-    </form>
+            <button type="submit" class="sp-btn sp-btn--primary">ثبت سگ</button>
+        </form>
+    </div>
 </div>
 @endsection

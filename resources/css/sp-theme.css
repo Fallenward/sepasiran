@@ -2629,3 +2629,317 @@ body.sp-body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+/* ========== Role dashboards (customer / coach / clinic / breeder) ========== */
+.sp-dash {
+  padding: 28px 0 96px;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(79, 191, 120, 0.1), transparent 42%),
+    radial-gradient(ellipse at 88% 8%, rgba(212, 181, 106, 0.07), transparent 38%),
+    var(--sp-bg);
+  min-height: 70vh;
+}
+
+.sp-dash__inner {
+  width: min(960px, calc(100% - 32px));
+  margin-inline: auto;
+  display: grid;
+  gap: 20px;
+}
+
+.sp-dash__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0 4px;
+}
+
+.sp-dash__eyebrow {
+  margin: 0 0 6px;
+  color: var(--sp-gold);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.sp-dash__title {
+  margin: 0 0 8px;
+  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  font-weight: 700;
+  color: var(--sp-text);
+}
+
+.sp-dash__lede {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--sp-text-muted);
+  line-height: 1.7;
+}
+
+.sp-dash__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sp-dash__metric {
+  background: var(--sp-bg-elevated);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--sp-shadow-extrude);
+}
+
+.sp-dash__metric-label {
+  margin: 0 0 8px;
+  color: var(--sp-text-subtle);
+  font-size: 0.82rem;
+}
+
+.sp-dash__metric-value {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--sp-green-soft);
+}
+
+.sp-dash__metric-hint {
+  margin: 6px 0 0;
+  color: var(--sp-text-subtle);
+  font-size: 0.75rem;
+}
+
+.sp-dash__panel {
+  background: var(--sp-bg-elevated);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--sp-shadow-soft);
+}
+
+.sp-dash__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sp-dash__panel-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--sp-text);
+}
+
+.sp-dash__panel-head a {
+  color: var(--sp-green);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.sp-dash__panel-head a:hover {
+  color: var(--sp-green-soft);
+}
+
+.sp-dash__next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-border-strong);
+}
+
+.sp-dash__next-kicker {
+  margin: 0 0 4px;
+  color: var(--sp-gold-soft);
+  font-size: 0.78rem;
+}
+
+.sp-dash__next h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.sp-dash__muted {
+  color: var(--sp-text-subtle);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.sp-dash__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sp-dash__action {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--sp-radius-md);
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  text-decoration: none;
+  transition: border-color var(--sp-duration-fast) var(--sp-ease-out),
+    transform var(--sp-duration-fast) var(--sp-ease-out);
+}
+
+.sp-dash__action:hover {
+  border-color: var(--sp-border-strong);
+  transform: translateY(-1px);
+  color: var(--sp-text);
+}
+
+.sp-dash__action-label {
+  font-weight: 600;
+}
+
+.sp-dash__action-hint {
+  color: var(--sp-text-subtle);
+  font-size: 0.78rem;
+}
+
+.sp-dash__list {
+  display: grid;
+  gap: 8px;
+}
+
+.sp-dash__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--sp-radius-sm);
+  background: var(--sp-surface);
+  border: 1px solid transparent;
+}
+
+.sp-dash__row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.sp-dash__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid var(--sp-border);
+  color: var(--sp-text-muted);
+  background: var(--sp-bg-sunken);
+  white-space: nowrap;
+}
+
+.sp-dash__chip.is-active {
+  color: #0c1210;
+  background: var(--sp-green);
+  border-color: transparent;
+}
+
+.sp-dash__chip.is-pending {
+  color: var(--sp-gold-soft);
+  border-color: rgba(212, 181, 106, 0.35);
+  background: rgba(212, 181, 106, 0.08);
+}
+
+.sp-dash__chip.is-done {
+  color: var(--sp-text-subtle);
+}
+
+.sp-dash__chip.is-danger {
+  color: var(--sp-danger);
+  border-color: rgba(232, 93, 93, 0.35);
+}
+
+.sp-dash__empty,
+.sp-dash__empty-inline {
+  color: var(--sp-text-muted);
+  margin: 0;
+}
+
+.sp-dash__empty {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  padding: 8px 0;
+}
+
+.sp-dash__stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  color: var(--sp-text-muted);
+  font-size: 0.9rem;
+}
+
+.sp-dash__stat-row strong {
+  color: var(--sp-text);
+}
+
+@media (max-width: 767px) {
+  .sp-dash__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-dash__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-dash__next {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sp-dash__row-meta {
+    align-items: flex-start;
+  }
+}
+
+
+.sp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: var(--sp-radius-md);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--sp-duration-fast) var(--sp-ease-out),
+    border-color var(--sp-duration-fast) var(--sp-ease-out),
+    color var(--sp-duration-fast) var(--sp-ease-out);
+}
+
+.sp-btn--primary {
+  background: var(--sp-green);
+  color: #0c1210;
+}
+
+.sp-btn--primary:hover {
+  background: var(--sp-green-hover);
+  color: #0c1210;
+}
+
+.sp-btn--ghost {
+  background: transparent;
+  border-color: var(--sp-border-strong);
+  color: var(--sp-text);
+}
+
+.sp-btn--ghost:hover {
+  border-color: var(--sp-green);
+  color: var(--sp-green-soft);
+}

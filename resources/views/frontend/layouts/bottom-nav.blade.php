@@ -16,8 +16,12 @@
         <span><i class="fas fa-store"></i></span>فروشگاه
     </a>
     @auth
-        <a href="{{ route('user.dashboard') }}"
-           class="{{ request()->routeIs('user.*') ? 'is-active' : '' }}">
+        @php
+            $dashUrl = auth()->user()->dashboardRoute();
+            $dashActive = request()->routeIs('user.*', 'breeder.dashboard', 'coaches.dashboard', 'clinic.dashboard');
+        @endphp
+        <a href="{{ $dashUrl }}"
+           class="{{ $dashActive ? 'is-active' : '' }}">
             <span><i class="far fa-user"></i></span>حساب من
         </a>
     @else

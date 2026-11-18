@@ -26,120 +26,165 @@ class DashboardController extends Controller
 
         $notifications = Notification::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
+            ->limit(8)
             ->get(['message', 'created_at'])
-            ->map(fn($note) => [
+            ->map(fn ($note) => [
                 'message' => $note->message,
-                'date' => $note->created_at->format('Y/m/d'),
+                'date' => $note->created_at?->format('Y/m/d'),
             ]);
 
-        // Fetch user role - assuming user has only one role for dashboard
-        $role = $user->roles->first()?->name;
+        $role = collect(['admin', 'breeder', 'coach', 'clinic'])
+            ->first(fn ($name) => $user->hasRole($name));
+
+        if (! $role && ! empty($user->is_admin)) {
+            $role = 'admin';
+        }
 
         if (! $role) {
             abort(403, 'Access denied. Your role does not have a dashboard.');
         }
 
-        switch ($role) {
-            case 'clinic':
-                $title = 'داشبورد کلینیک';
-                $clinics = collect([$user]);
+        return match ($role) {
+            'clinic' => $this->clinicDashboard($user, $notifications),
+            'coach' => $this->coachDashboard($user, $notifications),
+            'breeder' => $this->breederDashboard($user, $notifications),
+            'admin' => $this->adminDashboard($user, $notifications),
+            default => abort(403, 'Access denied. Your role does not have a dashboard.'),
+        };
+    }
 
-                $activeVisits = Booking::where([
-                    ['provider_id', $user->id],
-                    ['service_type', 'CLINIC'],
-                    ['status', 'CONFIRMED'],
-                ])->count();
+    private function clinicDashboard(User $user, $notifications): View
+    {
+        $providerBookings = Booking::query()
+            ->where('provider_id', $user->id)
+            ->where('service_type', 'CLINIC');
 
-                $clinicIncome = Booking::where([
-                    ['provider_id', $user->id],
-                    ['service_type', 'CLINIC'],
-                    ['status', 'COMPLETED'],
-                ])->sum('price');
+        $activeVisits = (clone $providerBookings)->where('status', 'CONFIRMED')->count();
+        $pendingVisits = (clone $providerBookings)->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])->count();
+        $clinicIncome = (clone $providerBookings)->where('status', 'COMPLETED')->sum('total')
+            ?: (clone $providerBookings)->where('status', 'COMPLETED')->sum('price');
 
-                $activeDoctors = User::whereHas('roles', fn($q) => $q->where('name', 'doctor'))
-                    ->whereHas('bookings', fn($q) => $q->where('provider_id', $user->id)->where('service_type', 'CLINIC'))
-                    ->count();
+        $recentBookings = (clone $providerBookings)
+            ->with('user')
+            ->latest()
+            ->limit(8)
+            ->get();
 
-                return view('admin.clinics.dashboard', compact(
-                    'title', 'user', 'clinics', 'notifications',
-                    'activeVisits', 'clinicIncome', 'activeDoctors'
-                ));
+        return view('admin.clinics.dashboard', [
+            'title' => 'داشبورد کلینیک',
+            'user' => $user,
+            'notifications' => $notifications,
+            'activeVisits' => $activeVisits,
+            'pendingVisits' => $pendingVisits,
+            'clinicIncome' => (int) $clinicIncome,
+            'recentBookings' => $recentBookings,
+            'roleLabel' => $user->primaryRoleLabel(),
+        ]);
+    }
 
-            case 'coach':
-                $title = 'داشبورد مربی';
+    private function coachDashboard(User $user, $notifications): View
+    {
+        $todaysAppointments = Booking::query()
+            ->where('provider_id', $user->id)
+            ->whereDate('appointment_date', Carbon::today())
+            ->with('user')
+            ->orderBy('appointment_date')
+            ->get();
 
-                $teacherCourses = Course::where('user_id', $user->id)->get();
-                $todaysAppointments = Booking::where('provider_id', $user->id)
-                    ->whereDate('appointment_date', Carbon::today())
-                    ->with('user') // eager loading
-                    ->get();
-                $coachProducts = Product::where('user_id', $user->id)->get();
-                $coachId = $user->id;
+        $pendingBookings = Booking::query()
+            ->where('provider_id', $user->id)
+            ->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])
+            ->count();
 
-                return view('coaches.dashboard', compact(
-                    'title', 'user', 'notifications', 'teacherCourses', 'todaysAppointments', 'coachProducts', 'coachId'
-                ));
+        $teacherCourses = Course::where('user_id', $user->id)->get();
+        $coachProducts = Product::where('user_id', $user->id)->get();
 
-            case 'breeder':
-                $title = 'داشبورد پرورش‌دهنده';
+        $upcoming = Booking::query()
+            ->where('provider_id', $user->id)
+            ->whereIn('status', ['PENDING', 'CONFIRMED', 'OPEN', 'QUOTED'])
+            ->with('user')
+            ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) asc')
+            ->limit(8)
+            ->get();
 
-                $teacherCourses = Course::where('user_id', $user->id)->get();
+        return view('coaches.dashboard', [
+            'title' => 'داشبورد مربی',
+            'user' => $user,
+            'notifications' => $notifications,
+            'teacherCourses' => $teacherCourses,
+            'todaysAppointments' => $todaysAppointments,
+            'coachProducts' => $coachProducts,
+            'coachId' => $user->id,
+            'pendingBookings' => $pendingBookings,
+            'upcoming' => $upcoming,
+            'roleLabel' => $user->primaryRoleLabel(),
+        ]);
+    }
 
-                $readyDogs = Dog::where('status', 'ready')->count();
-                $totalDogs = Dog::count();
-                $pendingDogs = Dog::where('status', 'pending')->count();
-                $soldDogs = Dog::where('status', 'sold')->count();
-                $waitingDogs = Dog::where('status', 'waiting')->count();
+    private function breederDashboard(User $user, $notifications): View
+    {
+        $dogsQuery = Dog::query()->where('user_id', $user->id);
 
-                $pendingBookings = Booking::where([
-                    ['service_type', 'BREEDER'],
-                    ['provider_id', $user->id],
-                    ['status', 'PENDING']
-                ])->count();
+        $readyDogs = (clone $dogsQuery)->where('status', 'ready')->count();
+        $totalDogs = (clone $dogsQuery)->count();
+        $pendingDogs = (clone $dogsQuery)->where('status', 'pending')->count();
+        $soldDogs = (clone $dogsQuery)->where('status', 'sold')->count();
+        $waitingDogs = (clone $dogsQuery)->where('status', 'waiting')->count();
 
-                $openBookings = Booking::where([
-                    ['service_type', 'BREEDER'],
-                    ['provider_id', $user->id],
-                    ['status', 'CONFIRMED']
-                ])->count();
+        $pendingBookings = Booking::query()
+            ->where('service_type', 'BREEDER')
+            ->where('provider_id', $user->id)
+            ->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])
+            ->count();
 
-                $clinicIncome = $user->transactions()->sum('amount') ?? 0;
+        $openBookings = Booking::query()
+            ->where('service_type', 'BREEDER')
+            ->where('provider_id', $user->id)
+            ->where('status', 'CONFIRMED')
+            ->count();
 
-                $activeDoctors = User::role('doctor')->where('status', 'active')->count();
+        $recentDogs = (clone $dogsQuery)->latest()->limit(6)->get();
+        $walletBalance = (int) ($user->wallet ?? 0);
 
-                return view('breeders.dashboard', compact(
-                    'title', 'user', 'notifications', 'teacherCourses',
-                    'readyDogs', 'totalDogs', 'pendingDogs', 'soldDogs', 'waitingDogs',
-                    'pendingBookings', 'openBookings', 'activeDoctors', 'clinicIncome'
-                ));
+        return view('breeders.dashboard', [
+            'title' => 'داشبورد پرورش‌دهنده',
+            'user' => $user,
+            'notifications' => $notifications,
+            'readyDogs' => $readyDogs,
+            'totalDogs' => $totalDogs,
+            'pendingDogs' => $pendingDogs,
+            'soldDogs' => $soldDogs,
+            'waitingDogs' => $waitingDogs,
+            'pendingBookings' => $pendingBookings,
+            'openBookings' => $openBookings,
+            'recentDogs' => $recentDogs,
+            'walletBalance' => $walletBalance,
+            'roleLabel' => $user->primaryRoleLabel(),
+        ]);
+    }
 
-            case 'admin':
-                $title = 'داشبورد ادمین';
+    private function adminDashboard(User $user, $notifications): View
+    {
+        $stats = [
+            'users' => User::count(),
+            'transactions' => Transaction::where('status', 'completed')->count(),
+            'courses' => Course::where('is_active', 1)->count(),
+            'dogs' => Dog::count(),
+        ];
 
-                $stats = [
-                    'users' => User::count(),
-                    'transactions' => Transaction::where('status', 'completed')->count(),
-                    'courses' => Course::where('is_active', 1)->count(),
-                    'dogs' => Dog::count(),
-                ];
+        $months = collect(range(0, 5))->map(fn ($i) => now()->subMonths($i)->startOfMonth())->reverse();
 
-                $months = collect(range(0, 5))->map(fn($i) => now()->subMonths($i)->startOfMonth())->reverse();
+        $chart = [
+            'labels' => $months->map(fn ($m) => $m->format('Y-m'))->toArray(),
+            'data' => $months->map(fn ($m) => Transaction::where('status', 'completed')
+                ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
+                ->sum('amount'))->toArray(),
+        ];
 
-                $chart = [
-                    'labels' => $months->map(fn($m) => $m->format('Y-m'))->toArray(),
-                    'data' => $months->map(fn($m) => Transaction::where('status', 'completed')
-                        ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
-                        ->sum('amount'))->toArray(),
-                ];
+        $recentTransactions = Transaction::with('user')->latest()->take(10)->get();
 
-                $recentTransactions = Transaction::with('user')->latest()->take(10)->get();
-
-                return view('admin.dashboard.index', compact(
-                    'title', 'user', 'notifications', 'stats', 'chart', 'recentTransactions'
-                ));
-
-            default:
-                abort(403, 'Access denied. Your role does not have a dashboard.');
-        }
+        return view('admin.dashboard.index', compact(
+            'user', 'notifications', 'stats', 'chart', 'recentTransactions'
+        ) + ['title' => 'داشبورد ادمین']);
     }
 }

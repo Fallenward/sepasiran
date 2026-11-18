@@ -116,6 +116,45 @@ namespace App\Models;
          * اینجا باید روابط واقعی مدل‌ها قرار گیرد.
          * به عنوان مثال، اگر مدل Blog وجود دارد و کاربر می‌تواند چندین وبلاگ داشته باشد:
          */
+/**
+         * Preferred account hub for this user (provider roles beat customer).
+         */
+        public function dashboardRoute(): string
+        {
+            if (!empty($this->is_admin) || $this->hasRole('admin') || $this->hasRole('administrator')) {
+                return route('admin.dashboard.index');
+            }
+            if ($this->hasRole('breeder')) {
+                return route('breeder.dashboard');
+            }
+            if ($this->hasRole('coach')) {
+                return route('coaches.dashboard');
+            }
+            if ($this->hasRole('clinic')) {
+                return route('clinic.dashboard');
+            }
+
+            return route('user.dashboard');
+        }
+
+        public function primaryRoleLabel(): string
+        {
+            if (!empty($this->is_admin) || $this->hasRole('admin') || $this->hasRole('administrator')) {
+                return 'مدیر';
+            }
+            if ($this->hasRole('breeder')) {
+                return 'پرورش‌دهنده';
+            }
+            if ($this->hasRole('coach')) {
+                return 'مربی';
+            }
+            if ($this->hasRole('clinic')) {
+                return 'کلینیک';
+            }
+
+            return 'مشتری';
+        }
+
         public function blogs()
         {
             return $this->hasMany(\App\Models\Blog::class, 'author_id', 'id');

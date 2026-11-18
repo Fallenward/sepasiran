@@ -3,24 +3,37 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class UserDashboardController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $user = Auth::user();
 
-        $nearbyClinics = User::query()
-            ->role('clinic')
-            ->where('id', '!=', $user->id)
-            ->when($user->city_id, fn ($q) => $q->where('city_id', $user->city_id))
-            ->paginate(12);
+        $upcomingBookings = Booking::query()
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['PENDING', 'CONFIRMED', 'OPEN', 'QUOTED'])
+            ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) asc')
+            ->limit(8)
+            ->get();
+
+        $nextBooking = $upcomingBookings->first();
+
+        $stats = [
+            'wallet' => (int) ($user->wallet ?? 0),
+            'upcoming' => $upcomingBookings->count(),
+            'dogs' => $user->Dogs()->count(),
+        ];
 
         return view('frontend.pages.user.dashboard', [
-            'users' => $user,
-            'nearbyClinics' => $nearbyClinics,
+            'user' => $user,
+            'stats' => $stats,
+            'nextBooking' => $nextBooking,
+            'upcomingBookings' => $upcomingBookings,
+            'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }
 }

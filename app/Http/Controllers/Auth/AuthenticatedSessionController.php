@@ -30,11 +30,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->to($redirect);
         }
 
-        if (!empty($user->is_admin) || (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('administrator')))) {
-            return redirect()->intended(route('admin.dashboard.index'));
-        }
-
-        return redirect()->intended(route('frontend.home'));
+        return redirect()->intended($user->dashboardRoute());
     }
 
     public function destroy(Request $request): RedirectResponse
