@@ -16,7 +16,8 @@
         'brand' => 'برند',
         'gender' => 'جنسیت',
         'age' => 'سن',
-        'price' => 'قیمت',\n        'featured' => 'وضعیت',
+        'price' => 'قیمت',
+        'featured' => 'وضعیت',
     ];
 
     $sizeLabels = [
