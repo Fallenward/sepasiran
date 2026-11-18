@@ -21,7 +21,7 @@
             'lede' => 'نوبت‌های فعال و درآمد تکمیل‌شده کلینیک را اینجا ببینید.',
             'ctaTitle' => 'پروفایل کلینیک',
             'ctaHint' => 'آدرس، تماس و تصویر کلینیک را برای مراجعان کامل کنید.',
-            'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('clinic.profile.edit')],
+            'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('account.profile.edit')],
         ])
 
         @include('frontend.partials.dashboard-metrics', [
@@ -39,9 +39,14 @@
             'chartId' => 'spClinicFinanceChart',
         ])
 
+
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
+
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('clinic.profile.edit'), 'icon' => 'far fa-hospital'],
+                ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
                 ['label' => 'رزرو عمومی', 'hint' => 'مشاهده مسیر رزرو', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar'],

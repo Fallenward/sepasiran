@@ -33,7 +33,7 @@ namespace App\Models;
          * @var array<int, string>
          */
         protected $fillable = [
-            'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet',
+            'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet', 'address', 'bio', 'profile_picture', 'photo',
         ];
 
         public function city(){
@@ -119,6 +119,25 @@ namespace App\Models;
 /**
          * Preferred account hub for this user (provider roles beat customer).
          */
+        
+        public function avatarUrl(): ?string
+        {
+            $path = $this->profile_picture ?: $this->photo;
+            if (! $path) {
+                return null;
+            }
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+                return $path;
+            }
+
+            return asset('storage/' . ltrim($path, '/'));
+        }
+
+        public function profileEditRoute(): string
+        {
+            return route('account.profile.edit');
+        }
+
         public function dashboardRoute(): string
         {
             if (!empty($this->is_admin) || $this->hasRole('admin') || $this->hasRole('administrator')) {

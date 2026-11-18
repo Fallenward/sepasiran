@@ -25,14 +25,11 @@ class DashboardController extends Controller
             abort(403, 'Unauthorized access.');
         }
 
-        $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(8)
-            ->get(['message', 'created_at'])
-            ->map(fn ($note) => [
-                'message' => $note->message,
-                'date' => $note->created_at?->format('Y/m/d'),
-            ]);
+        $dashNotifications = Notification::query()
+            ->where('user_id', $user->id)
+            ->latest()
+            ->limit(5)
+            ->get();
 
         $role = collect(['admin', 'breeder', 'coach', 'clinic'])
             ->first(fn ($name) => $user->hasRole($name));
@@ -46,15 +43,15 @@ class DashboardController extends Controller
         }
 
         return match ($role) {
-            'clinic' => $this->clinicDashboard($user, $notifications),
-            'coach' => $this->coachDashboard($user, $notifications),
-            'breeder' => $this->breederDashboard($user, $notifications),
-            'admin' => $this->adminDashboard($user, $notifications),
+            'clinic' => $this->clinicDashboard($user, $dashNotifications),
+            'coach' => $this->coachDashboard($user, $dashNotifications),
+            'breeder' => $this->breederDashboard($user, $dashNotifications),
+            'admin' => $this->adminDashboard($user, $dashNotifications),
             default => abort(403, 'Access denied. Your role does not have a dashboard.'),
         };
     }
 
-    private function clinicDashboard(User $user, $notifications): View
+    private function clinicDashboard(User $user, $dashNotifications): View
     {
         $providerBookings = Booking::query()
             ->where('provider_id', $user->id)
@@ -74,7 +71,7 @@ class DashboardController extends Controller
         return view('admin.clinics.dashboard', [
             'title' => 'داشبورد کلینیک',
             'user' => $user,
-            'notifications' => $notifications,
+            'dashNotifications' => $dashNotifications,
             'activeVisits' => $activeVisits,
             'pendingVisits' => $pendingVisits,
             'clinicIncome' => (int) $clinicIncome,
@@ -84,7 +81,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function coachDashboard(User $user, $notifications): View
+    private function coachDashboard(User $user, $dashNotifications): View
     {
         $todaysAppointments = Booking::query()
             ->where('provider_id', $user->id)
@@ -112,19 +109,19 @@ class DashboardController extends Controller
         return view('coaches.dashboard', [
             'title' => 'داشبورد مربی',
             'user' => $user,
-            'notifications' => $notifications,
+            'dashNotifications' => $dashNotifications,
             'teacherCourses' => $teacherCourses,
             'todaysAppointments' => $todaysAppointments,
             'coachProducts' => $coachProducts,
             'coachId' => $user->id,
             'pendingBookings' => $pendingBookings,
             'upcoming' => $upcoming,
-            'roleLabel' => $user->primaryRoleLabel(),
             'financeChart' => DashboardFinance::monthlySeries($user),
+            'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }
 
-    private function breederDashboard(User $user, $notifications): View
+    private function breederDashboard(User $user, $dashNotifications): View
     {
         $dogsQuery = Dog::query()->where('user_id', $user->id);
 
@@ -152,7 +149,7 @@ class DashboardController extends Controller
         return view('breeders.dashboard', [
             'title' => 'داشبورد پرورش‌دهنده',
             'user' => $user,
-            'notifications' => $notifications,
+            'dashNotifications' => $dashNotifications,
             'readyDogs' => $readyDogs,
             'totalDogs' => $totalDogs,
             'pendingDogs' => $pendingDogs,
@@ -162,12 +159,12 @@ class DashboardController extends Controller
             'openBookings' => $openBookings,
             'recentDogs' => $recentDogs,
             'walletBalance' => $walletBalance,
-            'roleLabel' => $user->primaryRoleLabel(),
             'financeChart' => DashboardFinance::monthlySeries($user),
+            'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }
 
-    private function adminDashboard(User $user, $notifications): View
+    private function adminDashboard(User $user, $dashNotifications): View
     {
         $stats = [
             'users' => User::count(),
@@ -187,8 +184,13 @@ class DashboardController extends Controller
 
         $recentTransactions = Transaction::with('user')->latest()->take(10)->get();
 
-        return view('admin.dashboard.index', compact(
-            'user', 'notifications', 'stats', 'chart', 'recentTransactions'
-        ) + ['title' => 'داشبورد ادمین']);
+        return view('admin.dashboard.index', [
+            'title' => 'داشبورد ادمین',
+            'user' => $user,
+            'notifications' => $dashNotifications,
+            'stats' => $stats,
+            'chart' => $chart,
+            'recentTransactions' => $recentTransactions,
+        ]);
     }
 }

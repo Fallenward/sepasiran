@@ -1,6 +1,8 @@
 @php
     $authUser = auth()->user();
     $accountLinks = [];
+    $headerNotifications = collect();
+    $unreadCount = 0;
     if ($authUser) {
         if (!empty($authUser->is_admin) || (method_exists($authUser, 'hasRole') && ($authUser->hasRole('admin') || $authUser->hasRole('administrator')))) {
             $accountLinks[] = ['label' => 'پنل ادمین', 'url' => route('admin.dashboard.index')];
@@ -12,17 +14,17 @@
         }
         if (method_exists($authUser, 'hasRole') && $authUser->hasRole('coach')) {
             $accountLinks[] = ['label' => 'داشبورد مربی', 'url' => route('coaches.dashboard')];
-            $accountLinks[] = ['label' => 'کیف پول مربی', 'url' => route('wallet.index')];
         }
         if (method_exists($authUser, 'hasRole') && $authUser->hasRole('clinic')) {
             $accountLinks[] = ['label' => 'داشبورد کلینیک', 'url' => route('clinic.dashboard')];
         }
         $accountLinks[] = ['label' => 'داشبورد من', 'url' => route('user.dashboard')];
+        $accountLinks[] = ['label' => 'ویرایش پروفایل', 'url' => route('account.profile.edit')];
+        $accountLinks[] = ['label' => 'اعلان‌ها', 'url' => route('account.notifications.index')];
         $accountLinks[] = ['label' => 'رزرو خدمت', 'url' => route('frontend.booking.index')];
-        if (Route::has('wallet.index')) {
+        if (\Illuminate\Support\Facades\Route::has('wallet.index')) {
             $accountLinks[] = ['label' => 'کیف پول', 'url' => route('wallet.index')];
         }
-        // de-dupe by url
         $seen = [];
         $accountLinks = array_values(array_filter($accountLinks, function ($row) use (&$seen) {
             if (isset($seen[$row['url']])) {
@@ -31,6 +33,16 @@
             $seen[$row['url']] = true;
             return true;
         }));
+
+        $headerNotifications = \App\Models\Notification::query()
+            ->where('user_id', $authUser->id)
+            ->latest()
+            ->limit(6)
+            ->get();
+        $unreadCount = \App\Models\Notification::query()
+            ->where('user_id', $authUser->id)
+            ->whereNull('read_at')
+            ->count();
     }
 @endphp
 <header class="sp-nav">
@@ -100,8 +112,40 @@
             <a class="btn btn-ghost" href="{{ route('login') }}">ورود</a>
             <a class="btn btn-primary" href="{{ route('register') }}">ثبت‌نام</a>
         @else
+            <div class="sp-nav__notify">
+                <button type="button" class="sp-nav__notify-btn" aria-haspopup="true" aria-expanded="false" aria-label="اعلان‌ها">
+                    <i class="fas fa-bell"></i>
+                    @if($unreadCount > 0)
+                        <span class="sp-nav__notify-badge">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                    @endif
+                </button>
+                <div class="sp-menu__dropdown sp-nav__notify-menu" role="menu">
+                    <div class="sp-nav__notify-head">
+                        <strong>اعلان‌ها</strong>
+                        <a href="{{ route('account.notifications.index') }}">مشاهده همه</a>
+                    </div>
+                    @forelse($headerNotifications as $note)
+                        <a class="sp-nav__notify-item {{ $note->read_at ? '' : 'is-unread' }}" href="{{ route('account.notifications.index') }}">
+                            <span class="sp-nav__notify-title">{{ $note->title ?: 'اعلان' }}</span>
+                            <span class="sp-nav__notify-msg">{{ \Illuminate\Support\Str::limit($note->message, 72) }}</span>
+                        </a>
+                    @empty
+                        <p class="sp-nav__notify-empty">اعلان جدیدی نیست.</p>
+                    @endforelse
+                    @if($unreadCount > 0)
+                        <form action="{{ route('account.notifications.read-all') }}" method="POST" class="sp-nav__notify-foot">
+                            @csrf
+                            <button type="submit">خواندن همه</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+
             <div class="sp-nav__account">
                 <button type="button" class="btn btn-ghost sp-nav__account-btn" aria-haspopup="true" aria-expanded="false">
+                    @if($authUser->avatarUrl())
+                        <img class="sp-nav__account-avatar" src="{{ $authUser->avatarUrl() }}" alt="">
+                    @endif
                     حساب من
                 </button>
                 <div class="sp-menu__dropdown sp-nav__account-menu" role="menu">

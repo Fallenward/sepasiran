@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Notification;
 use App\Support\DashboardFinance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -32,6 +33,7 @@ class UserDashboardController extends Controller
             'stats' => $stats,
             'upcomingBookings' => $upcomingBookings,
             'financeChart' => DashboardFinance::monthlySeries($user),
+            'dashNotifications' => Notification::query()->where('user_id', $user->id)->latest()->limit(5)->get(),
             'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }

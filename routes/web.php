@@ -39,6 +39,8 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\Account\ProfileController;
+use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -138,6 +140,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile/edit', [ClinicController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [ClinicController::class, 'update'])->name('profile.update');
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic')->name('dashboard');
+    });
+
+
+    // Shared account profile + notifications
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     });
 
     // User / customer account hub (any authenticated user)

@@ -7,10 +7,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
-    protected $fillable = ['user_id', 'message'];
+    protected $fillable = ['user_id', 'title', 'message', 'read_at'];
+
+    protected $casts = [
+        'read_at' => 'datetime',
+    ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function markRead(): void
+    {
+        if ($this->read_at === null) {
+            $this->forceFill(['read_at' => now()])->save();
+        }
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
     }
 }

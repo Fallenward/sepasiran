@@ -39,11 +39,17 @@
             'chartId' => 'spCustomerFinanceChart',
         ])
 
-        @include('frontend.partials.dashboard-actions', [
+        
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
+
+@include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'رزرو خدمت', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'مرور سگ‌ها', 'hint' => 'بازار و عرضه', 'url' => route('frontend.dog.supply.index'), 'icon' => 'fas fa-dog'],
+                ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
                 ['label' => 'خانه', 'hint' => 'بازگشت به صفحه اصلی', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
             ],
         ])

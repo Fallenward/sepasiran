@@ -29,11 +29,16 @@
             'chartId' => 'spBreederFinanceChart',
         ])
 
+
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
+
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'افزودن سگ', 'hint' => 'ثبت آگهی جدید', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
                 ['label' => 'لیست سگ‌های من', 'hint' => 'مدیریت آگهی‌ها', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
-                ['label' => 'پروفایل', 'hint' => 'اطلاعات پرورش‌دهنده', 'url' => route('breeder.profile'), 'icon' => 'far fa-id-badge'],
+                ['label' => 'پروفایل', 'hint' => 'اطلاعات پرورش‌دهنده', 'url' => route('account.profile.edit'), 'icon' => 'far fa-id-badge'],
                 ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
             ],
         ])

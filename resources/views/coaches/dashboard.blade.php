@@ -21,7 +21,7 @@
             'lede' => 'جلسات امروز و درخواست‌های باز را از همین‌جا مدیریت کنید.',
             'ctaTitle' => 'پروفایل مربی',
             'ctaHint' => 'نام، تخصص و شهر را برای نمایش عمومی به‌روز نگه دارید.',
-            'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('coaches.profile.edit')],
+            'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('account.profile.edit')],
         ])
 
         @include('frontend.partials.dashboard-metrics', [
@@ -39,11 +39,16 @@
             'chartId' => 'spCoachFinanceChart',
         ])
 
+
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
+
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'کیف پول مربی', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'لیست مربی‌گری', 'hint' => 'نمایش عمومی', 'url' => route('coaches.listing'), 'icon' => 'fas fa-list'],
-                ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('coaches.profile.edit'), 'icon' => 'far fa-user'],
+                ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
                 ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
             ],
         ])
