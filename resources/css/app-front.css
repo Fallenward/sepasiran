@@ -4,3 +4,4 @@
 @import "custom.css";
 @import 'select2/dist/css/select2.css';
 @import '../../public/assets/css/select2.min.css';
+@import "./sp-theme.css";

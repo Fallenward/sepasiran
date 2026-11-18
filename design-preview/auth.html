@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سپاسیران — ورود</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="sp-nav">
+    <a class="sp-brand" href="index.html">
+      <span class="sp-brand__fa">سپاسیران</span>
+      <span class="sp-brand__en latin">Sepasiran</span>
+    </a>
+    <nav class="sp-menu" aria-label="منوی اصلی">
+      <ul class="sp-menu__list">
+        <li class="sp-menu__item sp-menu__item--link">
+          <a class="sp-menu__trigger" href="index.html">خانه</a>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="dogs.html">لیست سگ‌ها</a>
+            <a href="dogs.html">نژادها و فیلتر</a>
+            <a href="dogs.html">آگهی‌های ویژه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="booking.html">رزرو خدمت</a>
+            <a href="booking.html">مربی‌ها</a>
+            <a href="booking.html">کلینیک‌ها</a>
+            <a href="booking.html">بیمه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="store.html">محصولات</a>
+            <a href="store.html">غذا و مراقبت</a>
+            <a href="store.html">سبد خرید</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger is-active" aria-haspopup="true">حساب</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="auth.html" class="is-active">ورود / ثبت‌نام</a>
+            <a href="dashboard.html">داشبورد کاربر</a>
+            <a href="admin.html">پنل ادمین</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="sp-nav__actions">
+      <a class="btn btn-ghost" href="auth.html">ورود</a>
+      <a class="btn btn-primary" href="auth.html">ثبت‌نام</a>
+    </div>
+  </header>
+
+  <main>
+  <div class="auth-shell">
+    <aside class="auth-brand">
+      <div>
+        <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
+        <h1 class="sp-brand__fa" style="font-size:3rem;margin:0 0 12px">سپاسیران</h1>
+        <p style="color:var(--sp-text-muted);max-width:20rem;margin:0">ورود امن با حس برند — نه اسکین AdminLTE.</p>
+      </div>
+    </aside>
+
+    <div class="auth-form">
+      <form class="panel" style="width:min(100%,400px)" onsubmit="return false">
+        <h1 style="margin:0 0 8px;font-size:1.5rem">ورود</h1>
+        <p style="margin:0 0 20px;color:var(--sp-text-subtle);font-size:0.9rem">شماره موبایل یا رمز عبور</p>
+        <div class="field">
+          <label for="phone">موبایل</label>
+          <input id="phone" class="num" type="tel" placeholder="09xxxxxxxxx" autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="pass">رمز عبور</label>
+          <input id="pass" type="password" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">ادامه</button>
+        <p style="margin:16px 0 0;text-align:center;font-size:0.85rem;color:var(--sp-text-subtle)">
+          حساب ندارید؟ <a href="#">ثبت‌نام</a>
+          ·
+          <a href="#" style="color:var(--sp-text-muted)">فراموشی رمز</a>
+        </p>
+      </form>
+    </div>
+  </div>
+  </main>
+
+  <footer class="sp-footer">
+    <div class="wrap sp-footer__grid">
+      <div class="sp-footer__brand">
+        <a class="sp-brand" href="index.html">
+          <span class="sp-brand__fa">سپاسیران</span>
+          <span class="sp-brand__en latin">Sepasiran</span>
+        </a>
+        <p>بازار سگ، خدمات و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+      </div>
+      <div class="sp-footer__col">
+        <h3>بازار</h3>
+        <ul>
+          <li><a href="dogs.html">سگ‌ها</a></li>
+          <li><a href="store.html">فروشگاه</a></li>
+          <li><a href="booking.html">رزرو خدمات</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>حساب</h3>
+        <ul>
+          <li><a href="auth.html">ورود</a></li>
+          <li><a href="dashboard.html">داشبورد</a></li>
+          <li><a href="admin.html">ادمین</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>ارتباط</h3>
+        <ul>
+          <li><a href="#">پشتیبانی</a></li>
+          <li><a href="#">قوانین</a></li>
+          <li><a href="#">درباره ما</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap sp-footer__bar">
+      <span>© ۱۴۰۴ سپاسیران — همه حقوق محفوظ است.</span>
+      <span class="latin">Design preview · dark / green / gold</span>
+    </div>
+  </footer>
+
+  <nav class="mobile-nav" aria-label="ناوبری موبایل">
+    <a href="index.html"><span>⌂</span>خانه</a>
+    <a href="dogs.html"><span>⌕</span>جستجو</a>
+    <a href="booking.html"><span>◷</span>رزرو</a>
+    <a href="store.html"><span>▣</span>فروشگاه</a>
+    <a class="is-active" href="dashboard.html"><span>○</span>حساب</a>
+  </nav>
+</body>
+</html>

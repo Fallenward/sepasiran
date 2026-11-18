@@ -1,64 +1,45 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1.0, user-scalable=no">
-
-    <!-- CSRF Token -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', env('APP_NAME'))</title>
+    <title>@yield('title', config('app.name'))</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="{{ asset(optional($settings)->fav_icon) }}">
+    <link rel="icon" href="{{ asset(optional($settings)->fav_icon ?? 'images/fav.png') }}">
 
-    <!-- Bootstrap CSS -->
     @vite(['resources/css/app-front.css'])
-    <link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/font-awesome-line-awesome/css/all.min.css" >
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/font-awesome-line-awesome/css/all.min.css">
     @stack('styles')
-
 </head>
-<body>
-<!-- Navbar -->
-
-<div class="container-fluid">
+<body class="sp-body sp-shell">
     @include('frontend.layouts.header')
-</div>
 
-
-<!-- Main Content -->
-<div class="main-content">
-    @if (session('success'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ session("success") }}',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
+    <div class="main-content">
+        @if (session('success'))
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: 'success',
+                        title: @json(session('success')),
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
                 });
-            });
-        </script>
-    @endif
-    @yield('content')
-</div>
+            </script>
+        @endif
+        @yield('content')
+    </div>
 
-<!-- Footer -->
-@include('frontend.layouts.footer')
-@include('frontend.layouts.bottom-nav')
+    @include('frontend.layouts.footer')
+    @include('frontend.layouts.bottom-nav')
 
-
-<!-- Bootstrap JS -->
-
-
-<script src="{{asset('assets/js/jquery-3.6.0.min.js')}}"></script>
-<link href="{{asset('assets/css/select2.min.css')}}" rel="stylesheet" />
-<script src="{{asset('assets/js/select2.min.js')}}"></script>
-@vite(['resources/js/app-front.js'])
-<!-- Custom Scripts -->
-
-@yield('scripts')
+    <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
+    <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet"/>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
+    @vite(['resources/js/app-front.js'])
+    @yield('scripts')
 </body>
 </html>

@@ -3,184 +3,61 @@
 @section('title', 'فروشگاه')
 
 @section('content')
+<div class="wrap" style="padding-top:24px;padding-bottom:48px">
+    <h1 class="sp-page-title">فروشگاه</h1>
+    <p class="sp-count">غذا، لوازم و مراقبت برای همراه شما</p>
 
-    <x-page-header
-        title="فروشگاه"
-        :breadcrumbs="[
-            ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-            ['label' => 'فروشگاه', 'route' => route('frontend.stores.index')],
-        ]"
-        bgColor="linear-gradient(90deg, #0D47A1 0%, #051A3B 100%)"
-    />
+    <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+        <a href="{{ route('frontend.home') }}">خانه</a>
+        <span class="sp-breadcrumb__sep">/</span>
+        <span>فروشگاه</span>
+    </nav>
 
-    <div class="container">
-        <div class="row">
-            <!-- فیلترها -->
-            <div class="col-lg-4 col-md-5 col-12 mb-4">
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-5 col-12">
+            <div class="panel">
                 <x-filter-form :filters="$filters" />
             </div>
+        </div>
 
-            <!-- محصولات -->
-            <div class="col-lg-8 col-md-7 col-12">
-                <div class="row g-4">
-                    @foreach($products as $product)
-                        <div class="col-md-4">
-                            <x-product-card :item="$product" :showRoute="'frontend.products.show'" />
-                        </div>
-                    @endforeach
-                </div>
+        <div class="col-lg-8 col-md-7 col-12">
+            <div class="grid grid-3">
+                @forelse($products as $product)
+                    <x-product-card :item="$product" :showRoute="'frontend.products.show'" />
+                @empty
+                    <div class="panel" style="grid-column:1/-1;text-align:center">
+                        <p style="margin:0;color:var(--sp-text-muted)">محصولی یافت نشد.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
 
-    <!-- Blog Slider Section -->
-    <div class="mt-5 container">
-        <!-- Section Header -->
-        <div class="d-flex align-items-center mb-4">
-            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-            <h3 class="fw-bold mb-0 ms-3">بلاگ‌ها</h3>
-            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
-        </div>
-
-        <div class="position-relative">
-            <div class="swiper blog-swiper px-3">
-                <div class="swiper-wrapper">
-                    @forelse($blogs as $blog)
-                        <div class="swiper-slide">
-                            <div class="card h-100 border-0 shadow-sm d-flex flex-column">
+    @if(isset($blogs) && $blogs->isNotEmpty())
+        <section class="section">
+            <div class="section__head">
+                <h2>بلاگ‌ها</h2>
+                <p>نکته‌های کوتاه مراقبت و نگهداری.</p>
+            </div>
+            <div class="grid grid-3">
+                @foreach($blogs as $blog)
+                    <article class="tile">
+                        <a class="tile-link" href="{{ route('frontend.blogs.show', $blog->slug) }}">
+                            <div class="tile__media tile__media--square">
                                 <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                                     class="card-img-top"
-                                     alt="{{ $blog->title }}"
-                                     style="object-fit: cover; height: 180px; width: 100%;">
-                                <div class="card-body d-flex flex-column justify-content-between align-items-center text-center px-3" style="min-height: 190px;">
-                                    <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                                    <p class="card-text text-muted small flex-grow-1"
-                                       style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                        {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                                    </p>
-                                    <a href="{{ route('frontend.blogs.show', $blog->slug) }}"
-                                       class="btn btn-outline-primary btn-sm mt-2"
-                                       style="border-color: #0d47a1; color: #0d47a1;">
-                                        بیشتر بخوانید
-                                    </a>
-                                </div>
-                                <div style="border-bottom: 4px solid #0d47a1;"></div>
+                                     alt="{{ $blog->title }}">
                             </div>
-                        </div>
-                    @empty
-                        <p class="text-center text-muted">هیچ بلاگی یافت نشد.</p>
-                    @endforelse
-                </div>
-
-                <!-- Navigation Arrows -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            <div class="tile__body">
+                                <h3>{{ Str::limit($blog->title, 50) }}</h3>
+                                <div class="tile__meta">
+                                    <span>{{ Str::limit($blog->description ?? $blog->content ?? '', 70) }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                @endforeach
             </div>
-        </div>
-    </div>
-
+        </section>
+    @endif
+</div>
 @endsection
-
-@push('styles')
-<!-- Swiper CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-
-<style>
-    .swiper-slide {
-        width: auto !important;
-        max-width: 350px;
-        padding: 0 15px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .swiper-slide .card {
-        height: 420px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .swiper-slide .card-img-top {
-        height: 180px;
-        object-fit: cover;
-        width: 100%;
-        flex-shrink: 0;
-    }
-
-    .swiper-slide .card-body {
-        min-height: 190px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        text-align: center;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        flex-grow: 1;
-    }
-
-    .swiper-slide .card-text {
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-    }
-
-    .swiper-button-next,
-    .swiper-button-prev {
-        color: #0d47a1;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        box-shadow: 0 0 8px rgba(13, 71, 161, 0.7);
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .swiper-button-next {
-        right: -60px;
-    }
-
-    .swiper-button-prev {
-        left: -60px;
-    }
-
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
-        font-size: 24px;
-        font-weight: bold;
-    }
-</style>
-@endpush
-
-@push('scripts')
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-<script>
-    new Swiper('.blog-swiper', {
-        slidesPerView: 3,
-        spaceBetween: 30,
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-        breakpoints: {
-            0: {
-                slidesPerView: 1.2,
-                spaceBetween: 15,
-            },
-            576: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-            },
-            992: {
-                slidesPerView: 3,
-                spaceBetween: 30,
-            }
-        }
-    });
-</script>
-
-<x-scripts.filter-submit />
-@endpush

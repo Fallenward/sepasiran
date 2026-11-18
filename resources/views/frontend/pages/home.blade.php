@@ -2,154 +2,145 @@
 
 @section('title', $title)
 
+@php
+    $heroImage = null;
+    if (isset($sliders) && $sliders->isNotEmpty() && !empty($sliders->first()->image)) {
+        $heroImage = asset('storage/' . ltrim($sliders->first()->image, '/'));
+    }
+@endphp
+
 @section('content')
-
-    {{-- ======================= Sliders Section ======================= --}}
-    <section class="Slider-section">
-        <div class="col-12">
-            <x-swiper :id="'carouselSliderIndicators'" :items="$sliders" :type="'image-only'" :slidesPerView="1"
-                      :ride="false"/>
-        </div>
-    </section>
-    {{-- ======================= End of Sliders Section ======================= --}}
-
-
-
-
-    {{-- ======================= Blogs Section ======================= --}}
-<section class="blogs-section">
-    <div class="container">
-        <x-section-header
-            title="اخبار"
-            buttonText="مشاهده همه"
-            :link="route('frontend.news.index')"
-        />
-    </div>
-
-    <div class="mt-107"></div>
-
-    <div class="container">
-        <div class="col-12 upper-box">
-            <x-blogs-slider
-                id="blogsCarousel"
-                :items="$blogs"
-                :slidesPerView="3"
-                type="card-with-date"
-                :ride="false"
-                :enabledDesc="true"
-                :enabledLink="true"
-                viewLink="frontend.blogs.show"
-            />
-        </div>
-    </div>
-</section>
-
-
-    {{-- ======================= End of Blogs Section ======================= --}}
-
-
-    {{-- ======================= Services Section ======================= --}}
-    <section class="services-section">
-
-
-        <div class="container">
-            <x-section-header title="خدمات" buttonText="مشاهده همه" link="#"/>
-        </div>
-
-        <div class="mt-107"></div>
-
-        <div class="container">
-            <div class="col-12 upper-box">
-                <x-swiper :id="'servicesCarousel'" :items="$services" :slidesPerView="6" :type="'card-service'"
-                          :ride="false" :enabledDesc="false" :enabledLink="true" :viewLink="'frontend.services.show'"/>
+    <section class="hero" id="hero">
+        <div
+            class="hero__media"
+            data-parallax
+            @if($heroImage)
+                style="background-image:
+                    linear-gradient(105deg, rgba(7, 10, 8, 0.92) 0%, rgba(7, 10, 8, 0.55) 45%, rgba(7, 10, 8, 0.25) 100%),
+                    linear-gradient(to top, #070a08 0%, transparent 45%),
+                    url('{{ $heroImage }}');
+                    background-size: cover;
+                    background-position: center;"
+            @endif
+        ></div>
+        <div class="wrap hero__content">
+            <h1 class="hero__brand">سپاسیران <span class="accent">.</span></h1>
+            <p class="hero__title">همه‌چیز برای همراه چهارپای شما</p>
+            <p class="hero__lede">بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+            <div class="hero__cta">
+                <a class="btn btn-primary" href="{{ route('frontend.dog.supply.index') }}">مشاهده سگ‌ها</a>
+                <a class="btn btn-ghost" href="{{ route('frontend.services.index') }}">رزرو خدمات</a>
             </div>
         </div>
     </section>
-    {{-- ======================= End of Services Section ======================= --}}
 
-    {{-- ======================= Statistics Section ======================= --}}
-    <section class="statistics-section">
-
-        <div class="container">
-            <div class="row g-4">
-                @foreach($statistics as $item)
-                    <div class="col-6 col-md-6 col-lg-3">
-                        <div class="card text-center h-100">
-                            <div class="card-body">
-                                <p class="card-text-counter">{{ $item['counter'] }}<i class="fa fa-plus"></i></p>
-                                <h5 class="card-title-counter">{{ $item['title'] }}</h5>
-                            </div>
-                        </div>
+    <section class="section">
+        <div class="wrap">
+            <div class="section__head">
+                <h2>از کجا شروع می‌کنید؟</h2>
+                <p>یک مسیر را انتخاب کنید — بدون شلوغی کارت و بنر.</p>
+            </div>
+            <div class="paths">
+                <a class="path" href="{{ route('frontend.dog.supply.index') }}">
+                    <div>
+                        <h3>سگ‌ها</h3>
+                        <p>لیست نژاد، شهر و مشخصات</p>
                     </div>
-                @endforeach
+                    <div class="path__mark" aria-hidden="true">◆</div>
+                </a>
+                <a class="path" href="{{ route('frontend.services.index') }}">
+                    <div>
+                        <h3>خدمات</h3>
+                        <p>مربی، کلینیک، بیمه</p>
+                    </div>
+                    <div class="path__mark" aria-hidden="true">✦</div>
+                </a>
+                <a class="path" href="{{ route('frontend.stores.index') }}">
+                    <div>
+                        <h3>فروشگاه</h3>
+                        <p>غذا، لوازم، مراقبت</p>
+                    </div>
+                    <div class="path__mark" aria-hidden="true">◇</div>
+                </a>
             </div>
         </div>
     </section>
-    {{-- ======================= End of Statistics Section ======================= --}}
 
-
-    {{-- ======================= Coverage Section ======================= --}}
-
-    {{-- ======================= End of Coverage Section ======================= --}}
-    <div class="mt-107"></div>
-    <section class="coverage-section">
-        <div class="container-custom">
-            <div class="text-column">
-                <h2 class="mb-3 text-white">پناهگاه</h2>
-                <x-title-divider></x-title-divider>
-                <p class="my-4 text-white">
-                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است...
-                </p>
-                <a href="{{ route('frontend.shelter.index') }}" class="btn btn-light mb-4">مشاهده پناهگاه</a>
-            </div>
-            <div class="image-column">
-                <div class="image-wrapper">
-                    <img src="{{ asset('images/shelther.png') }}" alt="Shelter" class="dog-image">
+    @if(isset($services) && $services->isNotEmpty())
+        <section class="section" style="padding-top:0">
+            <div class="wrap">
+                <div class="section__head">
+                    <h2>خدمات</h2>
+                    <p>مربی، کلینیک، بیمه و دوره — انتخاب سریع.</p>
+                </div>
+                <div class="chip-row">
+                    @foreach($services->take(8) as $service)
+                        <a class="chip" href="{{ $service->route_link ?? route('frontend.services.show', $service->slug) }}">
+                            {{ $service->title ?? $service->name }}
+                        </a>
+                    @endforeach
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-
-    {{-- ======================= Best Section ======================= --}}
-    <section class="best-section">
-
-        <div class="mt-107"></div>
-        <div class="container">
-            <x-section-header title="برترین ها" buttonText="مشاهده همه" link="#"/>
-        </div>
-
-        <div class="mt-107"></div>
-
-        <div class="container">
-            <div class="col-12 upper-box">
-                <x-swiper :id="'blogsCarousel'" :items="$bests" :slidesPerView="3" :type="'bests'"
-                          :ride="false" :enabledDesc="false" :enabledLink="true" :viewLink="'frontend.blog.show'"/>
+    <section class="section" style="padding-top:0">
+        <div class="wrap">
+            <div class="section__head">
+                <h2>پناهگاه و اعتماد</h2>
+                <p>فضایی برای آشنایی با پناهگاه و همراهی مسئولانه.</p>
             </div>
+            <a class="path" href="{{ route('frontend.shelter.index') }}">
+                <div>
+                    <h3>پناهگاه</h3>
+                    <p>مشاهده حیوانات نیازمند خانه و حمایت</p>
+                </div>
+                <div class="path__mark" aria-hidden="true">♡</div>
+            </a>
         </div>
     </section>
-    {{-- ======================= End of Best Section ======================= --}}
 
-    <div class="mt-5 text-center">
-        <h5 class="fw-bold mb-4">پیوند به سایت‌های دیگر</h5>
-        <div class="d-flex justify-content-center gap-4 custom-link-area">
-            <a href="#" class="card  custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/rahbari.png') }}" alt="مقام معظم رهبری" class="img-fluid mx-2 rounded-circle" width="75"
-                     height="50">
-                <span class="ms-3 custom-text">پایگاه اطلاع رسانی دفتر مقام معظم رهبری</span>
-            </a>
-            <a href="#" class="card custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/dolat.png') }}" alt="دولت" class="img-fluid mx-2 rounded-circle" width="75"
-                     height="75">
-                <span class="ms-3 custom-text">پایگاه اطلاع رسانی دولت</span>
-            </a>
-            <a href="#" class="card custom-link-card p-4 text-decoration-none">
-                <img src="{{ asset('images/paygahaha.png') }}" alt="ریاست جمهوری" class="img-fluid mx-2 rounded-circle" width="75"
-                     height="75">
-                <span class="ms-3 custom-text">پایگاه اطلاع رسانی ریاست جمهوری</span>
-            </a>
+    @if(isset($blogs) && $blogs->isNotEmpty())
+        <section class="section" style="padding-top:0">
+            <div class="wrap">
+                <div class="section__head">
+                    <h2>نکته‌ها و اخبار</h2>
+                    <p>یک بخش، یک کار — بدون شلوغی.</p>
+                </div>
+                <div class="grid grid-3">
+                    @foreach($blogs as $blog)
+                        <article class="tile">
+                            <a class="tile-link" href="{{ route('frontend.blogs.show', $blog->slug) }}">
+                                <div class="tile__media tile__media--square">
+                                    @if($blog->image)
+                                        <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
+                                    @endif
+                                </div>
+                                <div class="tile__body">
+                                    <h3>{{ Str::limit($blog->title, 48) }}</h3>
+                                    <div class="tile__meta">
+                                        <span>{{ Str::limit(strip_tags($blog->description ?? $blog->content ?? ''), 60) }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+@endsection
 
-        </div>
-    </div>
-
+@section('scripts')
+    <script>
+        (function () {
+            var media = document.querySelector('[data-parallax]');
+            if (!media || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            window.addEventListener('pointermove', function (e) {
+                var x = (e.clientX / window.innerWidth - 0.5) * 8;
+                var y = (e.clientY / window.innerHeight - 0.5) * 8;
+                media.style.transform = 'translate3d(' + (-x) + 'px,' + (-y) + 'px,0) scale(1.03)';
+            });
+        })();
+    </script>
 @endsection

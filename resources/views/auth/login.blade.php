@@ -3,53 +3,43 @@
 @section('title', 'ورود به حساب کاربری')
 
 @section('main')
-    <div class="container d-flex justify-content-center align-items-center min-vh-100" dir="rtl">
-        <div class="card shadow border-0 w-100" style="max-width: 640px; border-radius: 1rem;">
-            <div class="card-body p-5">
-                <div class="text-center mb-4">
-                    <a href="/" class="d-block mb-2 text-decoration-none">
-                        <h2 class="fw-bold text-primary">SepasIran</h2>
-                    </a>
-                    <h4 class="fw-semibold">ورود به حساب</h4>
-                    <p class="text-muted">برای ورود به داشبورد، اطلاعات حساب خود را وارد کنید</p>
-                </div>
-
-                <form action="{{ route('new-login') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="email" class="form-label">ایمیل</label>
-                        <div class="input-group" dir="rtl">
-                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-mobile-alt text-muted"></i></span>
-                            <input type="email" id="email" name="email"
-                                   class="form-control border-start-0 text-end"
-                                   placeholder="ایمیل" dir="rtl">
-                        </div>
-                    </div>
-                    @error('email')
-                    <div class="text-danger mt-1 small">{{ $message }}</div>
-                    @enderror
-
-
-                    <div class="mb-4">
-                        <label for="password" class="form-label">رمز عبور</label>
-                        <div class="input-group" dir="rtl">
-                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-lock text-muted"></i></span>
-                            <input type="password" id="password" name="password"
-                                   class="form-control border-start-0 text-end"
-                                   placeholder="رمز عبور خود را وارد کنید" dir="rtl">
-                        </div>
-                    </div>
-                    @error('password')
-                    <div class="text-danger mt-1 small">{{ $message }}</div>
-                    @enderror
-
-
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">ورود به حساب</button>
-                    </div>
-
-                </form>
-            </div>
+<div class="auth-shell">
+    <aside class="auth-brand">
+        <div>
+            <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
+            <h1 class="sp-brand__fa" style="font-size:3rem;margin:0 0 12px">سپاسیران</h1>
+            <p style="color:var(--sp-text-muted);max-width:20rem;margin:0">ورود امن با حس برند — نه اسکین AdminLTE.</p>
         </div>
+    </aside>
+
+    <div class="auth-form">
+        <form class="panel" style="width:min(100%,400px)" action="{{ route('new-login') }}" method="POST">
+            @csrf
+            <h1 style="margin:0 0 8px;font-size:1.5rem">ورود</h1>
+            <p style="margin:0 0 20px;color:var(--sp-text-subtle);font-size:0.9rem">ایمیل و رمز عبور حساب خود را وارد کنید</p>
+
+            <div class="field">
+                <label for="email">ایمیل</label>
+                <input id="email" class="num" type="email" name="email" value="{{ old('email') }}"
+                       placeholder="name@example.com" autocomplete="username" required>
+                @error('email')
+                    <div style="color:var(--sp-danger);font-size:0.8rem;margin-top:6px">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="field">
+                <label for="password">رمز عبور</label>
+                <input id="password" type="password" name="password" autocomplete="current-password" required>
+                @error('password')
+                    <div style="color:var(--sp-danger);font-size:0.8rem;margin-top:6px">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">ورود به حساب</button>
+            <p style="margin:16px 0 0;text-align:center;font-size:0.85rem;color:var(--sp-text-subtle)">
+                <a href="{{ route('frontend.home') }}">بازگشت به خانه</a>
+            </p>
+        </form>
     </div>
+</div>
 @endsection

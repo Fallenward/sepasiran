@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سپاسیران — رزرو</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="sp-nav">
+    <a class="sp-brand" href="index.html">
+      <span class="sp-brand__fa">سپاسیران</span>
+      <span class="sp-brand__en latin">Sepasiran</span>
+    </a>
+    <nav class="sp-menu" aria-label="منوی اصلی">
+      <ul class="sp-menu__list">
+        <li class="sp-menu__item sp-menu__item--link">
+          <a class="sp-menu__trigger" href="index.html">خانه</a>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="dogs.html">لیست سگ‌ها</a>
+            <a href="dogs.html">نژادها و فیلتر</a>
+            <a href="dogs.html">آگهی‌های ویژه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger is-active" aria-haspopup="true">خدمات</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="booking.html" class="is-active">رزرو خدمت</a>
+            <a href="booking.html">مربی‌ها</a>
+            <a href="booking.html">کلینیک‌ها</a>
+            <a href="booking.html">بیمه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="store.html">محصولات</a>
+            <a href="store.html">غذا و مراقبت</a>
+            <a href="store.html">سبد خرید</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">حساب</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="auth.html">ورود / ثبت‌نام</a>
+            <a href="dashboard.html">داشبورد کاربر</a>
+            <a href="admin.html">پنل ادمین</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="sp-nav__actions">
+      <a class="btn btn-ghost" href="auth.html">ورود</a>
+      <a class="btn btn-primary" href="auth.html">ثبت‌نام</a>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <h1 style="margin:0;font-size:1.75rem">رزرو خدمت</h1>
+        <p>گام‌به‌گام — فقط پنل مرحله فعال برجسته است.</p>
+      </div>
+
+      <div class="steps" role="list">
+        <div class="step is-done">۱. خدمت</div>
+        <div class="step is-current">۲. زمان</div>
+        <div class="step">۳. تماس</div>
+        <div class="step">۴. تأیید</div>
+      </div>
+
+      <div class="booking-layout">
+        <div class="panel">
+          <h2 style="margin-top:0;font-size:1.2rem">انتخاب زمان</h2>
+          <div class="field">
+            <label for="date">تاریخ (جلالی)</label>
+            <input id="date" class="num" type="text" value="1404/08/28" />
+          </div>
+          <p style="color:var(--sp-text-muted);font-size:0.9rem;margin-bottom:10px">بازه زمانی</p>
+          <div class="slot-grid">
+            <button type="button" class="chip">۰۹:۰۰</button>
+            <button type="button" class="chip is-active">۱۱:۰۰</button>
+            <button type="button" class="chip">۱۴:۳۰</button>
+            <button type="button" class="chip">۱۶:۰۰</button>
+            <button type="button" class="chip">۱۸:۰۰</button>
+            <button type="button" class="chip">۲۰:۰۰</button>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap">
+            <button type="button" class="btn btn-ghost">بازگشت</button>
+            <button type="button" class="btn btn-primary">ادامه</button>
+          </div>
+        </div>
+
+        <aside class="panel summary">
+          <h3 style="margin-top:0">خلاصه</h3>
+          <div class="list-row"><span>خدمت</span><strong>آموزش پایه</strong></div>
+          <div class="list-row"><span>مربی</span><strong>سارا محمدی</strong></div>
+          <div class="list-row"><span>زمان</span><strong class="num">۱۱:۰۰</strong></div>
+          <div class="list-row" style="border:0"><span>مبلغ</span><strong class="tile__price num">۱٬۲۰۰٬۰۰۰</strong></div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="sp-footer">
+    <div class="wrap sp-footer__grid">
+      <div class="sp-footer__brand">
+        <a class="sp-brand" href="index.html">
+          <span class="sp-brand__fa">سپاسیران</span>
+          <span class="sp-brand__en latin">Sepasiran</span>
+        </a>
+        <p>بازار سگ، خدمات و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+      </div>
+      <div class="sp-footer__col">
+        <h3>بازار</h3>
+        <ul>
+          <li><a href="dogs.html">سگ‌ها</a></li>
+          <li><a href="store.html">فروشگاه</a></li>
+          <li><a href="booking.html">رزرو خدمات</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>حساب</h3>
+        <ul>
+          <li><a href="auth.html">ورود</a></li>
+          <li><a href="dashboard.html">داشبورد</a></li>
+          <li><a href="admin.html">ادمین</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>ارتباط</h3>
+        <ul>
+          <li><a href="#">پشتیبانی</a></li>
+          <li><a href="#">قوانین</a></li>
+          <li><a href="#">درباره ما</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap sp-footer__bar">
+      <span>© ۱۴۰۴ سپاسیران — همه حقوق محفوظ است.</span>
+      <span class="latin">Design preview · dark / green / gold</span>
+    </div>
+  </footer>
+
+  <nav class="mobile-nav" aria-label="ناوبری موبایل">
+    <a href="index.html"><span>⌂</span>خانه</a>
+    <a href="dogs.html"><span>⌕</span>جستجو</a>
+    <a class="is-active" href="booking.html"><span>◷</span>رزرو</a>
+    <a href="store.html"><span>▣</span>فروشگاه</a>
+    <a href="dashboard.html"><span>○</span>حساب</a>
+  </nav>
+</body>
+</html>

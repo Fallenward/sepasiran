@@ -2,6 +2,7 @@
 @import 'select2/dist/css/select2.css';
 @import "../fonts/css/fontiran.css";
 @import "custom.css";
+@import "./sp-admin-theme.css";
 
 .comment-status-btn {
     width: 100%;

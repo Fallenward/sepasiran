@@ -1,27 +1,28 @@
-<div class="bottom-nav">
-    <a href="#" class="{{ request()->routeIs('frontend.home') ? 'active' : '' }}">
-        <i class="fas fa-home"></i><span>خانه</span>
+<nav class="mobile-nav" aria-label="ناوبری موبایل">
+    <a href="{{ route('frontend.home') }}"
+       class="{{ request()->routeIs('frontend.home') ? 'is-active' : '' }}">
+        <span><i class="fas fa-home"></i></span>خانه
     </a>
-    <a href="#" class="{{ request()->routeIs('frontend.courses') ? 'active' : '' }}">
-        <i class="fas fa-store"></i><span>فروشگاه</span>
+    <a href="{{ route('frontend.dog.supply.index') }}"
+       class="{{ request()->routeIs('frontend.dog.supply.*') ? 'is-active' : '' }}">
+        <span><i class="fas fa-search"></i></span>جستجو
     </a>
-    <a href="">
-        <i class="fas fa-user"></i><span>پروفایل</span>
+    <a href="{{ route('frontend.services.index') }}"
+       class="{{ request()->routeIs('frontend.services.*', 'frontend.coaches.*', 'frontend.clinics.*') ? 'is-active' : '' }}">
+        <span><i class="far fa-calendar-check"></i></span>رزرو
     </a>
-    @if(!is_null(auth()->user()))
-        <a href="#" class="{{ request()->routeIs('frontend.cart') ? 'active' : '' }}">
-            <i class="fas fa-shopping-bag"></i><span>سبد خرید</span>
-            @php
-               $cartCount =  \App\Models\Cart::where('user_id',auth()->user()->id)->where('status',\App\Models\Cart::STATUS_ACTIVE)->count();
-            @endphp
-            @if($cartCount>0)
-                <span class="cart-counter">{{$cartCount}}</span>
-            @endif
+    <a href="{{ route('frontend.stores.index') }}"
+       class="{{ request()->routeIs('frontend.stores.*', 'frontend.products.*') ? 'is-active' : '' }}">
+        <span><i class="fas fa-store"></i></span>فروشگاه
+    </a>
+    @auth
+        <a href="{{ route('user.dashboard') }}"
+           class="{{ request()->routeIs('user.dashboard') ? 'is-active' : '' }}">
+            <span><i class="far fa-user"></i></span>حساب
         </a>
-
     @else
-        <a href="#" class="" >
-            <i class="fas fa-user"></i><span>ورود / ثبت نام</span>
+        <a href="{{ route('login') }}">
+            <span><i class="far fa-user"></i></span>حساب
         </a>
-    @endif
-</div>
+    @endauth
+</nav>

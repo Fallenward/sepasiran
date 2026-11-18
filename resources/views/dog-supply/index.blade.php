@@ -1,49 +1,45 @@
 @extends('layouts.app')
 
-@section('title', 'تهیه سگ')
+@section('title', 'سگ‌ها')
 
 @section('content')
-<!-- بخش عنوان و نوار مسیریابی -->
-<x-page-header
-    title="تهیه سگ"
-    :breadcrumbs="[
-        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-        ['label' => 'تهیه سگ', 'route' => route('frontend.dog.supply.index')]
-    ]"
-    extraClasses="text-align-center"
-    bgColor="#0d47a1"
-/>
+<div class="wrap" style="padding-top:24px;padding-bottom:48px">
+    <h1 class="sp-page-title">سگ‌ها</h1>
+    <p class="sp-count num">
+        {{ method_exists($dogs, 'total') ? $dogs->total() : $dogs->count() }} آگهی
+    </p>
 
+    <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+        <a href="{{ route('frontend.home') }}">خانه</a>
+        <span class="sp-breadcrumb__sep">/</span>
+        <span>سگ‌ها</span>
+    </nav>
 
-<div class="container">
-    <div class="row">
-        <!-- بخش فیلتر -->
+    <div class="row g-4">
         <div class="col-md-4 col-12">
-            <x-filter-form :filters="$filters" />
-        </div>
-
-        <!-- نمایش سگ‌ها -->
-        <div class="col-md-8 col-12">
-    <div class="row">
-        @forelse($dogs as $dog)
-            <div class="col-md-4 mb-4">
-                @include('components.dog-card', ['item' => $dog])
+            <div class="panel">
+                <x-filter-form :filters="$filters" />
             </div>
-        @empty
-            <p class="text-center">سگی یافت نشد.</p>
-        @endforelse
-    </div>
-            <!-- دکمه مشاهده بیشتر -->
-            <x-load-more-button :hasMore="$dogs->hasMorePages()" :nextPage="$dogs->currentPage() + 1" />
         </div>
 
+        <div class="col-md-8 col-12">
+            <div class="grid grid-3">
+                @forelse($dogs as $dog)
+                    @include('components.dog-card', ['item' => $dog])
+                @empty
+                    <div class="panel" style="grid-column:1/-1;text-align:center">
+                        <p style="margin:0;color:var(--sp-text-muted)">سگی یافت نشد. فیلترها را تغییر دهید.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="mt-4">
+                <x-load-more-button :hasMore="$dogs->hasMorePages()" :nextPage="$dogs->currentPage() + 1" />
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Scripts -->
 <x-scripts.filter-submit />
-
-
 <x-scripts.load-more-dogs />
-
 @endsection

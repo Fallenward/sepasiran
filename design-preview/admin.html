@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سپاسیران — شل ادمین</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="sp-nav">
+    <a class="sp-brand" href="index.html">
+      <span class="sp-brand__fa">سپاسیران</span>
+      <span class="sp-brand__en latin">Sepasiran</span>
+    </a>
+    <nav class="sp-menu" aria-label="منوی اصلی">
+      <ul class="sp-menu__list">
+        <li class="sp-menu__item sp-menu__item--link">
+          <a class="sp-menu__trigger" href="index.html">خانه</a>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="dogs.html">لیست سگ‌ها</a>
+            <a href="dogs.html">نژادها و فیلتر</a>
+            <a href="dogs.html">آگهی‌های ویژه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="booking.html">رزرو خدمت</a>
+            <a href="booking.html">مربی‌ها</a>
+            <a href="booking.html">کلینیک‌ها</a>
+            <a href="booking.html">بیمه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="store.html">محصولات</a>
+            <a href="store.html">غذا و مراقبت</a>
+            <a href="store.html">سبد خرید</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger is-active" aria-haspopup="true">حساب</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="auth.html">ورود / ثبت‌نام</a>
+            <a href="dashboard.html">داشبورد کاربر</a>
+            <a href="admin.html" class="is-active">پنل ادمین</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="sp-nav__actions">
+      <a class="btn btn-ghost" href="auth.html">ورود</a>
+      <a class="btn btn-primary" href="auth.html">ثبت‌نام</a>
+    </div>
+  </header>
+
+  <main>
+  <div class="admin">
+    <aside class="admin-side">
+      <div style="padding:8px 12px 20px">
+        <div class="sp-brand__fa" style="font-size:1.1rem">سپاسیران</div>
+        <div class="sp-brand__en latin" style="font-size:0.65rem">Admin shell</div>
+      </div>
+      <a class="is-active" href="#">داشبورد</a>
+      <a href="#">سگ‌ها</a>
+      <a href="#">محصولات</a>
+      <a href="#">رزروها</a>
+      <a href="#">کاربران</a>
+      <a href="#">نقش‌ها</a>
+      <a href="#">اسلایدر</a>
+      <a href="#">تنظیمات</a>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-top">
+        <strong>داشبورد</strong>
+        <span style="color:var(--sp-text-subtle);font-size:0.85rem">Theme bridge روی AdminLTE — فاز ۱</span>
+      </div>
+
+      <div class="metric-row" style="margin-bottom:20px">
+        <div class="metric"><span>کاربران</span><strong class="num">۱٬۲۴۰</strong></div>
+        <div class="metric"><span>نیاز به بررسی</span><strong style="color:var(--sp-gold)">۸</strong></div>
+        <div class="metric"><span>رزرو امروز</span><strong class="num">23</strong></div>
+      </div>
+
+      <div class="panel" style="padding:0;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>آگهی</th>
+              <th>وضعیت</th>
+              <th>شهر</th>
+              <th>مبلغ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>رکس · ژرمن</td>
+              <td><span class="status status--pending">بازبینی</span></td>
+              <td>تهران</td>
+              <td class="num">۴۵٬۰۰۰٬۰۰۰</td>
+            </tr>
+            <tr>
+              <td>لونا · هاسکی</td>
+              <td><span class="status">فعال</span></td>
+              <td>اصفهان</td>
+              <td class="num">۳۸٬۰۰۰٬۰۰۰</td>
+            </tr>
+            <tr>
+              <td>مکس · لابرادور</td>
+              <td><span class="status">فعال</span></td>
+              <td>شیراز</td>
+              <td class="num">۲۹٬۵۰۰٬۰۰۰</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="color:var(--sp-text-subtle);font-size:0.85rem;margin-top:20px">
+        پیاده‌سازی واقعی: فایل override بعد از AdminLTE (مثلاً <code>sp-admin-theme.css</code>) —
+        بدون بازنویسی کنترلرها. سایدبار تیره، اکتیو سبز + نوار طلایی inline-start، جداول zebra روی ink.
+      </p>
+    </div>
+  </div>
+  </main>
+
+  <footer class="sp-footer">
+    <div class="wrap sp-footer__grid">
+      <div class="sp-footer__brand">
+        <a class="sp-brand" href="index.html">
+          <span class="sp-brand__fa">سپاسیران</span>
+          <span class="sp-brand__en latin">Sepasiran</span>
+        </a>
+        <p>بازار سگ، خدمات و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+      </div>
+      <div class="sp-footer__col">
+        <h3>بازار</h3>
+        <ul>
+          <li><a href="dogs.html">سگ‌ها</a></li>
+          <li><a href="store.html">فروشگاه</a></li>
+          <li><a href="booking.html">رزرو خدمات</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>حساب</h3>
+        <ul>
+          <li><a href="auth.html">ورود</a></li>
+          <li><a href="dashboard.html">داشبورد</a></li>
+          <li><a href="admin.html">ادمین</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>ارتباط</h3>
+        <ul>
+          <li><a href="#">پشتیبانی</a></li>
+          <li><a href="#">قوانین</a></li>
+          <li><a href="#">درباره ما</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap sp-footer__bar">
+      <span>© ۱۴۰۴ سپاسیران — همه حقوق محفوظ است.</span>
+      <span class="latin">Design preview · dark / green / gold</span>
+    </div>
+  </footer>
+
+  <nav class="mobile-nav" aria-label="ناوبری موبایل">
+    <a href="index.html"><span>⌂</span>خانه</a>
+    <a href="dogs.html"><span>⌕</span>جستجو</a>
+    <a href="booking.html"><span>◷</span>رزرو</a>
+    <a href="store.html"><span>▣</span>فروشگاه</a>
+    <a class="is-active" href="dashboard.html"><span>○</span>حساب</a>
+  </nav>
+</body>
+</html>

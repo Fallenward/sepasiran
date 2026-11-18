@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سپاسیران — پیش‌نمایش خانه</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="sp-nav">
+    <a class="sp-brand" href="index.html">
+      <span class="sp-brand__fa">سپاسیران</span>
+      <span class="sp-brand__en latin">Sepasiran</span>
+    </a>
+    <nav class="sp-menu" aria-label="منوی اصلی">
+      <ul class="sp-menu__list">
+        <li class="sp-menu__item sp-menu__item--link">
+          <a class="sp-menu__trigger is-active" href="index.html">خانه</a>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="dogs.html">لیست سگ‌ها</a>
+            <a href="dogs.html">نژادها و فیلتر</a>
+            <a href="dogs.html">آگهی‌های ویژه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="booking.html">رزرو خدمت</a>
+            <a href="booking.html">مربی‌ها</a>
+            <a href="booking.html">کلینیک‌ها</a>
+            <a href="booking.html">بیمه</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="store.html">محصولات</a>
+            <a href="store.html">غذا و مراقبت</a>
+            <a href="store.html">سبد خرید</a>
+          </div>
+        </li>
+        <li class="sp-menu__item">
+          <button type="button" class="sp-menu__trigger" aria-haspopup="true">حساب</button>
+          <div class="sp-menu__dropdown" role="menu">
+            <a href="auth.html">ورود / ثبت‌نام</a>
+            <a href="dashboard.html">داشبورد کاربر</a>
+            <a href="admin.html">پنل ادمین</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="sp-nav__actions">
+      <a class="btn btn-ghost" href="auth.html">ورود</a>
+      <a class="btn btn-primary" href="auth.html">ثبت‌نام</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero__media" data-parallax></div>
+      <div class="wrap hero__content">
+        <h1 class="hero__brand">سپاسیران <span class="accent">.</span></h1>
+        <p class="hero__title">همه‌چیز برای همراه چهارپای شما</p>
+        <p class="hero__lede">بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+        <div class="hero__cta">
+          <a class="btn btn-primary" href="dogs.html">مشاهده سگ‌ها</a>
+          <a class="btn btn-ghost" href="booking.html">رزرو خدمات</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section__head">
+          <h2>از کجا شروع می‌کنید؟</h2>
+          <p>یک مسیر را انتخاب کنید — بدون شلوغی کارت و بنر.</p>
+        </div>
+        <div class="paths">
+          <a class="path" href="dogs.html">
+            <div>
+              <h3>سگ‌ها</h3>
+              <p>لیست نژاد، شهر و قیمت</p>
+            </div>
+            <div class="path__mark" aria-hidden="true">◆</div>
+          </a>
+          <a class="path" href="booking.html">
+            <div>
+              <h3>خدمات</h3>
+              <p>مربی، کلینیک، بیمه</p>
+            </div>
+            <div class="path__mark" aria-hidden="true">✦</div>
+          </a>
+          <a class="path" href="store.html">
+            <div>
+              <h3>فروشگاه</h3>
+              <p>غذا، لوازم، مراقبت</p>
+            </div>
+            <div class="path__mark" aria-hidden="true">◇</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="section__head">
+          <h2>سگ‌های منتخب</h2>
+          <p>نمونه کاشی تعاملی با عمق ملایم (motion M2).</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="tile">
+            <div class="tile__media"></div>
+            <div class="tile__body">
+              <h3>رکس</h3>
+              <div class="tile__meta">
+                <span>ژرمن · تهران</span>
+                <span class="tile__price num">۴۵٬۰۰۰٬۰۰۰</span>
+              </div>
+            </div>
+          </article>
+          <article class="tile">
+            <div class="tile__media" style="filter:hue-rotate(20deg)"></div>
+            <div class="tile__body">
+              <h3>لونا</h3>
+              <div class="tile__meta">
+                <span>هاسکی · اصفهان</span>
+                <span class="tile__price num">۳۸٬۰۰۰٬۰۰۰</span>
+              </div>
+            </div>
+          </article>
+          <article class="tile">
+            <div class="tile__media" style="filter:hue-rotate(-15deg)"></div>
+            <div class="tile__body">
+              <h3>مکس</h3>
+              <div class="tile__meta">
+                <span>لابرادور · شیراز</span>
+                <span class="tile__price num">۲۹٬۵۰۰٬۰۰۰</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sp-footer">
+    <div class="wrap sp-footer__grid">
+      <div class="sp-footer__brand">
+        <a class="sp-brand" href="index.html">
+          <span class="sp-brand__fa">سپاسیران</span>
+          <span class="sp-brand__en latin">Sepasiran</span>
+        </a>
+        <p>بازار سگ، خدمات و فروشگاه — مینیمال، مطمئن، فارسی.</p>
+      </div>
+      <div class="sp-footer__col">
+        <h3>بازار</h3>
+        <ul>
+          <li><a href="dogs.html">سگ‌ها</a></li>
+          <li><a href="store.html">فروشگاه</a></li>
+          <li><a href="booking.html">رزرو خدمات</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>حساب</h3>
+        <ul>
+          <li><a href="auth.html">ورود</a></li>
+          <li><a href="dashboard.html">داشبورد</a></li>
+          <li><a href="admin.html">ادمین</a></li>
+        </ul>
+      </div>
+      <div class="sp-footer__col">
+        <h3>ارتباط</h3>
+        <ul>
+          <li><a href="#">پشتیبانی</a></li>
+          <li><a href="#">قوانین</a></li>
+          <li><a href="#">درباره ما</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap sp-footer__bar">
+      <span>© ۱۴۰۴ سپاسیران — همه حقوق محفوظ است.</span>
+      <span class="latin">Design preview · dark / green / gold</span>
+    </div>
+  </footer>
+
+  <nav class="mobile-nav" aria-label="ناوبری موبایل">
+    <a class="is-active" href="index.html"><span>⌂</span>خانه</a>
+    <a href="dogs.html"><span>⌕</span>جستجو</a>
+    <a href="booking.html"><span>◷</span>رزرو</a>
+    <a href="store.html"><span>▣</span>فروشگاه</a>
+    <a href="dashboard.html"><span>○</span>حساب</a>
+  </nav>
+
+  <script>
+    (function () {
+      var media = document.querySelector("[data-parallax]");
+      if (!media || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      window.addEventListener("pointermove", function (e) {
+        var x = (e.clientX / window.innerWidth - 0.5) * 8;
+        var y = (e.clientY / window.innerHeight - 0.5) * 8;
+        media.style.transform = "translate3d(" + (-x) + "px," + (-y) + "px,0) scale(1.03)";
+      });
+    })();
+  </script>
+</body>
+</html>
