@@ -32,7 +32,14 @@
             ],
         ])
 
-        @include('frontend.partials.dashboard-actions', [
+        
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spClinicFinanceChart',
+        ])
+
+@include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('clinic.profile.edit'), 'icon' => 'far fa-hospital'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],

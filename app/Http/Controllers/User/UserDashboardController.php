@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Support\DashboardFinance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -20,8 +21,6 @@ class UserDashboardController extends Controller
             ->limit(8)
             ->get();
 
-        $nextBooking = $upcomingBookings->first();
-
         $stats = [
             'wallet' => (int) ($user->wallet ?? 0),
             'upcoming' => $upcomingBookings->count(),
@@ -31,8 +30,8 @@ class UserDashboardController extends Controller
         return view('frontend.pages.user.dashboard', [
             'user' => $user,
             'stats' => $stats,
-            'nextBooking' => $nextBooking,
             'upcomingBookings' => $upcomingBookings,
+            'financeChart' => DashboardFinance::monthlySeries($user),
             'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }

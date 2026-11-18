@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Support\DashboardFinance;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -78,6 +79,7 @@ class DashboardController extends Controller
             'pendingVisits' => $pendingVisits,
             'clinicIncome' => (int) $clinicIncome,
             'recentBookings' => $recentBookings,
+            'financeChart' => DashboardFinance::monthlySeries($user),
             'roleLabel' => $user->primaryRoleLabel(),
         ]);
     }
@@ -118,6 +120,7 @@ class DashboardController extends Controller
             'pendingBookings' => $pendingBookings,
             'upcoming' => $upcoming,
             'roleLabel' => $user->primaryRoleLabel(),
+            'financeChart' => DashboardFinance::monthlySeries($user),
         ]);
     }
 
@@ -160,6 +163,7 @@ class DashboardController extends Controller
             'recentDogs' => $recentDogs,
             'walletBalance' => $walletBalance,
             'roleLabel' => $user->primaryRoleLabel(),
+            'financeChart' => DashboardFinance::monthlySeries($user),
         ]);
     }
 

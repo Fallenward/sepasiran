@@ -22,7 +22,14 @@
             ],
         ])
 
-        @include('frontend.partials.dashboard-actions', [
+        
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spBreederFinanceChart',
+        ])
+
+@include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'افزودن سگ', 'hint' => 'ثبت آگهی جدید', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
                 ['label' => 'لیست سگ‌های من', 'hint' => 'مدیریت آگهی‌ها', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],

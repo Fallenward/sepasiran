@@ -32,7 +32,14 @@
             ],
         ])
 
-        @include('frontend.partials.dashboard-actions', [
+        
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spCoachFinanceChart',
+        ])
+
+@include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'کیف پول مربی', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('coaches.wallet'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'لیست مربی‌گری', 'hint' => 'نمایش عمومی', 'url' => route('coaches.listing'), 'icon' => 'fas fa-list'],

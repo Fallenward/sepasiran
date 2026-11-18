@@ -33,32 +33,11 @@
             ],
         ])
 
-        <section class="sp-dash__panel">
-            <header class="sp-dash__panel-head">
-                <h2>اقدام بعدی</h2>
-            </header>
-            @if($nextBooking)
-                @php [$stLabel, $stClass] = $statusMap[$nextBooking->status] ?? [$nextBooking->status, 'is-pending']; @endphp
-                <div class="sp-dash__next">
-                    <div class="sp-dash__next-media" aria-hidden="true"></div>
-                    <div>
-                        <p class="sp-dash__next-kicker">نزدیک‌ترین رزرو</p>
-                        <h3>{{ $nextBooking->service_type }} · {{ $nextBooking->booking_code }}</h3>
-                        <p class="sp-dash__muted">
-                            {{ optional($nextBooking->appointment_date ?? $nextBooking->preferred_date)->format('Y/m/d') ?? 'زمان اعلام نشده' }}
-                            @if($nextBooking->slot) · {{ $nextBooking->slot }} @endif
-                        </p>
-                    </div>
-                    <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
-                </div>
-            @else
-                <div class="sp-dash__empty">
-                    <div class="sp-dash__empty-visual" aria-hidden="true"></div>
-                    <p>هنوز رزروی ندارید. اولین نوبت را همین حالا بسازید.</p>
-                    <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.index') }}">شروع رزرو</a>
-                </div>
-            @endif
-        </section>
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spCustomerFinanceChart',
+        ])
 
         @include('frontend.partials.dashboard-actions', [
             'actions' => [

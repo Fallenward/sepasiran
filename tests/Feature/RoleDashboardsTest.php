@@ -32,7 +32,9 @@ class RoleDashboardsTest extends TestCase
         $this->actingAs($user)
             ->get(route('user.dashboard'))
             ->assertOk()
-            ->assertSee('رزرو جدید', false);
+            ->assertSee('رزرو جدید', false)
+            ->assertSee('نمودار تراکنش‌های مالی', false)
+            ->assertDontSee('اقدام بعدی', false);
     }
 
     public function test_coach_dashboard_renders(): void

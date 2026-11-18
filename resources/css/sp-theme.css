@@ -2873,6 +2873,18 @@ body.sp-body {
   font-size: 0.75rem;
 }
 
+.sp-dash__chart-wrap {
+  position: relative;
+  height: 260px;
+  padding: 4px 2px 0;
+}
+
+.sp-dash__panel--chart {
+  background:
+    linear-gradient(180deg, rgba(79, 191, 120, 0.06), transparent 42%),
+    rgba(18, 26, 23, 0.88);
+}
+
 .sp-dash__panel {
   background: rgba(18, 26, 23, 0.88);
   border: 1px solid var(--sp-border);
