@@ -2125,6 +2125,40 @@ body.sp-body {
   margin-bottom: 12px;
 }
 
+.sp-booking__quick-dog {
+  margin: 14px 0 8px;
+  padding: 12px 14px;
+  border: 1px dashed var(--sp-border);
+  border-radius: 14px;
+}
+
+.sp-booking__quick-dog summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sp-booking__offers {
+  border-top: 1px solid var(--sp-border);
+  padding-top: 16px;
+}
+
+.sp-booking__offer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sp-border);
+  text-align: right;
+}
+
+.sp-booking__offer .num {
+  display: block;
+  margin-top: 4px;
+  color: var(--sp-gold);
+}
+
 .sp-booking__service-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

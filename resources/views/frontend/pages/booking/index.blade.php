@@ -58,18 +58,39 @@
                     <a class="btn btn-primary" href="{{ $loginUrl }}?redirect={{ urlencode(route('frontend.booking.index')) }}">ورود به حساب</a>
                 @else
                     <div id="dogEmpty" class="sp-booking__empty" hidden>
-                        <p>هنوز سگی در حساب شما ثبت نشده. ابتدا سگ خود را اضافه کنید.</p>
-                        <a class="btn btn-primary" id="addDogLink" href="{{ url('/breeder/dashboard-create') }}">افزودن سگ</a>
+                        <p>هنوز سگی در حساب شما ثبت نشده. ابتدا سگ خود را اضافه کنید یا از فرم زیر استفاده کنید.</p>
+                        <a class="btn btn-ghost" id="addDogLink" href="{{ url('/breeder/dashboard-create') }}">صفحه افزودن سگ</a>
                     </div>
                     <div class="sp-booking__dog-grid" id="dogGrid"></div>
-                    <div class="sp-booking__actions">
-                        <button type="button" class="btn btn-primary" data-next="2">ادامه</button>
+                    <details class="sp-booking__quick-dog" id="quickDogBox">
+                        <summary>افزودن سریع سگ</summary>
+                        <div class="field">
+                            <label for="quick_dog_title">نام سگ</label>
+                            <input type="text" id="quick_dog_title" maxlength="120" placeholder="مثلاً راکی">
+                        </div>
+                        <div class="field">
+                            <label for="quick_dog_breed">نژاد</label>
+                            <select id="quick_dog_breed"><option value="">—</option></select>
+                        </div>
+                        <div class="field">
+                            <label for="quick_dog_age">سن (سال)</label>
+                            <input class="num" type="number" id="quick_dog_age" min="0" max="40" placeholder="۳">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="quickDogSubmit">ذخیره سگ</button>
+                        <p class="sp-booking__hint" id="quickDogMsg" hidden></p>
+                    </details>
+                    <div class="sp-booking__actions" id="dogContinueWrap">
+                        <button type="button" class="btn btn-primary" data-next="2" id="dogContinueBtn">ادامه</button>
                     </div>
                 @endunless
             </section>
 
             <section class="panel sp-booking__panel" data-panel="2" hidden>
                 <h2>انتخاب شهر</h2>
+                <div class="field">
+                    <label for="ui_city_q">جستجوی شهر</label>
+                    <input type="search" id="ui_city_q" placeholder="نام شهر…" autocomplete="off">
+                </div>
                 <div class="field">
                     <label for="ui_city_id">شهر خدمت</label>
                     <select id="ui_city_id" required>
@@ -203,8 +224,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let step = 1;
     let dogs = [];
     let selectedProviders = {{ (int)($prefill['provider_id'] ?? 0) }} ? [{{ (int)($prefill['provider_id'] ?? 0) }}] : [];
+    let providerNames = {};
     let quote = null;
     let labels = { service: {}, mode: {}, training: {} };
+    let jalaliHint = '';
 
     async function api(path, options) {
         const res = await fetch(apiBase + path, Object.assign({
@@ -297,10 +320,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('sumCity').textContent = (cityOpt && cityOpt.value) ? cityOpt.textContent : '—';
         document.getElementById('sumService').textContent = labels.service[selectedService()] || '—';
         document.getElementById('sumMode').textContent = labels.mode[selectedMode()] || '—';
-        document.getElementById('sumProvider').textContent = selectedMode() === 'open'
-            ? 'درخواست باز'
-            : (selectedProviders.length ? (selectedProviders.length + ' نفر') : '—');
-        document.getElementById('sumDate').textContent = document.getElementById('field_preferred_date').value || '—';
+        if (selectedMode() === 'open') {
+            document.getElementById('sumProvider').textContent = 'درخواست باز';
+        } else if (!selectedProviders.length) {
+            document.getElementById('sumProvider').textContent = '—';
+        } else {
+            document.getElementById('sumProvider').textContent = selectedProviders
+                .map(function (id) { return providerNames[id] || ('#' + id); })
+                .join('، ');
+        }
+        const gDate = document.getElementById('field_preferred_date').value || '';
+        document.getElementById('sumDate').textContent = jalaliHint || gDate || '—';
         document.getElementById('sumSlot').textContent = document.getElementById('field_preferred_slot').value || '—';
         const total = quote ? quote.total : 0;
         document.getElementById('sumPrice').textContent = total
@@ -312,13 +342,16 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderDogs() {
         const grid = document.getElementById('dogGrid');
         const empty = document.getElementById('dogEmpty');
+        const continueWrap = document.getElementById('dogContinueWrap');
         if (!grid) return;
         grid.innerHTML = '';
         if (!dogs.length) {
             empty.hidden = false;
+            if (continueWrap) continueWrap.hidden = true;
             return;
         }
         empty.hidden = true;
+        if (continueWrap) continueWrap.hidden = false;
         dogs.forEach(function (dog, idx) {
             const label = document.createElement('label');
             label.className = 'sp-booking__choice' + (idx === 0 ? ' is-active' : '');
@@ -334,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 updateSummary();
             });
         });
+        updateSummary();
     }
 
     function renderServices() {
@@ -407,6 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = document.getElementById('providerList');
         list.innerHTML = '';
         (data.results || []).forEach(function (row) {
+            providerNames[row.id] = row.display_name || row.name;
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'sp-booking__provider' + (selectedProviders.indexOf(row.id) >= 0 ? ' is-active' : '');
@@ -424,6 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             list.appendChild(btn);
         });
+        updateSummary();
     }
 
     async function reloadSlots() {
@@ -431,8 +467,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const date = document.getElementById('ui_date').value;
         const grid = document.getElementById('slotGrid');
         grid.innerHTML = '';
+        jalaliHint = '';
         if (!providerId || !date || selectedMode() !== 'direct') return;
         const data = await api('/slots?provider_id=' + encodeURIComponent(providerId) + '&date=' + encodeURIComponent(date));
+        jalaliHint = data.date_jalali || '';
         (data.slots || []).forEach(function (slot) {
             const label = document.createElement('label');
             label.className = 'chip sp-booking__slot' + (slot.available ? '' : ' is-disabled');
@@ -544,6 +582,76 @@ document.addEventListener('DOMContentLoaded', function () {
         providerTimer = setTimeout(reloadProviders, 280);
     });
 
+    let cityTimer = null;
+    const citySearch = document.getElementById('ui_city_q');
+    if (citySearch) {
+        citySearch.addEventListener('input', function () {
+            clearTimeout(cityTimer);
+            cityTimer = setTimeout(async function () {
+                const q = citySearch.value.trim();
+                const data = await api('/cities?q=' + encodeURIComponent(q));
+                const sel = document.getElementById('ui_city_id');
+                const current = sel.value;
+                sel.innerHTML = '<option value="">انتخاب کنید…</option>';
+                (data.results || []).forEach(function (row) {
+                    const opt = document.createElement('option');
+                    opt.value = row.id;
+                    opt.textContent = row.name;
+                    if (String(row.id) === String(current)) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+            }, 280);
+        });
+    }
+
+    async function loadBreedsForQuick() {
+        const sel = document.getElementById('quick_dog_breed');
+        if (!sel) return;
+        const data = await api('/breeds');
+        sel.innerHTML = '<option value="">—</option>';
+        (data.results || []).forEach(function (row) {
+            const opt = document.createElement('option');
+            opt.value = row.id;
+            opt.textContent = row.name;
+            sel.appendChild(opt);
+        });
+    }
+
+    const quickSubmit = document.getElementById('quickDogSubmit');
+    if (quickSubmit) {
+        quickSubmit.addEventListener('click', async function () {
+            const title = document.getElementById('quick_dog_title').value.trim();
+            const msg = document.getElementById('quickDogMsg');
+            if (!title) {
+                msg.hidden = false;
+                msg.textContent = 'نام سگ الزامی است.';
+                return;
+            }
+            quickSubmit.disabled = true;
+            try {
+                const ageVal = document.getElementById('quick_dog_age').value;
+                const data = await api('/my-dogs', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title: title,
+                        breed_id: document.getElementById('quick_dog_breed').value || null,
+                        age: ageVal === '' ? null : Number(ageVal)
+                    })
+                });
+                dogs.unshift(data.dog);
+                document.getElementById('quick_dog_title').value = '';
+                document.getElementById('quick_dog_age').value = '';
+                msg.hidden = false;
+                msg.textContent = 'سگ ذخیره شد.';
+                renderDogs();
+            } catch (e) {
+                msg.hidden = false;
+                msg.textContent = e.message;
+            }
+            quickSubmit.disabled = false;
+        });
+    }
+
     (async function boot() {
         meta = await api('/meta');
         if (meta.add_dog_url) {
@@ -555,8 +663,13 @@ document.addEventListener('DOMContentLoaded', function () {
         renderModes();
         renderTraining();
         if (isAuth) {
+            await loadBreedsForQuick();
             const mine = await api('/my-dogs');
             dogs = mine.results || [];
+            if (mine.add_dog_url) {
+                const link = document.getElementById('addDogLink');
+                if (link) link.href = mine.add_dog_url;
+            }
             renderDogs();
             await reloadProviders();
         }
