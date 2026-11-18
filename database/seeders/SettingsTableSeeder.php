@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Helpers\GenralHelpers;
+use App\Helpers\GeneralHelpers;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +21,7 @@ class SettingsTableSeeder extends Seeder
         if (!Storage::exists($imageDestinationFolder)) {
             Storage::makeDirectory($imageDestinationFolder);
         }
-        $generalHelper = new GenralHelpers();
+        $generalHelper = new GeneralHelpers();
 
 
         DB::table('settings')->insert([

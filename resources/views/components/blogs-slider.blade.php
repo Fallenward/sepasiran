@@ -3,7 +3,7 @@
 @php
     use Carbon\Carbon;
     use Morilog\Jalali\Jalalian;
-    use App\Helpers\GenralHelpers;
+    use App\Helpers\GeneralHelpers;
 
     // Ensure $items is a collection
     if (! $items instanceof \Illuminate\Support\Collection) {
@@ -52,7 +52,7 @@
                     <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt ms-1"></i></div>
                     <div class="fw-bold fs-5">{{ $items[0]->title }}</div>
                     @if($enabledDesc)
-                        <div class="text-muted small">{{ GenralHelpers::limitTextToTwoLines($items[0]->description) }}</div>
+                        <div class="text-muted small">{{ GeneralHelpers::limitTextToTwoLines($items[0]->description) }}</div>
                     @endif
                 </div>
             </div>
@@ -76,7 +76,7 @@
                             <div class="text-muted small">{{ $persianDate }} <i class="fa fa-calendar-alt"></i></div>
                             <div class="fw-bold fs-5">{{ $item->title }}</div>
                             @if($enabledDesc)
-                                <div class="text-muted small">{{ GenralHelpers::limitTextToTwoLines($item->description) }}</div>
+                                <div class="text-muted small">{{ GeneralHelpers::limitTextToTwoLines($item->description) }}</div>
                             @endif
                         </div>
                     </div>

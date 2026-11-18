@@ -150,7 +150,7 @@
                 @endphp
 
                 @foreach ($menus as $menu)
-                    @if (\App\Helpers\GenralHelpers::shouldShowMenu($menu['route'], auth()->user()))
+                    @if (\App\Helpers\GeneralHelpers::shouldShowMenu($menu['route'], auth()->user()))
                         <li class="nav-item">
                             <a href="{{ route($menu['route']) }}" class="nav-link {{ request()->routeIs($menu['route']) ? 'active' : '' }}">
                                 <i class="nav-icon {{ $menu['icon'] }}"></i>

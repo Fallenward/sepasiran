@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Helpers\GenralHelpers;
+use App\Helpers\GeneralHelpers;
 
 class PermissionSeeder extends Seeder
 {
@@ -86,7 +86,7 @@ class PermissionSeeder extends Seeder
 
             // 📌 افزودن تصویر پیش‌فرض برای کاربران
             $imageDestinationFolder = 'public/users';
-            $generalHelper = new GenralHelpers();
+            $generalHelper = new GeneralHelpers();
             $generalHelper->copyImage('database/seeders/images/user.svg', $imageDestinationFolder);
 
             $faker = Factory::create('fa_IR');

@@ -1,7 +1,7 @@
 @php
     use Carbon\Carbon;
     use Morilog\Jalali\Jalalian;
-    use App\Helpers\GenralHelpers;
+    use App\Helpers\GeneralHelpers;
 
     $viewLink = $viewLink ?? null;
 @endphp
@@ -74,7 +74,7 @@
                                 <h5 class="card-title fw-bold">{{ $item->name }} {{ $item->family ?? '' }}</h5>
 
                                 @if($enabledDesc && $item->bio)
-                                    <p class="text-center">{{ GenralHelpers::limitTextToTwoLines($item->bio) }}</p>
+                                    <p class="text-center">{{ GeneralHelpers::limitTextToTwoLines($item->bio) }}</p>
                                 @else
                                     <p class="text-center text-muted">بدون بیوگرافی</p>
                                 @endif
@@ -160,7 +160,7 @@
                                     <div class="card-body">
                                         <h5 class="card-title">{{ $item->title }}</h5>
                                         @if($enabledDesc ?? false)
-                                            <p class="text-justify">{{ GenralHelpers::limitTextToTwoLines($item->description) }}</p>
+                                            <p class="text-justify">{{ GeneralHelpers::limitTextToTwoLines($item->description) }}</p>
                                         @endif
                                         <div class="d-flex align-items-center">
                                             <span>
