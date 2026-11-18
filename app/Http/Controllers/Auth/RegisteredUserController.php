@@ -10,23 +10,52 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    /** Roles guests may self-select at signup (never admin). */
+    public static function signupRoles(): array
+    {
+        return [
+            'user' => [
+                'label' => 'صاحب سگ / مشتری',
+                'hint' => 'رزرو خدمت و مدیریت سگ‌های خود',
+            ],
+            'coach' => [
+                'label' => 'مربی',
+                'hint' => 'دریافت درخواست آموزش و رزرو',
+            ],
+            'clinic' => [
+                'label' => 'کلینیک',
+                'hint' => 'نوبت‌دهی و خدمات درمانی',
+            ],
+            'breeder' => [
+                'label' => 'پرورش‌دهنده',
+                'hint' => 'ثبت و عرضه سگ',
+            ],
+        ];
+    }
+
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'signupRoles' => self::signupRoles(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $roleKeys = array_keys(self::signupRoles());
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'family' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'role' => ['required', 'string', Rule::in($roleKeys)],
             'password' => ['required', 'confirmed', Password::defaults()],
         ], [
             'name.required' => 'نام الزامی است.',
@@ -34,6 +63,8 @@ class RegisteredUserController extends Controller
             'phone.required' => 'شماره موبایل الزامی است.',
             'phone.unique' => 'این شماره موبایل قبلاً ثبت شده است.',
             'email.unique' => 'این ایمیل قبلاً ثبت شده است.',
+            'role.required' => 'نقش خود را انتخاب کنید.',
+            'role.in' => 'نقش انتخاب‌شده معتبر نیست.',
             'password.confirmed' => 'تکرار رمز عبور مطابقت ندارد.',
         ]);
 
@@ -58,10 +89,16 @@ class RegisteredUserController extends Controller
             'is_verified' => true,
         ]);
 
-        $role = Role::query()->firstOrCreate(['name' => 'user']);
-        if (method_exists($user, 'roles')) {
-            $user->roles()->syncWithoutDetaching([$role->id]);
+        $selected = Role::query()->firstOrCreate(['name' => $validated['role']]);
+        $roleIds = [$selected->id];
+
+        // Keep marketplace customer access for providers too (booking / owned dogs).
+        if ($validated['role'] !== 'user') {
+            $customer = Role::query()->firstOrCreate(['name' => 'user']);
+            $roleIds[] = $customer->id;
         }
+
+        $user->roles()->sync(array_values(array_unique($roleIds)));
 
         event(new Registered($user));
         Auth::login($user);
@@ -71,6 +108,16 @@ class RegisteredUserController extends Controller
             return redirect()->to($redirect);
         }
 
-        return redirect()->intended(route('frontend.home'));
+        return redirect()->to($this->homeForRole($validated['role']));
+    }
+
+    private function homeForRole(string $role): string
+    {
+        return match ($role) {
+            'breeder' => route('breeder.dashboard'),
+            'coach' => route('coaches.dashboard'),
+            'clinic' => route('clinic.dashboard'),
+            default => route('user.dashboard'),
+        };
     }
 }

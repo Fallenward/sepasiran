@@ -771,6 +771,68 @@ a:hover {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
+.auth-card--wide {
+  width: min(100%, 520px);
+}
+
+.auth-roles {
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+}
+
+.auth-roles legend {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-roles__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.auth-role {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.auth-role input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-role__label {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.auth-role__hint {
+  color: var(--sp-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.auth-role.is-active,
+.auth-role:has(input:checked) {
+  border-color: rgba(79, 191, 120, 0.55);
+  background: rgba(79, 191, 120, 0.12);
+}
+
+@media (max-width: 520px) {
+  .auth-roles__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .auth-card__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;

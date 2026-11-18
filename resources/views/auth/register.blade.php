@@ -3,20 +3,24 @@
 @section('title', 'ثبت‌نام')
 
 @section('main')
-@php $redirect = request('redirect', ''); @endphp
+@php
+    $redirect = request('redirect', '');
+    $signupRoles = $signupRoles ?? \App\Http\Controllers\Auth\RegisteredUserController::signupRoles();
+    $selectedRole = old('role', 'user');
+@endphp
 <div class="auth-shell">
     <aside class="auth-brand" aria-hidden="true">
         <div>
             <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
             <h1 class="sp-brand__fa" style="font-size:clamp(2.4rem,4vw,3.2rem);margin:0 0 14px">سپاسیران</h1>
             <p style="color:var(--sp-text-muted);max-width:22rem;margin:0;line-height:1.8">
-                یک حساب بسازید تا سگ‌هایتان را ثبت کنید و رزرو خدمات را شروع کنید.
+                نقش خود را انتخاب کنید و حساب بسازید — مشتری، مربی، کلینیک یا پرورش‌دهنده.
             </p>
         </div>
     </aside>
 
     <div class="auth-form">
-        <form class="panel auth-card" action="{{ route('register.store') }}" method="POST" novalidate>
+        <form class="panel auth-card auth-card--wide" action="{{ route('register.store') }}" method="POST" novalidate>
             @csrf
             @if($redirect)
                 <input type="hidden" name="redirect" value="{{ $redirect }}">
@@ -28,13 +32,27 @@
             </div>
 
             <h1 class="auth-card__title">ساخت حساب</h1>
-            <p class="auth-card__lede">نام، موبایل و یک رمز امن کافی است.</p>
+            <p class="auth-card__lede">نقش، نام، موبایل و رمز عبور را مشخص کنید.</p>
 
             @if ($errors->any())
                 <div class="auth-alert" role="alert">
                     {{ $errors->first() }}
                 </div>
             @endif
+
+            <fieldset class="auth-roles">
+                <legend>نقش شما</legend>
+                <div class="auth-roles__grid">
+                    @foreach($signupRoles as $key => $meta)
+                        <label class="auth-role {{ $selectedRole === $key ? 'is-active' : '' }}">
+                            <input type="radio" name="role" value="{{ $key }}" @checked($selectedRole === $key) required>
+                            <span class="auth-role__label">{{ $meta['label'] }}</span>
+                            <span class="auth-role__hint">{{ $meta['hint'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('role')<div class="auth-field-error">{{ $message }}</div>@enderror
+            </fieldset>
 
             <div class="auth-grid">
                 <div class="field">
@@ -87,3 +105,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.auth-role input').forEach(function (input) {
+        input.addEventListener('change', function () {
+            document.querySelectorAll('.auth-role').forEach(function (el) { el.classList.remove('is-active'); });
+            input.closest('.auth-role').classList.add('is-active');
+        });
+    });
+});
+</script>
+@endpush

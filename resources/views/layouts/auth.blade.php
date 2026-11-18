@@ -28,5 +28,6 @@
     </main>
 
     @vite(['resources/js/app-front.js'])
+    @stack('scripts')
 </body>
 </html>
