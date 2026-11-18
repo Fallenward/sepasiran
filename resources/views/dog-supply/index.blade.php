@@ -40,18 +40,16 @@
                 @endforelse
             </div>
 
-            <div class="sp-listing__pager">
-                <x-load-more-button :hasMore="$dogs->hasMorePages()" :nextPage="$dogs->currentPage() + 1" />
-                @if(method_exists($dogs, 'links'))
+            @if(method_exists($dogs, 'hasPages') && $dogs->hasPages())
+                <nav class="sp-listing__pager" aria-label="صفحه‌بندی">
                     <div class="sp-pagination">
                         {{ $dogs->onEachSide(1)->links('pagination::bootstrap-5') }}
                     </div>
-                @endif
-            </div>
+                </nav>
+            @endif
         </div>
     </div>
 </div>
 
 <x-scripts.filter-submit />
-<x-scripts.load-more-dogs />
 @endsection
