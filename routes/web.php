@@ -167,6 +167,7 @@ Route::name('frontend.')->group(function () {
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+    Route::get('/dog-supply/suggest', [DogSupplyController::class, 'suggest'])->name('dog.supply.suggest');
     Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');

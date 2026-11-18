@@ -1,9 +1,129 @@
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
-            checkbox.addEventListener('change', function () {
-                document.getElementById('filterForm').submit();
-            });
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('filterForm');
+    if (!form) return;
+
+    const root = form.closest('.sp-filters') || document;
+    const suggestUrl = (root.dataset && root.dataset.suggestUrl) || '{{ route('frontend.dog.supply.suggest') }}';
+
+    function debounce(fn, wait) {
+        let t;
+        return function () {
+            const args = arguments;
+            const ctx = this;
+            clearTimeout(t);
+            t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+        };
+    }
+
+    document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            // reset page when filters change
+            const pageInput = form.querySelector('input[name="page"]');
+            if (pageInput) pageInput.remove();
+            form.submit();
         });
     });
-    </script>
+
+    async function fetchSuggest(type, q) {
+        const url = suggestUrl + '?type=' + encodeURIComponent(type) + '&q=' + encodeURIComponent(q || '');
+        const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.results || [];
+    }
+
+    function hidePanels(except) {
+        document.querySelectorAll('[data-suggest-panel]').forEach(function (panel) {
+            if (panel !== except) {
+                panel.hidden = true;
+                panel.innerHTML = '';
+            }
+        });
+    }
+
+    function renderPanel(panel, results, onPick) {
+        if (!results.length) {
+            panel.hidden = true;
+            panel.innerHTML = '';
+            return;
+        }
+        panel.innerHTML = results.map(function (item) {
+            const meta = item.meta ? '<small>' + item.meta + '</small>' : '';
+            return '<button type="button" class="sp-suggest__item" data-id="' + item.id + '" data-name="' + String(item.name).replace(/"/g, '&quot;') + '">' +
+                '<span>' + item.name + '</span>' + meta +
+                '</button>';
+        }).join('');
+        panel.hidden = false;
+        panel.querySelectorAll('.sp-suggest__item').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                onPick({ id: btn.dataset.id, name: btn.dataset.name });
+                panel.hidden = true;
+                panel.innerHTML = '';
+            });
+        });
+    }
+
+    // Main search suggestions (dog titles)
+    const mainSearch = form.querySelector('input[name="q"][data-suggest-type="dog"]');
+    if (mainSearch) {
+        const panel = mainSearch.closest('.sp-filters__group').querySelector('[data-suggest-panel]');
+        const run = debounce(async function () {
+            const q = mainSearch.value.trim();
+            if (q.length < 1) { hidePanels(); return; }
+            const results = await fetchSuggest('dog', q);
+            hidePanels(panel);
+            renderPanel(panel, results, function (item) {
+                mainSearch.value = item.name;
+                form.submit();
+            });
+        }, 280);
+        mainSearch.addEventListener('input', run);
+        mainSearch.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                form.submit();
+            }
+        });
+    }
+
+    // City / breed typeahead
+    form.querySelectorAll('[data-typeahead]').forEach(function (wrap) {
+        const key = wrap.getAttribute('data-typeahead');
+        const input = wrap.querySelector('.sp-typeahead__input');
+        const panel = wrap.querySelector('[data-suggest-panel]');
+        const selected = wrap.querySelector('.sp-typeahead__selected');
+        if (!input || !panel || !selected) return;
+
+        const run = debounce(async function () {
+            const q = input.value.trim();
+            const results = await fetchSuggest(key, q);
+            hidePanels(panel);
+            renderPanel(panel, results, function (item) {
+                // avoid duplicates
+                if (selected.querySelector('input[value="' + item.id + '"]')) {
+                    input.value = '';
+                    return;
+                }
+                const label = document.createElement('label');
+                label.className = 'chip is-active sp-filter-chip';
+                label.innerHTML = '<input type="checkbox" class="filter-checkbox" name="' + key + '[]" value="' + item.id + '" checked>' +
+                    '<span>' + item.name + '</span>';
+                selected.appendChild(label);
+                label.querySelector('input').addEventListener('change', function () { form.submit(); });
+                input.value = '';
+                form.submit();
+            });
+        }, 250);
+
+        input.addEventListener('input', run);
+        input.addEventListener('focus', run);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.sp-typeahead') && !e.target.closest('.sp-search')) {
+            hidePanels();
+        }
+    });
+});
+</script>
