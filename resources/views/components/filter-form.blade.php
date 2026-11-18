@@ -25,7 +25,7 @@
         'large' => 'بزرگ',
     ];
 
-    $suggestUrl = $suggestUrl ?: route('frontend.dog.supply.suggest');
+    // keep optional suggestUrl
     $q = request('q');
 
     $active = [];
@@ -58,7 +58,7 @@
     }
 @endphp
 
-<aside class="sp-filters" aria-label="فیلترها" data-suggest-url="{{ $suggestUrl }}">
+<aside class="sp-filters" aria-label="فیلترها" @if($suggestUrl) data-suggest-url="{{ $suggestUrl }}" @endif>
     <div class="sp-filters__head">
         <h2 class="sp-filters__title">جستجو و فیلتر</h2>
         @if(count($active))
@@ -102,7 +102,7 @@
                     value="{{ $q }}"
                     placeholder="نام، نژاد یا شهر را بنویسید…"
                     autocomplete="off"
-                    data-suggest-type="dog"
+                    @if($suggestUrl) data-suggest-type="dog" @endif
                     class="sp-search__input"
                 >
             </label>
@@ -114,7 +114,7 @@
                 $label = $labelMap[$filterKey] ?? ucfirst($filterKey);
                 $items = collect($items);
                 $selected = collect(request($filterKey, []))->map(fn ($v) => (string) $v);
-                $isSearchable = $searchable && in_array($filterKey, ['city', 'breed'], true);
+                $isSearchable = $searchable && in_array($filterKey, ['city', 'breed', 'specialty'], true);
             @endphp
 
             <section class="sp-filters__group" @if($isSearchable) data-filter-key="{{ $filterKey }}" @endif>
@@ -123,6 +123,7 @@
                 </div>
 
                 @if($isSearchable)
+                    <script type="application/json" data-filter-options="{{ $filterKey }}">@json($items->map(function ($item) { return ['id' => is_object($item) ? $item->id : (is_array($item) ? ($item['id'] ?? $item) : $item), 'name' => is_object($item) ? $item->name : (is_array($item) ? ($item['name'] ?? $item) : $item)]; })->values())</script>
                     <div class="sp-typeahead" data-typeahead="{{ $filterKey }}">
                         <input
                             type="search"

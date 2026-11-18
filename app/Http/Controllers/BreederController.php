@@ -15,54 +15,48 @@ class BreederController extends Controller
 {
 public function index(Request $request)
 {
-
-    \Illuminate\Support\Facades\DB::listen(function ($query) {
-    logger($query->sql);
-    logger($query->bindings);
-});
-    // Sidebar filters
     $filters = [
-        'cities' => City::orderBy('name')->get(),
-        'breeds' => Breed::orderBy('name')->get(),
-        'sizes' => [
-            'mini' => 'کوچک (Mini)',
-            'medium' => 'متوسط (Medium)',
-            'large' => 'بزرگ (Large)',
+        'city' => City::orderBy('name')->get(['id', 'name']),
+        'breed' => Breed::orderBy('name')->get(['id', 'name']),
+        'size' => [
+            ['id' => 'small', 'name' => 'کوچک'],
+            ['id' => 'medium', 'name' => 'متوسط'],
+            ['id' => 'large', 'name' => 'بزرگ'],
         ],
     ];
 
-    // Base query for breeders
     $query = \App\Models\User::select('users.*')
         ->join('role_user', 'users.id', '=', 'role_user.user_id')
         ->join('roles', 'roles.id', '=', 'role_user.role_id')
         ->where('roles.name', 'breeder')
         ->with(['city', 'speciality']);
 
-    // ✅ Filter: city (city_id)
-    if ($request->has('city')) {
+    if ($request->filled('q')) {
+        $term = '%' . trim((string) $request->q) . '%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('users.name', 'like', $term)
+                ->orWhere('users.family', 'like', $term)
+                ->orWhere('users.bio', 'like', $term)
+                ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term));
+        });
+    }
+
+    if ($request->filled('city')) {
         $query->whereIn('users.city_id', (array) $request->input('city'));
     }
 
-    // ✅ Filter: breed (adjust column if different)
-    if ($request->has('breed')) {
+    if ($request->filled('breed')) {
         $query->whereIn('users.breed_id', (array) $request->input('breed'));
     }
 
-    // ✅ Filter: size
-    if ($request->has('size')) {
+    if ($request->filled('size')) {
         $query->whereIn('users.size', (array) $request->input('size'));
     }
 
-    // Paginate results
-    $breeders = $query->paginate(12);
+    $breeders = $query->paginate(9)->appends($request->query());
 
     return view('breeders.index', compact('filters', 'breeders'));
 }
-
-
-
-
-
 
 public function dogsListing(Request $request)
 {

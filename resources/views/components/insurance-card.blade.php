@@ -1,28 +1,23 @@
 @php
-    $imageUrl = $item->logo ? asset('storage/' . $item->logo) : asset('images/dogPicture.jpg');
-    $name = $item->name ?? 'بدون نام';
+    $raw = $item->logo ?? null;
+    $imageUrl = $raw
+        ? (str_starts_with($raw, 'http') ? $raw : (str_starts_with($raw, 'images/') ? asset($raw) : asset('storage/' . ltrim($raw, '/'))))
+        : asset('images/demo/hero/hero-03.jpg');
+    $name = $item->name ?? 'بیمه';
     $description = $item->description ?? '';
-    $cityName = $item->city->name ?? 'نامشخص';
-
-    $showRoute = $routeName ?? 'frontend.clinic.insurance.show';
-
+    $cityName = $item->city->name ?? 'سراسر کشور';
 @endphp
-
-<div class="card h-100 position-relative shadow-sm">
-    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $name }}">
-
-    <div class="card-body d-flex flex-column">
-        <h6 class="fw-bold mb-2">{{ $name }}</h6>
-
-        @if($description)
-            <small class="text-muted d-block mb-3">{{ Str::limit($description, 80) }}</small>
-        @endif
-
-        <small class="text-muted d-block">{{ $cityName }}</small>
-    </div>
-
-    <a href="{{ route('frontend.clinic.insurance.show', $item->id) }}"
-       class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2">
-        مشاهده
+<article class="sp-card sp-card--person">
+    <a class="sp-card__link" href="{{ route('frontend.clinic.insurance.show', $item->id) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $name }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $name }}</h3>
+            <p class="sp-card__meta">{{ $cityName }}</p>
+            @if($description)
+                <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($description), 55) }}</p>
+            @endif
+        </div>
     </a>
-</div>
+</article>

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!form) return;
 
     const root = form.closest('.sp-filters') || document;
-    const suggestUrl = (root.dataset && root.dataset.suggestUrl) || '{{ route('frontend.dog.supply.suggest') }}';
+    const suggestUrl = (root.dataset && root.dataset.suggestUrl) || '';
 
     function debounce(fn, wait) {
         let t;
@@ -16,21 +16,37 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    function submitFilters() {
+        const pageInput = form.querySelector('input[name="page"]');
+        if (pageInput) pageInput.remove();
+        form.submit();
+    }
+
     document.querySelectorAll('.filter-checkbox').forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
-            // reset page when filters change
-            const pageInput = form.querySelector('input[name="page"]');
-            if (pageInput) pageInput.remove();
-            form.submit();
+            submitFilters();
         });
     });
 
     async function fetchSuggest(type, q) {
+        if (!suggestUrl) return [];
         const url = suggestUrl + '?type=' + encodeURIComponent(type) + '&q=' + encodeURIComponent(q || '');
         const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
         if (!res.ok) return [];
         const data = await res.json();
         return data.results || [];
+    }
+
+    function localOptions(key, q) {
+        const source = form.querySelector('[data-filter-options="' + key + '"]');
+        if (!source) return [];
+        let rows = [];
+        try { rows = JSON.parse(source.textContent || '[]'); } catch (e) { rows = []; }
+        const term = (q || '').trim();
+        if (!term) return rows.slice(0, 8);
+        return rows.filter(function (row) {
+            return String(row.name || '').indexOf(term) !== -1;
+        }).slice(0, 8);
     }
 
     function hidePanels(except) {
@@ -64,23 +80,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function submitFilters() {
-        const pageInput = form.querySelector('input[name="page"]');
-        if (pageInput) pageInput.remove();
-        form.submit();
-    }
-
-    // Main search suggestions (dog titles) + live submit
-    const mainSearch = form.querySelector('input[name="q"][data-suggest-type="dog"]');
+    const mainSearch = form.querySelector('input[name="q"]');
     if (mainSearch) {
-        const panel = mainSearch.closest('.sp-filters__group').querySelector('[data-suggest-panel]');
+        const panel = mainSearch.closest('.sp-filters__group')
+            ? mainSearch.closest('.sp-filters__group').querySelector('[data-suggest-panel]')
+            : null;
         const runSuggest = debounce(async function () {
+            if (!panel || !mainSearch.dataset.suggestType || !suggestUrl) return;
             const q = mainSearch.value.trim();
-            if (q.length < 1) {
-                hidePanels();
-                return;
-            }
-            const results = await fetchSuggest('dog', q);
+            if (q.length < 1) { hidePanels(); return; }
+            const results = await fetchSuggest(mainSearch.dataset.suggestType, q);
             hidePanels(panel);
             renderPanel(panel, results, function (item) {
                 mainSearch.value = item.name;
@@ -102,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // City / breed typeahead
     form.querySelectorAll('[data-typeahead]').forEach(function (wrap) {
         const key = wrap.getAttribute('data-typeahead');
         const input = wrap.querySelector('.sp-typeahead__input');
@@ -112,10 +120,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const run = debounce(async function () {
             const q = input.value.trim();
-            const results = await fetchSuggest(key, q);
+            let results = [];
+            if (suggestUrl) {
+                results = await fetchSuggest(key, q);
+            }
+            if (!results.length) {
+                results = localOptions(key, q);
+            }
             hidePanels(panel);
             renderPanel(panel, results, function (item) {
-                // avoid duplicates
                 if (selected.querySelector('input[value="' + item.id + '"]')) {
                     input.value = '';
                     return;
@@ -125,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 label.innerHTML = '<input type="checkbox" class="filter-checkbox" name="' + key + '[]" value="' + item.id + '" checked>' +
                     '<span>' + item.name + '</span>';
                 selected.appendChild(label);
-                label.querySelector('input').addEventListener('change', function () { form.submit(); });
+                label.querySelector('input').addEventListener('change', submitFilters);
                 input.value = '';
-                form.submit();
+                submitFilters();
             });
         }, 250);
 

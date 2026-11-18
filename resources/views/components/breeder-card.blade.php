@@ -1,23 +1,21 @@
 @php
     $imageUrl = $item->profile_picture
-        ? asset('storage/' . $item->profile_picture)
-        : asset('images/default-breeder.png');
-    $fullName = trim($item->name . ' ' . $item->family);
+        ? (str_starts_with($item->profile_picture, 'http') ? $item->profile_picture : asset('storage/' . ltrim($item->profile_picture, '/')))
+        : asset('images/demo/dogs/dog-03.jpg');
+    $fullName = trim(($item->name ?? '') . ' ' . ($item->family ?? ''));
+    if ($fullName === '') { $fullName = 'پرورش‌دهنده'; }
     $cityName = $item->city->name ?? 'نامشخص';
-    $bio = $item->bio ?? 'بدون توضیح';
+    $bio = $item->bio ?? 'پرورش‌دهنده معتبر سپاسیران';
 @endphp
-
-<div class="card h-100 position-relative">
-    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $fullName }}" style="height: 200px; object-fit: cover;">
-
-    <div class="card-body d-flex flex-column">
-        <h5 class="fw-bold">{{ $fullName }}</h5>
-        <p class="text-muted flex-grow-1">{{ Str::limit($bio, 100) }}</p>
-        <small class="text-muted">{{ $cityName }}</small>
-    </div>
-
-    <a href="{{ route('frontend.breeders.show', $item->id) }}"
-       class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2">
-        مشاهده
+<article class="sp-card sp-card--person">
+    <a class="sp-card__link" href="{{ route('frontend.breeders.show', $item->id) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $fullName }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $fullName }}</h3>
+            <p class="sp-card__meta">{{ $cityName }}</p>
+            <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($bio), 60) }}</p>
+        </div>
     </a>
-</div>
+</article>

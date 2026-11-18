@@ -110,26 +110,39 @@ class CoachController extends Controller
 
 public function indexFront(Request $request)
 {
-    $cities = City::all();
-    $breeds = Breed::all();
-    $specialties = Specialty::all();
+    $cities = City::orderBy('name')->get(['id', 'name']);
+    $breeds = Breed::orderBy('name')->get(['id', 'name']);
+    $specialties = Specialty::orderBy('name')->get(['id', 'name']);
 
-    // Base query for coaches
-$query = \App\Models\User::select('users.*')
-    ->join('role_user', 'users.id', '=', 'role_user.user_id')
-    ->join('roles', 'roles.id', '=', 'role_user.role_id')
-    ->where('roles.name', 'coach')
-    ->with(['city', 'speciality']);
+    $query = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'coach')
+        ->with(['city', 'speciality']);
+
+    if ($request->filled('q')) {
+        $term = '%' . trim((string) $request->q) . '%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('users.name', 'like', $term)
+                ->orWhere('users.bio', 'like', $term)
+                ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term))
+                ->orWhereHas('speciality', fn ($q) => $q->where('name', 'like', $term));
+        });
+    }
 
     if ($request->filled('city')) {
-        $query->whereIn('city_id', (array)$request->input('city'));
+        $query->whereIn('users.city_id', (array) $request->input('city'));
     }
 
     if ($request->filled('specialty')) {
-        $query->whereIn('specialty_id', (array)$request->input('specialty'));
+        $query->whereIn('users.specialty_id', (array) $request->input('specialty'));
     }
 
-    $coaches = $query->paginate(9);
+    if ($request->filled('breed')) {
+        $query->whereIn('users.breed_id', (array) $request->input('breed'));
+    }
+
+    $coaches = $query->paginate(9)->appends($request->query());
 
     $filters = [
         'city' => $cities,
