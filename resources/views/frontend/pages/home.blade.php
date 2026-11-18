@@ -8,12 +8,19 @@
         $img = ltrim($sliders->first()->image, '/');
         $heroImage = str_starts_with($img, 'images/') ? asset($img) : asset('storage/' . $img);
     }
+
     $aboutText = optional($settings ?? null)->about_setting_about
         ?? optional($settings ?? null)->footer_setting_about
         ?? 'سپاسیران بازار مینیمال سگ، مربی، کلینیک و فروشگاه است — با تمرکز روی اعتماد، وضوح و تجربهٔ فارسی.';
+
     $aboutImage = optional($settings ?? null)->about_setting_img;
+    if ($aboutImage && str_starts_with($aboutImage, 'http')) {
+        $path = parse_url($aboutImage, PHP_URL_PATH) ?: '';
+        $aboutImage = ltrim($path, '/');
+    }
     if ($aboutImage && !str_starts_with($aboutImage, 'http')) {
-        $aboutImage = asset($aboutImage);
+        $localPath = public_path(ltrim($aboutImage, '/'));
+        $aboutImage = file_exists($localPath) ? asset(ltrim($aboutImage, '/')) : null;
     }
     if (!$aboutImage) {
         $aboutImage = asset('images/demo/hero/hero-02.jpg');
@@ -35,31 +42,32 @@
 
     <section class="section">
         <div class="wrap">
-            <div class="section__head">
-                <h2>از کجا شروع می‌کنید؟</h2>
-                <p>یک مسیر را انتخاب کنید — بدون شلوغی کارت و بنر.</p>
-            </div>
+            <x-sp-section-head
+                title="از کجا شروع می‌کنید؟"
+                subtitle="یک مسیر را انتخاب کنید — بدون شلوغی کارت و بنر."
+                icon="start"
+            />
             <div class="paths">
                 <a class="path" href="{{ route('frontend.dog.supply.index') }}">
+                    <span class="path__icon"><x-sp-icon name="dogs" /></span>
                     <div>
                         <h3>سگ‌ها</h3>
                         <p>لیست نژاد، شهر و مشخصات</p>
                     </div>
-                    <div class="path__mark" aria-hidden="true">◆</div>
                 </a>
                 <a class="path" href="{{ route('frontend.services.index') }}">
+                    <span class="path__icon"><x-sp-icon name="services" /></span>
                     <div>
                         <h3>خدمات</h3>
                         <p>مربی، کلینیک، بیمه</p>
                     </div>
-                    <div class="path__mark" aria-hidden="true">✦</div>
                 </a>
                 <a class="path" href="{{ route('frontend.stores.index') }}">
+                    <span class="path__icon"><x-sp-icon name="store" /></span>
                     <div>
                         <h3>فروشگاه</h3>
                         <p>غذا، لوازم، مراقبت</p>
                     </div>
-                    <div class="path__mark" aria-hidden="true">◇</div>
                 </a>
             </div>
         </div>
@@ -68,13 +76,13 @@
     @if(isset($featuredDogs) && $featuredDogs->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
-                <div class="section__head sp-section-head-row">
-                    <div>
-                        <h2>سگ‌های منتخب</h2>
-                        <p>جدیدترین آگهی‌ها برای شروع جستجو.</p>
-                    </div>
-                    <a class="btn btn-ghost" href="{{ route('frontend.dog.supply.index') }}">مشاهده همه</a>
-                </div>
+                <x-sp-section-head
+                    title="سگ‌های منتخب"
+                    subtitle="جدیدترین آگهی‌ها برای شروع جستجو."
+                    icon="dogs"
+                    :action-href="route('frontend.dog.supply.index')"
+                    action-label="مشاهده همه"
+                />
                 <div class="sp-snap-row">
                     @foreach($featuredDogs->take(6) as $dog)
                         <div class="sp-snap-row__item">
@@ -88,13 +96,22 @@
 
     <section class="section" style="padding-top:0">
         <div class="wrap">
-            <div class="section__head">
-                <h2>خدمات</h2>
-                <p>مربی، کلینیک، بیمه و دوره — متن‌محور و سریع.</p>
-            </div>
+            <x-sp-section-head
+                title="خدمات"
+                subtitle="مربی، کلینیک، بیمه و دوره — متن‌محور و سریع."
+                icon="services"
+            />
             <div class="sp-service-lanes">
                 @foreach(($servicePillars ?? []) as $pillar)
                     <a class="sp-service-lane" href="{{ $pillar['href'] }}">
+                        <span class="sp-service-lane__icon">
+                            <x-sp-icon :name="$pillar['icon'] ?? 'spark'" />
+                        </span>
+                        @if(!empty($pillar['image']))
+                            <div class="sp-service-lane__media">
+                                <img src="{{ $pillar['image'] }}" alt="{{ $pillar['title'] }}" loading="lazy">
+                            </div>
+                        @endif
                         <h3>{{ $pillar['title'] }}</h3>
                         <p>{{ $pillar['text'] }}</p>
                     </a>
@@ -105,27 +122,28 @@
 
     <section class="section" style="padding-top:0">
         <div class="wrap">
-            <div class="section__head">
-                <h2>چطور کار می‌کند؟</h2>
-                <p>سه قدم ساده تا انتخاب مطمئن.</p>
-            </div>
+            <x-sp-section-head
+                title="چطور کار می‌کند؟"
+                subtitle="سه قدم ساده تا انتخاب مطمئن."
+                icon="steps"
+            />
             <ol class="sp-steps">
                 <li class="sp-step">
-                    <span class="sp-step__num num">۱</span>
+                    <span class="sp-step__icon"><x-sp-icon name="start" /></span>
                     <div>
                         <h3>مسیر را انتخاب کنید</h3>
                         <p>سگ، خدمت یا فروشگاه — فقط یک کار در هر لحظه.</p>
                     </div>
                 </li>
                 <li class="sp-step">
-                    <span class="sp-step__num num">۲</span>
+                    <span class="sp-step__icon"><x-sp-icon name="dogs" /></span>
                     <div>
                         <h3>فیلتر و مقایسه</h3>
                         <p>نژاد، شهر و تخصص را شفاف ببینید و کوتاه‌لیست کنید.</p>
                     </div>
                 </li>
                 <li class="sp-step">
-                    <span class="sp-step__num num">۳</span>
+                    <span class="sp-step__icon"><x-sp-icon name="cta" /></span>
                     <div>
                         <h3>ارتباط و اقدام</h3>
                         <p>رزرو، خرید یا گفتگو — بدون شلوغی فرم‌های اداری.</p>
@@ -138,13 +156,13 @@
     @if(isset($featuredProducts) && $featuredProducts->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
-                <div class="section__head sp-section-head-row">
-                    <div>
-                        <h2>از فروشگاه</h2>
-                        <p>لوازم و مراقبت برای همراه شما.</p>
-                    </div>
-                    <a class="btn btn-ghost" href="{{ route('frontend.stores.index') }}">ورود به فروشگاه</a>
-                </div>
+                <x-sp-section-head
+                    title="از فروشگاه"
+                    subtitle="لوازم و مراقبت برای همراه شما."
+                    icon="store"
+                    :action-href="route('frontend.stores.index')"
+                    action-label="ورود به فروشگاه"
+                />
                 <div class="grid grid-4">
                     @foreach($featuredProducts->take(4) as $product)
                         <x-product-card :item="$product" :showRoute="'frontend.products.show'" />
@@ -158,10 +176,13 @@
         <div class="wrap">
             <div class="sp-trust">
                 <div class="sp-trust__media">
-                    <img src="{{ $aboutImage }}" alt="سپاسیران">
+                    <img src="{{ $aboutImage }}" alt="سپاسیران" loading="lazy">
                 </div>
                 <div class="sp-trust__body">
-                    <p class="sp-trust__eyebrow">اعتماد و همراهی</p>
+                    <p class="sp-trust__eyebrow">
+                        <span class="sp-section-head__icon sp-section-head__icon--inline" aria-hidden="true"><x-sp-icon name="trust" /></span>
+                        اعتماد و همراهی
+                    </p>
                     <h2>بازار آرام برای حیوان خانگی</h2>
                     <p>{{ \Illuminate\Support\Str::limit(strip_tags($aboutText), 220) }}</p>
                     <div class="sp-trust__actions">
@@ -179,6 +200,7 @@
                 <div class="sp-stat-row" aria-label="آمار کلی">
                     @foreach($statistics as $stat)
                         <div class="sp-stat">
+                            <span class="sp-stat__icon"><x-sp-icon :name="$stat['icon'] ?? 'spark'" /></span>
                             <strong class="num">{{ number_format((int) $stat['counter']) }}</strong>
                             <span>{{ $stat['title'] }}</span>
                         </div>
@@ -191,13 +213,13 @@
     @if(isset($blogs) && $blogs->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
-                <div class="section__head sp-section-head-row">
-                    <div>
-                        <h2>نکته‌ها و اخبار</h2>
-                        <p>مطالب کوتاه برای مراقبت بهتر.</p>
-                    </div>
-                    <a class="btn btn-ghost" href="{{ route('frontend.news.index') }}">مشاهده بیشتر</a>
-                </div>
+                <x-sp-section-head
+                    title="نکته‌ها و اخبار"
+                    subtitle="مطالب کوتاه برای مراقبت بهتر."
+                    icon="news"
+                    :action-href="route('frontend.news.index')"
+                    action-label="مشاهده بیشتر"
+                />
                 <div class="grid grid-3">
                     @foreach($blogs as $blog)
                         @php
@@ -225,7 +247,10 @@
         <div class="wrap">
             <div class="sp-final-cta">
                 <div>
-                    <h2>آماده‌اید شروع کنید؟</h2>
+                    <div class="sp-section-head__title-row" style="margin-bottom:8px">
+                        <span class="sp-section-head__icon" aria-hidden="true"><x-sp-icon name="cta" /></span>
+                        <h2 style="margin:0">آماده‌اید شروع کنید؟</h2>
+                    </div>
                     <p>از سگ‌های منتخب ببینید یا همین حالا خدمت رزرو کنید.</p>
                 </div>
                 <div class="sp-final-cta__actions">

@@ -65,10 +65,10 @@ class HomeController extends Controller
             $dogCount = Dog::count();
 
             $statistics = [
-                ['title' => 'مربی', 'counter' => $coachCount],
-                ['title' => 'پرورش‌دهنده', 'counter' => $breederCount],
-                ['title' => 'کلینیک', 'counter' => $clinicCount],
-                ['title' => 'سگ', 'counter' => $dogCount],
+                ['title' => 'مربی', 'counter' => $coachCount, 'icon' => 'coach'],
+                ['title' => 'پرورش‌دهنده', 'counter' => $breederCount, 'icon' => 'dogs'],
+                ['title' => 'کلینیک', 'counter' => $clinicCount, 'icon' => 'clinic'],
+                ['title' => 'سگ', 'counter' => $dogCount, 'icon' => 'dogs'],
             ];
 
             $settings = Setting::query()->first();
@@ -78,21 +78,29 @@ class HomeController extends Controller
                     'title' => 'مربی',
                     'text' => 'آموزش و همراهی تخصصی',
                     'href' => route('frontend.coaches.index'),
+                    'icon' => 'coach',
+                    'image' => asset('images/demo/products/product-05.jpg'),
                 ],
                 [
                     'title' => 'کلینیک',
                     'text' => 'مراقبت و درمان',
                     'href' => route('frontend.clinics.index'),
+                    'icon' => 'clinic',
+                    'image' => asset('images/demo/blogs/blog-04.jpg'),
                 ],
                 [
                     'title' => 'بیمه',
                     'text' => 'پوشش مطمئن حیوان خانگی',
                     'href' => route('frontend.clinic.insurance.index'),
+                    'icon' => 'insurance',
+                    'image' => asset('images/demo/hero/hero-03.jpg'),
                 ],
                 [
                     'title' => 'دوره',
                     'text' => 'آموزش آنلاین و مهارتی',
                     'href' => route('frontend.online.courses'),
+                    'icon' => 'course',
+                    'image' => asset('images/demo/blogs/blog-02.jpg'),
                 ],
             ];
 
