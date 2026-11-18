@@ -9,7 +9,7 @@ class Dog extends Model
     protected $perPage = 20;
 
     protected $fillable = [
-        'title', 'color', 'status', 'age', 'birth_date', 'cover_type', 'eye_color', 'shajare',
+        'title', 'image', 'color', 'status', 'age', 'birth_date', 'cover_type', 'eye_color', 'shajare',
         'breed_id', 'father_name', 'father_breed_id', 'mother_name', 'mother_breed_id',
         'maternal_grandmother_name', 'maternal_grandmother_breed_id',
         'maternal_grandfather_name', 'maternal_grandfather_breed_id',

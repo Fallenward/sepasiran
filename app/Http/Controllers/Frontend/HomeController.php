@@ -37,12 +37,14 @@ class HomeController extends Controller
 
             $featuredDogs = Dog::query()
                 ->with(['breed', 'city'])
-                ->latest()
+                ->whereNotNull('image')
+                ->orderBy('id')
                 ->take(6)
                 ->get();
 
             $featuredProducts = Product::query()
                 ->where('is_active', true)
+                ->orderByDesc('is_featured')
                 ->latest()
                 ->take(4)
                 ->get();

@@ -5,7 +5,8 @@
 @php
     $heroImage = null;
     if (isset($sliders) && $sliders->isNotEmpty() && !empty($sliders->first()->image)) {
-        $heroImage = asset('storage/' . ltrim($sliders->first()->image, '/'));
+        $img = ltrim($sliders->first()->image, '/');
+        $heroImage = str_starts_with($img, 'images/') ? asset($img) : asset('storage/' . $img);
     }
     $aboutText = optional($settings ?? null)->about_setting_about
         ?? optional($settings ?? null)->footer_setting_about
@@ -15,10 +16,7 @@
         $aboutImage = asset($aboutImage);
     }
     if (!$aboutImage) {
-        $aboutImage = asset('images/shelther.png');
-        if (!file_exists(public_path('images/shelther.png'))) {
-            $aboutImage = asset('images/dogPicture.jpg');
-        }
+        $aboutImage = asset('images/demo/hero/hero-02.jpg');
     }
 @endphp
 
@@ -35,7 +33,6 @@
     @endphp
     <div data-vue="home-hero" data-props='@json($heroProps)'></div>
 
-    {{-- 1. Paths --}}
     <section class="section">
         <div class="wrap">
             <div class="section__head">
@@ -68,7 +65,6 @@
         </div>
     </section>
 
-    {{-- 2. Featured dogs --}}
     @if(isset($featuredDogs) && $featuredDogs->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
@@ -80,7 +76,7 @@
                     <a class="btn btn-ghost" href="{{ route('frontend.dog.supply.index') }}">مشاهده همه</a>
                 </div>
                 <div class="sp-snap-row">
-                    @foreach($featuredDogs as $dog)
+                    @foreach($featuredDogs->take(6) as $dog)
                         <div class="sp-snap-row__item">
                             @include('components.dog-card', ['item' => $dog])
                         </div>
@@ -90,7 +86,6 @@
         </section>
     @endif
 
-    {{-- 3. Service pillars --}}
     <section class="section" style="padding-top:0">
         <div class="wrap">
             <div class="section__head">
@@ -105,20 +100,9 @@
                     </a>
                 @endforeach
             </div>
-
-            @if(isset($services) && $services->isNotEmpty())
-                <div class="chip-row" style="margin-top:20px">
-                    @foreach($services->take(8) as $service)
-                        <a class="chip" href="{{ $service->route_link ?? route('frontend.services.show', $service->slug) }}">
-                            {{ $service->title ?? $service->name }}
-                        </a>
-                    @endforeach
-                </div>
-            @endif
         </div>
     </section>
 
-    {{-- 4. How it works --}}
     <section class="section" style="padding-top:0">
         <div class="wrap">
             <div class="section__head">
@@ -151,7 +135,6 @@
         </div>
     </section>
 
-    {{-- 5. Featured products --}}
     @if(isset($featuredProducts) && $featuredProducts->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
@@ -163,7 +146,7 @@
                     <a class="btn btn-ghost" href="{{ route('frontend.stores.index') }}">ورود به فروشگاه</a>
                 </div>
                 <div class="grid grid-4">
-                    @foreach($featuredProducts as $product)
+                    @foreach($featuredProducts->take(4) as $product)
                         <x-product-card :item="$product" :showRoute="'frontend.products.show'" />
                     @endforeach
                 </div>
@@ -171,7 +154,6 @@
         </section>
     @endif
 
-    {{-- 6. Trust / about --}}
     <section class="section" style="padding-top:0">
         <div class="wrap">
             <div class="sp-trust">
@@ -191,7 +173,6 @@
         </div>
     </section>
 
-    {{-- 7. Soft stats (below fold only) --}}
     @if(isset($statistics) && count($statistics))
         <section class="section" style="padding-top:0">
             <div class="wrap">
@@ -207,7 +188,6 @@
         </section>
     @endif
 
-    {{-- 8. Blog / tips --}}
     @if(isset($blogs) && $blogs->isNotEmpty())
         <section class="section" style="padding-top:0">
             <div class="wrap">
@@ -220,18 +200,18 @@
                 </div>
                 <div class="grid grid-3">
                     @foreach($blogs as $blog)
-                        <article class="tile">
-                            <a class="tile-link" href="{{ route('frontend.blogs.show', $blog->slug) }}">
-                                <div class="tile__media tile__media--square">
-                                    @if($blog->image)
-                                        <img src="{{ asset('storage/' . ltrim($blog->image, '/')) }}" alt="{{ $blog->title }}" onerror="this.style.display='none'">
-                                    @endif
+                        @php
+                            $blogImgPath = ltrim($blog->image ?? 'images/demo/blogs/blog-01.jpg', '/');
+                            $blogImg = str_starts_with($blogImgPath, 'images/') ? asset($blogImgPath) : asset('storage/' . $blogImgPath);
+                        @endphp
+                        <article class="sp-card sp-card--blog">
+                            <a class="sp-card__link" href="{{ route('frontend.blogs.show', $blog->slug) }}">
+                                <div class="sp-card__media">
+                                    <img src="{{ $blogImg }}" alt="{{ $blog->title }}" loading="lazy">
                                 </div>
-                                <div class="tile__body">
-                                    <h3>{{ \Illuminate\Support\Str::limit($blog->title, 48) }}</h3>
-                                    <div class="tile__meta">
-                                        <span>{{ \Illuminate\Support\Str::limit(strip_tags($blog->description ?? $blog->content ?? ''), 70) }}</span>
-                                    </div>
+                                <div class="sp-card__body">
+                                    <h3 class="sp-card__title">{{ \Illuminate\Support\Str::limit($blog->title, 52) }}</h3>
+                                    <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($blog->description ?? $blog->content ?? ''), 70) }}</p>
                                 </div>
                             </a>
                         </article>
@@ -241,7 +221,6 @@
         </section>
     @endif
 
-    {{-- 9. Final CTA --}}
     <section class="section" style="padding-top:0">
         <div class="wrap">
             <div class="sp-final-cta">
