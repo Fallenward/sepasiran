@@ -5,7 +5,8 @@
 @section('content')
 <div class="sp-dash">
     <div class="sp-dash__inner">
-        <section class="sp-dash__hero">
+                @include('frontend.partials.dashboard-nav')
+<section class="sp-dash__hero">
             <div class="sp-dash__hero-copy">
                 <p class="sp-dash__eyebrow">پرورش‌دهنده</p>
                 <h1 class="sp-dash__title">افزودن سگ</h1>

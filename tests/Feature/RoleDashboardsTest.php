@@ -34,6 +34,9 @@ class RoleDashboardsTest extends TestCase
             ->assertOk()
             ->assertSee('رزرو جدید', false)
             ->assertSee('نمودار تراکنش‌های مالی', false)
+            ->assertSee('کیف پول', false)
+            ->assertSee('پروفایل', false)
+            ->assertSee('اعلان‌ها', false)
             ->assertDontSee('اقدام بعدی', false);
     }
 

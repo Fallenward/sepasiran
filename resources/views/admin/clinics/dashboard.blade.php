@@ -15,7 +15,8 @@
 @endphp
 <div class="sp-dash sp-dash--clinic">
     <div class="sp-dash__inner">
-        @include('frontend.partials.dashboard-hero', [
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel ?? 'کلینیک',
             'lede' => 'نوبت‌های فعال و درآمد تکمیل‌شده کلینیک را اینجا ببینید.',

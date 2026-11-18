@@ -5,7 +5,8 @@
 @section('content')
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
-        <section class="sp-dash__hero">
+                @include('frontend.partials.dashboard-nav')
+<section class="sp-dash__hero">
             <div class="sp-dash__hero-main">
                 <div class="sp-dash__avatar" aria-hidden="true"><i class="fas fa-bell"></i></div>
                 <div>

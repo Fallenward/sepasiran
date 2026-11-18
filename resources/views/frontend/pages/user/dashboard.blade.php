@@ -16,7 +16,8 @@
 @endphp
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
-        @include('frontend.partials.dashboard-hero', [
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel,
             'lede' => 'رزروها، سگ‌ها و کیف پول‌تان را از یک صفحه مدیریت کنید.',

@@ -222,8 +222,9 @@ public function showById($id)
             return redirect()->route('profile.edit')->with('success', 'اطلاعات با موفقیت بروزرسانی شد');
         }
 
-public function listing(Request $request, $coachId)
+public function listing(Request $request, $coachId = null)
 {
+    $coachId = $coachId ?: auth()->id();
     $coach = User::whereHas('roles', function ($q) {
         $q->where('name', 'coach');
     })->findOrFail($coachId);

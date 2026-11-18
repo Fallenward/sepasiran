@@ -5,7 +5,8 @@
 @section('content')
 <div class="sp-dash sp-dash--breeder">
     <div class="sp-dash__inner">
-        @include('frontend.partials.dashboard-hero', [
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel ?? 'پرورش‌دهنده',
             'lede' => 'سگ‌های شما، درخواست‌های باز و ثبت آگهی جدید در یک قاب.',

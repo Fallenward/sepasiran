@@ -5,7 +5,8 @@
 @section('content')
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
-        <div class="sp-dash__brand" aria-label="برند">
+                @include('frontend.partials.dashboard-nav')
+<div class="sp-dash__brand" aria-label="برند">
             <p class="sp-dash__brand-fa">سپاسیران</p>
             <p class="sp-dash__brand-en latin">Profile</p>
         </div>

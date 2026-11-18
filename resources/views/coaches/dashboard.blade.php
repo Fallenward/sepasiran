@@ -15,7 +15,8 @@
 @endphp
 <div class="sp-dash sp-dash--coach">
     <div class="sp-dash__inner">
-        @include('frontend.partials.dashboard-hero', [
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel ?? 'مربی',
             'lede' => 'جلسات امروز و درخواست‌های باز را از همین‌جا مدیریت کنید.',
