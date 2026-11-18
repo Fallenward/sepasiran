@@ -11,16 +11,12 @@
                 <div class="card">
                     <div class="card-header">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-
-                            <span id="card_title">
-                                {{ __('Bookings') }}
-                            </span>
-
-                             <div class="float-right">
-                                <a href="{{ route('bookings.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                            <span id="card_title">{{ __('Bookings') }}</span>
+                            <div class="float-right">
+                                <a href="{{ route('admin.bookings.create') }}" class="btn btn-primary btn-sm float-right">
                                   {{ __('Create New') }}
                                 </a>
-                              </div>
+                            </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -35,15 +31,13 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-                                        
-									<th >User Id</th>
-									<th >Service Type</th>
-									<th >Provider Id</th>
-									<th >City Id</th>
-									<th >Appointment Date</th>
-									<th >Status</th>
-									<th >Notes</th>
-
+                                        <th>Code</th>
+                                        <th>Customer</th>
+                                        <th>Service</th>
+                                        <th>Provider</th>
+                                        <th>Appointment</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -51,22 +45,25 @@
                                     @foreach ($bookings as $booking)
                                         <tr>
                                             <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $booking->user_id }}</td>
-										<td >{{ $booking->service_type }}</td>
-										<td >{{ $booking->provider_id }}</td>
-										<td >{{ $booking->city_id }}</td>
-										<td >{{ $booking->appointment_date }}</td>
-										<td >{{ $booking->status }}</td>
-										<td >{{ $booking->notes }}</td>
-
+                                            <td class="num">{{ $booking->booking_code }}</td>
+                                            <td>{{ trim(($booking->user->name ?? '').' '.($booking->user->family ?? '')) ?: $booking->user_id }}</td>
+                                            <td>{{ $booking->service_type }}</td>
+                                            <td>{{ trim(($booking->provider->name ?? '').' '.($booking->provider->family ?? '')) ?: $booking->provider_id }}</td>
+                                            <td class="num">
+                                                @if($booking->appointment_date)
+                                                    {{ \Morilog\Jalali\Jalalian::fromCarbon($booking->appointment_date)->format('Y/m/d') }}
+                                                    {{ $booking->slot ?: $booking->appointment_date->format('H:i') }}
+                                                @endif
+                                            </td>
+                                            <td class="num">{{ number_format((float) ($booking->total ?? $booking->price)) }}</td>
+                                            <td>{{ $booking->status }}</td>
                                             <td>
-                                                <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('bookings.show', $booking->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('bookings.edit', $booking->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary" href="{{ route('admin.bookings.show', $booking->id) }}"><i class="fa fa-fw fa-eye"></i></a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('admin.bookings.edit', $booking->id) }}"><i class="fa fa-fw fa-edit"></i></a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i></button>
                                                 </form>
                                             </td>
                                         </tr>

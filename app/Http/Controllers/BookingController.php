@@ -2,83 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\BookingRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Morilog\Jalali\Jalalian;
 
 class BookingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): View
     {
-        $bookings = Booking::paginate();
+        $bookings = Booking::query()
+            ->with(['user:id,name,family', 'provider:id,name,family', 'breed:id,name', 'city:id,name'])
+            ->latest()
+            ->paginate(20);
 
         return view('booking.index', compact('bookings'))
             ->with('i', ($request->input('page', 1) - 1) * $bookings->perPage());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
-        $booking = new Booking();
+        $booking = new Booking;
 
         return view('booking.create', compact('booking'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(BookingRequest $request): RedirectResponse
     {
         Booking::create($request->validated());
 
-        return Redirect::route('bookings.index')
+        return Redirect::route('admin.bookings.index')
             ->with('success', 'Booking created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id): View
     {
-        $booking = Booking::find($id);
+        $booking = Booking::with(['user', 'provider', 'breed', 'city'])->findOrFail($id);
 
-        return view('booking.show', compact('booking'));
+        return view('booking.show', [
+            'booking' => $booking,
+            'appointmentJalali' => $booking->appointment_date
+                ? Jalalian::fromCarbon($booking->appointment_date)->format('Y/m/d H:i')
+                : null,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id): View
     {
-        $booking = Booking::find($id);
+        $booking = Booking::findOrFail($id);
 
         return view('booking.edit', compact('booking'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(BookingRequest $request, Booking $booking): RedirectResponse
     {
         $booking->update($request->validated());
 
-        return Redirect::route('bookings.index')
+        return Redirect::route('admin.bookings.index')
             ->with('success', 'Booking updated successfully');
     }
 
     public function destroy($id): RedirectResponse
     {
-        Booking::find($id)->delete();
+        Booking::findOrFail($id)->delete();
 
-        return Redirect::route('bookings.index')
+        return Redirect::route('admin.bookings.index')
             ->with('success', 'Booking deleted successfully');
     }
 }

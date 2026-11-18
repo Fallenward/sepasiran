@@ -2,33 +2,38 @@
 
 namespace App\Http\Requests;
 
+use App\Services\BookingService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BookingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-			'user_id' => 'required',
-			'service_type' => 'required',
-			'provider_id' => 'required',
-			'city_id' => 'required',
-			'appointment_date' => 'required',
-			'status' => 'required',
-			'notes' => 'string',
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'service_type' => ['required', Rule::in(array_keys(BookingService::SERVICE_TYPES))],
+            'provider_id' => ['required', 'integer', 'exists:users,id'],
+            'city_id' => ['nullable', 'integer', 'exists:cities,id'],
+            'breed_id' => ['nullable', 'integer', 'exists:breeds,id'],
+            'training_type' => ['nullable', Rule::in(array_keys(BookingService::TRAINING_TYPES))],
+            'appointment_date' => ['required', 'date'],
+            'slot' => ['nullable', Rule::in(BookingService::SLOT_TEMPLATE)],
+            'status' => ['required', Rule::in(['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])],
+            'notes' => ['nullable', 'string'],
+            'contact_name' => ['nullable', 'string', 'max:120'],
+            'contact_phone' => ['nullable', 'string', 'max:30'],
+            'payment_method' => ['nullable', Rule::in(['online', 'offline'])],
+            'payment_status' => ['nullable', Rule::in(['pending', 'paid', 'failed', 'refunded'])],
+            'price' => ['nullable', 'numeric'],
+            'tax' => ['nullable', 'numeric'],
+            'discount' => ['nullable', 'numeric'],
+            'total' => ['nullable', 'numeric'],
         ];
     }
 }

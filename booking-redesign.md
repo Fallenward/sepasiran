@@ -23,7 +23,7 @@ Legacy Blade pages (`/select-trainer-type`, `/select-breed`, `/select-time`, `/s
 |--------|------|
 | `GET` meta / breeds / providers / slots | Public |
 | `POST /booking/api` (create) | **Required** (`auth` middleware). Guests get `401` JSON or redirect to login with `?redirect=/booking`. |
-| `GET` success by code | Owner of booking, or `is_admin` / admin role. Public reveal by code alone is allowed only for the creator session; API checks ownership when logged in. |
+| `GET` success by code | Owner of booking, or `is_admin` / admin role. ``GET /booking/api/{code}`` requires auth and ownership (or admin). |
 
 Admin CRUD remains under `/admin/bookings` (`auth` + `is_admin`).
 
@@ -170,6 +170,17 @@ Returns same `booking` object (ownership rules above).
 | POST | `/booking` | `frontend.booking.store` | Form fallback (same validation as JSON) |
 
 Deprecated JSON shim kept temporarily: `GET /booking/providers` → same as `/booking/api/providers`.
+
+## Implementation map
+
+| Piece | Path |
+|-------|------|
+| JSON API | `app/Http/Controllers/Frontend/BookingApiController.php` |
+| Catalog constants | `app/Support/BookingCatalog.php` |
+| Blade shell | `Frontend\BookingController` + `resources/views/frontend/pages/booking/*` |
+| Admin list | `BookingController` + `resources/views/booking/index.blade.php` |
+| Migration | `database/migrations/2026_11_19_000001_add_booking_redesign_columns.php` |
+| Tests | `tests/Feature/BookingApiTest.php` |
 
 ## Model / migration changes
 
