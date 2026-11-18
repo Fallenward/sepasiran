@@ -89,11 +89,7 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
 // ----------------------------------------------
 // Guest routes
 // ----------------------------------------------
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:login');
-});
+// Guest auth routes live in routes/auth.php (login, register, password reset).
 
 Route::middleware('throttle:otp')->prefix('otp')->name('otp.')->group(function () {
     Route::post('/send', [OtpController::class, 'send'])->name('send');

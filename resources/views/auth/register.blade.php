@@ -1,72 +1,89 @@
-@extends('layouts.admin')
+@extends('layouts.auth')
 
-@section('title', 'ثبت نام')
+@section('title', 'ثبت‌نام')
 
-@section('content')
-    <div class="container d-flex justify-content-center align-items-center min-vh-100" dir="rtl">
-        <div class="card shadow border-0 w-100" style="max-width: 720px; border-radius: 1rem;">
-            <div class="card-body p-5">
-                <div class="text-center mb-4">
-                    <h3 class="fw-bold">ثبت نام</h3>
-                    <p class="text-muted">لطفاً اطلاعات خود را برای ایجاد حساب وارد کنید</p>
-                </div>
-
-                <form method="POST" action="{{ route('register') }}">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label for="name" class="form-label">نام و نام خانوادگی</label>
-                        <input type="text" id="name" name="name"
-                               class="form-control @error('name') is-invalid @enderror"
-                               value="{{ old('name') }}" required autocomplete="name" autofocus dir="rtl">
-                        @error('name')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-{{--                    <div class="mb-3">--}}
-{{--                        <label for="email" class="form-label">ایمیل</label>--}}
-{{--                        <input type="email" id="email" name="email"--}}
-{{--                               class="form-control @error('email') is-invalid @enderror"--}}
-{{--                               value="{{ old('email') }}" required autocomplete="email" dir="rtl">--}}
-{{--                        @error('email')--}}
-{{--                        <div class="invalid-feedback d-block">{{ $message }}</div>--}}
-{{--                        @enderror--}}
-{{--                    </div>--}}
-
-                    {{-- اگر می‌خواهی از شماره موبایل به‌جای ایمیل استفاده کنی این بخش رو جایگزین کن --}}
-
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">شماره موبایل</label>
-                        <input type="tel" id="phone" name="mobile"
-                               class="form-control @error('phone') is-invalid @enderror"
-                               value="{{ old('phone') }}" required dir="rtl">
-                        @error('phone')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label">رمز عبور</label>
-                        <input type="password" id="password" name="password"
-                               class="form-control @error('password') is-invalid @enderror"
-                               required autocomplete="new-password" dir="rtl">
-                        @error('password')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="password-confirm" class="form-label">تایید رمز عبور</label>
-                        <input type="password" id="password-confirm" name="password_confirmation"
-                               class="form-control" required autocomplete="new-password" dir="rtl">
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">ثبت نام</button>
-                    </div>
-                </form>
-            </div>
+@section('main')
+@php $redirect = request('redirect', ''); @endphp
+<div class="auth-shell">
+    <aside class="auth-brand" aria-hidden="true">
+        <div>
+            <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
+            <h1 class="sp-brand__fa" style="font-size:clamp(2.4rem,4vw,3.2rem);margin:0 0 14px">سپاسیران</h1>
+            <p style="color:var(--sp-text-muted);max-width:22rem;margin:0;line-height:1.8">
+                یک حساب بسازید تا سگ‌هایتان را ثبت کنید و رزرو خدمات را شروع کنید.
+            </p>
         </div>
+    </aside>
+
+    <div class="auth-form">
+        <form class="panel auth-card" action="{{ route('register.store') }}" method="POST" novalidate>
+            @csrf
+            @if($redirect)
+                <input type="hidden" name="redirect" value="{{ $redirect }}">
+            @endif
+
+            <div class="auth-card__tabs" role="tablist">
+                <a href="{{ route('login', $redirect ? ['redirect' => $redirect] : []) }}">ورود</a>
+                <span class="is-active">ثبت‌نام</span>
+            </div>
+
+            <h1 class="auth-card__title">ساخت حساب</h1>
+            <p class="auth-card__lede">نام، موبایل و یک رمز امن کافی است.</p>
+
+            @if ($errors->any())
+                <div class="auth-alert" role="alert">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <div class="auth-grid">
+                <div class="field">
+                    <label for="name">نام</label>
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autocomplete="given-name" autofocus>
+                    @error('name')<div class="auth-field-error">{{ $message }}</div>@enderror
+                </div>
+                <div class="field">
+                    <label for="family">نام خانوادگی</label>
+                    <input id="family" type="text" name="family" value="{{ old('family') }}" required autocomplete="family-name">
+                    @error('family')<div class="auth-field-error">{{ $message }}</div>@enderror
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="phone">شماره موبایل</label>
+                <input id="phone" class="num" type="tel" name="phone" value="{{ old('phone') }}"
+                       placeholder="09xxxxxxxxx" required autocomplete="tel">
+                @error('phone')<div class="auth-field-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="field">
+                <label for="email">ایمیل <span class="auth-optional">(اختیاری)</span></label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}"
+                       placeholder="name@example.com" autocomplete="email">
+                @error('email')<div class="auth-field-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="auth-grid">
+                <div class="field">
+                    <label for="password">رمز عبور</label>
+                    <input id="password" type="password" name="password" required autocomplete="new-password">
+                    @error('password')<div class="auth-field-error">{{ $message }}</div>@enderror
+                </div>
+                <div class="field">
+                    <label for="password_confirmation">تکرار رمز</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">ایجاد حساب</button>
+
+            <p class="auth-card__foot">
+                قبلاً ثبت‌نام کرده‌اید؟
+                <a href="{{ route('login', $redirect ? ['redirect' => $redirect] : []) }}">ورود</a>
+                ·
+                <a href="{{ route('frontend.home') }}">خانه</a>
+            </p>
+        </form>
     </div>
+</div>
 @endsection

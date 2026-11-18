@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-    use Illuminate\Contracts\Auth\MustVerifyEmail;
     use Illuminate\Database\Eloquent\Factories\HasFactory;
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,7 +20,7 @@ namespace App\Models;
      * @property $created_at
      * @property $updated_at
      */
-    class User extends Authenticatable implements MustVerifyEmail
+    class User extends Authenticatable
     {
         protected $perPage = 20;
 

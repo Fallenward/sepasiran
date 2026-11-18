@@ -60,7 +60,7 @@
     <div class="sp-nav__actions">
         @guest
             <a class="btn btn-ghost" href="{{ route('login') }}">ورود</a>
-            <a class="btn btn-primary" href="{{ route('login') }}">ثبت‌نام</a>
+            <a class="btn btn-primary" href="{{ route('register') }}">ثبت‌نام</a>
         @else
             <a class="btn btn-ghost" href="{{ route('user.dashboard') }}">حساب من</a>
             <a class="btn btn-primary" href="{{ route('frontend.stores.index') }}">فروشگاه</a>
