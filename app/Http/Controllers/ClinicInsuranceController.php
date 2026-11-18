@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
 use App\Models\Comment;
 use App\Models\Insurance;
 use Illuminate\Http\Request;
@@ -11,35 +10,27 @@ class ClinicInsuranceController extends Controller
 {
     public function index(Request $request)
     {
-        $cities = City::orderBy('name')->get(['id', 'name']);
-
-        $query = Insurance::with('city');
+        $query = Insurance::query()->where('is_active', true);
 
         if ($request->filled('q')) {
             $term = '%' . trim((string) $request->q) . '%';
             $query->where(function ($builder) use ($term) {
                 $builder->where('name', 'like', $term)
                     ->orWhere('description', 'like', $term)
-                    ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term));
+                    ->orWhere('contact_phone', 'like', $term)
+                    ->orWhere('website', 'like', $term);
             });
         }
 
-        if ($request->filled('city')) {
-            $query->whereIn('city_id', (array) $request->input('city'));
+        if ($request->filled('featured')) {
+            $query->where('is_featured', true);
         }
 
-        if ($request->filled('duration')) {
-            $query->whereIn('duration', (array) $request->input('duration'));
-        }
-
-        $insurances = $query->paginate(9)->appends($request->query());
+        $insurances = $query->latest()->paginate(9)->appends($request->query());
 
         $filters = [
-            'city' => $cities,
-            'duration' => [
-                ['id' => '6', 'name' => '۶ ماهه'],
-                ['id' => '12', 'name' => '۱ ساله'],
-                ['id' => '24', 'name' => '۲ ساله'],
+            'featured' => [
+                ['id' => '1', 'name' => 'ویژه'],
             ],
         ];
 
@@ -48,7 +39,7 @@ class ClinicInsuranceController extends Controller
 
     public function show($id)
     {
-        $insurance = Insurance::with('city')->findOrFail($id);
+        $insurance = Insurance::query()->findOrFail($id);
 
         $statistics = [
             ['title' => 'مراجعه‌کنندگان', 'counter' => 120],
