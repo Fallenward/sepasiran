@@ -13,28 +13,31 @@
         'CANCELLED' => ['لغو شده', 'is-danger'],
     ];
 @endphp
-<div class="sp-dash">
+<div class="sp-dash sp-dash--clinic">
     <div class="sp-dash__inner">
         @include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel ?? 'کلینیک',
-            'lede' => 'نوبت‌های فعال، درآمد تکمیل‌شده و مدیریت پروفایل کلینیک.',
+            'lede' => 'نوبت‌های فعال و درآمد تکمیل‌شده کلینیک را اینجا ببینید.',
+            'ctaTitle' => 'پروفایل کلینیک',
+            'ctaHint' => 'آدرس، تماس و تصویر کلینیک را برای مراجعان کامل کنید.',
             'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('clinic.profile.edit')],
         ])
 
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
-                ['label' => 'نوبت‌های تأییدشده', 'value' => number_format($activeVisits), 'hint' => 'در حال انجام'],
-                ['label' => 'در صف', 'value' => number_format($pendingVisits ?? 0), 'hint' => 'منتظر تأیید'],
-                ['label' => 'درآمد تکمیل‌شده', 'value' => number_format($clinicIncome) . ' ت', 'hint' => 'جمع سرویس‌های انجام‌شده'],
+                ['label' => 'نوبت‌های تأییدشده', 'value' => number_format($activeVisits), 'hint' => 'در حال انجام', 'icon' => 'fas fa-stethoscope'],
+                ['label' => 'در صف', 'value' => number_format($pendingVisits ?? 0), 'hint' => 'منتظر تأیید', 'icon' => 'fas fa-hourglass-half'],
+                ['label' => 'درآمد تکمیل‌شده', 'value' => number_format($clinicIncome) . ' ت', 'hint' => 'جمع سرویس‌های انجام‌شده', 'icon' => 'fas fa-coins'],
             ],
         ])
 
         @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('clinic.profile.edit')],
-                ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index')],
-                ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home')],
+                ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('clinic.profile.edit'), 'icon' => 'far fa-hospital'],
+                ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
+                ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
+                ['label' => 'رزرو عمومی', 'hint' => 'مشاهده مسیر رزرو', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar'],
             ],
         ])
 
@@ -46,6 +49,7 @@
                 @forelse($recentBookings as $booking)
                     @php [$stLabel, $stClass] = $statusMap[$booking->status] ?? [$booking->status, 'is-pending']; @endphp
                     <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-notes-medical"></i></span>
                         <div>
                             <strong>{{ $booking->user->name ?? 'مراجع' }} {{ $booking->user->family ?? '' }}</strong>
                             <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>
@@ -56,7 +60,10 @@
                         </div>
                     </article>
                 @empty
-                    <p class="sp-dash__empty-inline">نوبتی ثبت نشده است.</p>
+                    <div class="sp-dash__empty">
+                        <div class="sp-dash__empty-visual" style="background-image:linear-gradient(160deg,rgba(12,18,16,.25),rgba(7,10,8,.7)),url('/images/demo/hero/hero-03.jpg')" aria-hidden="true"></div>
+                        <p>نوبتی ثبت نشده است.</p>
+                    </div>
                 @endforelse
             </div>
         </section>

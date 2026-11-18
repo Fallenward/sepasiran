@@ -14,20 +14,22 @@
         'CANCELED' => ['لغو شده', 'is-danger'],
     ];
 @endphp
-<div class="sp-dash">
+<div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
         @include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel,
-            'lede' => 'رزروها، سگ‌های شما و کیف پول — در یک نگاه.',
+            'lede' => 'رزروها، سگ‌ها و کیف پول‌تان را از یک صفحه مدیریت کنید.',
+            'ctaTitle' => 'رزرو خدمت',
+            'ctaHint' => 'مربی، کلینیک یا خدمات دیگر را در چند قدم رزرو کنید.',
             'primaryAction' => ['label' => 'رزرو جدید', 'url' => route('frontend.booking.index')],
         ])
 
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
-                ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو'],
-                ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری'],
-                ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب'],
+                ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو', 'icon' => 'fas fa-wallet'],
+                ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check'],
+                ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw'],
             ],
         ])
 
@@ -38,6 +40,7 @@
             @if($nextBooking)
                 @php [$stLabel, $stClass] = $statusMap[$nextBooking->status] ?? [$nextBooking->status, 'is-pending']; @endphp
                 <div class="sp-dash__next">
+                    <div class="sp-dash__next-media" aria-hidden="true"></div>
                     <div>
                         <p class="sp-dash__next-kicker">نزدیک‌ترین رزرو</p>
                         <h3>{{ $nextBooking->service_type }} · {{ $nextBooking->booking_code }}</h3>
@@ -50,7 +53,8 @@
                 </div>
             @else
                 <div class="sp-dash__empty">
-                    <p>هنوز رزروی ندارید.</p>
+                    <div class="sp-dash__empty-visual" aria-hidden="true"></div>
+                    <p>هنوز رزروی ندارید. اولین نوبت را همین حالا بسازید.</p>
                     <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.index') }}">شروع رزرو</a>
                 </div>
             @endif
@@ -58,10 +62,10 @@
 
         @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'رزرو خدمت', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index')],
-                ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index')],
-                ['label' => 'مرور سگ‌ها', 'hint' => 'بازار و عرضه', 'url' => route('frontend.dog.supply.index')],
-                ['label' => 'خانه', 'hint' => 'بازگشت به صفحه اصلی', 'url' => route('frontend.home')],
+                ['label' => 'رزرو خدمت', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
+                ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
+                ['label' => 'مرور سگ‌ها', 'hint' => 'بازار و عرضه', 'url' => route('frontend.dog.supply.index'), 'icon' => 'fas fa-dog'],
+                ['label' => 'خانه', 'hint' => 'بازگشت به صفحه اصلی', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
             ],
         ])
 
@@ -73,6 +77,7 @@
                 @forelse($upcomingBookings as $booking)
                     @php [$stLabel, $stClass] = $statusMap[$booking->status] ?? [$booking->status, 'is-pending']; @endphp
                     <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="far fa-clock"></i></span>
                         <div>
                             <strong>{{ $booking->service_type }}</strong>
                             <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>

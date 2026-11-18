@@ -3,29 +3,31 @@
 @section('title', ($title ?? 'داشبورد پرورش‌دهنده') . ' — سپاسیران')
 
 @section('content')
-<div class="sp-dash">
+<div class="sp-dash sp-dash--breeder">
     <div class="sp-dash__inner">
         @include('frontend.partials.dashboard-hero', [
             'user' => $user,
             'roleLabel' => $roleLabel ?? 'پرورش‌دهنده',
-            'lede' => 'سگ‌های شما، درخواست‌های خرید و ثبت آگهی جدید.',
+            'lede' => 'سگ‌های شما، درخواست‌های باز و ثبت آگهی جدید در یک قاب.',
+            'ctaTitle' => 'آگهی جدید',
+            'ctaHint' => 'سگ تازه را با مشخصات و وضعیت عرضه ثبت کنید.',
             'primaryAction' => ['label' => 'افزودن سگ', 'url' => route('breeder.dashboard-create')],
         ])
 
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
-                ['label' => 'کل سگ‌ها', 'value' => number_format($totalDogs), 'hint' => 'متعلق به شما'],
-                ['label' => 'آماده عرضه', 'value' => number_format($readyDogs), 'hint' => 'قابل نمایش'],
-                ['label' => 'درخواست باز', 'value' => number_format($pendingBookings), 'hint' => 'نیاز به پیگیری'],
+                ['label' => 'کل سگ‌ها', 'value' => number_format($totalDogs), 'hint' => 'متعلق به شما', 'icon' => 'fas fa-paw'],
+                ['label' => 'آماده عرضه', 'value' => number_format($readyDogs), 'hint' => 'قابل نمایش', 'icon' => 'fas fa-check-circle'],
+                ['label' => 'درخواست باز', 'value' => number_format($pendingBookings), 'hint' => 'نیاز به پیگیری', 'icon' => 'fas fa-bell'],
             ],
         ])
 
         @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'افزودن سگ', 'hint' => 'ثبت آگهی جدید', 'url' => route('breeder.dashboard-create')],
-                ['label' => 'لیست سگ‌های من', 'hint' => 'مدیریت آگهی‌ها', 'url' => route('breeder.dogs.listing')],
-                ['label' => 'پروفایل', 'hint' => 'اطلاعات پرورش‌دهنده', 'url' => route('breeder.profile')],
-                ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index')],
+                ['label' => 'افزودن سگ', 'hint' => 'ثبت آگهی جدید', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
+                ['label' => 'لیست سگ‌های من', 'hint' => 'مدیریت آگهی‌ها', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
+                ['label' => 'پروفایل', 'hint' => 'اطلاعات پرورش‌دهنده', 'url' => route('breeder.profile'), 'icon' => 'far fa-id-badge'],
+                ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
             ],
         ])
 
@@ -34,10 +36,10 @@
                 <h2>وضعیت گله</h2>
             </header>
             <div class="sp-dash__stat-row">
-                <span>در انتظار تأیید: <strong class="latin">{{ number_format($pendingDogs) }}</strong></span>
-                <span>فروخته‌شده: <strong class="latin">{{ number_format($soldDogs) }}</strong></span>
-                <span>در صف: <strong class="latin">{{ number_format($waitingDogs) }}</strong></span>
-                <span>رزرو تأییدشده: <strong class="latin">{{ number_format($openBookings) }}</strong></span>
+                <div class="sp-dash__stat-pill"><span>در انتظار تأیید</span><strong class="latin">{{ number_format($pendingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>فروخته‌شده</span><strong class="latin">{{ number_format($soldDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>در صف</span><strong class="latin">{{ number_format($waitingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>رزرو تأییدشده</span><strong class="latin">{{ number_format($openBookings) }}</strong></div>
             </div>
         </section>
 
@@ -49,6 +51,7 @@
             <div class="sp-dash__list">
                 @forelse($recentDogs as $dog)
                     <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-dog"></i></span>
                         <div>
                             <strong>{{ $dog->title ?? ('سگ #' . $dog->id) }}</strong>
                             <p class="sp-dash__muted">{{ $dog->status }}</p>
@@ -57,6 +60,7 @@
                     </article>
                 @empty
                     <div class="sp-dash__empty">
+                        <div class="sp-dash__empty-visual" aria-hidden="true"></div>
                         <p>هنوز سگی ثبت نکرده‌اید.</p>
                         <a class="sp-btn sp-btn--primary" href="{{ route('breeder.dashboard-create') }}">اولین سگ را اضافه کنید</a>
                     </div>
