@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SettingRequest;
 use App\Models\Setting;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\SettingRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -38,6 +39,7 @@ class SettingController extends Controller
     public function store(SettingRequest $request): RedirectResponse
     {
         Setting::create($request->validated());
+        AppCache::forgetSettings();
 
         return Redirect::route('settings.index')
             ->with('success', 'Setting created successfully.');
@@ -69,6 +71,7 @@ class SettingController extends Controller
     public function update(SettingRequest $request, Setting $setting): RedirectResponse
     {
         $setting->update($request->validated());
+        AppCache::forgetSettings();
 
         return Redirect::route('settings.index')
             ->with('success', 'Setting updated successfully');
@@ -77,6 +80,7 @@ class SettingController extends Controller
     public function destroy($id): RedirectResponse
     {
         Setting::find($id)->delete();
+        AppCache::forgetSettings();
 
         return Redirect::route('settings.index')
             ->with('success', 'Setting deleted successfully');

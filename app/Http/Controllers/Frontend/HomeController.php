@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Models\Dog;
 use App\Models\Service;
-use App\Models\User;
 use App\Models\Slider;
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Support\AppCache;
 
 class HomeController extends Controller
 {
@@ -16,62 +16,60 @@ class HomeController extends Controller
     {
         $title = 'سپاس ایران';
 
-        $sliders = Slider::all();
+        $payload = AppCache::remember(AppCache::HOME_KEY, 600, function () {
+            $sliders = Slider::all();
 
-        $services = Service::all()->map(function ($service) {
-            // Assign route names based on slug or other logic
-            switch ($service->slug) {
-                case 'antkhab-mrby':
-                    $service->route_link = route('frontend.coaches.index');
-                    break;
-                case 'thyh-sg':
-                    $service->route_link = route('frontend.dog.supply.index');
-                    break;
-                case 'dorh-hay-anlayn':
-                    $service->route_link = route('frontend.online.courses');
-                    break;
-                case 'froshgah-ha':
-                    $service->route_link = route('frontend.stores.index');
-                    break;
-                case 'klynyk-ha-o-bymh-hyoanat':
-                    $service->route_link = route('frontend.clinics.index');
-                    break;
-                case 'prorsh-dhndh':
-                    $service->route_link = route('frontend.breeders.index');
-                    break;
-                default:
-                    $service->route_link = route('frontend.coaches.index');
-                    break;
-            }
-            return $service;
-        });
+            $services = Service::all()->map(function ($service) {
+                switch ($service->slug) {
+                    case 'antkhab-mrby':
+                        $service->route_link = route('frontend.coaches.index');
+                        break;
+                    case 'thyh-sg':
+                        $service->route_link = route('frontend.dog.supply.index');
+                        break;
+                    case 'dorh-hay-anlayn':
+                        $service->route_link = route('frontend.online.courses');
+                        break;
+                    case 'froshgah-ha':
+                        $service->route_link = route('frontend.stores.index');
+                        break;
+                    case 'klynyk-ha-o-bymh-hyoanat':
+                        $service->route_link = route('frontend.clinics.index');
+                        break;
+                    case 'prorsh-dhndh':
+                        $service->route_link = route('frontend.breeders.index');
+                        break;
+                    default:
+                        $service->route_link = route('frontend.coaches.index');
+                        break;
+                }
 
-        $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
+                return $service;
+            });
 
-        // Count users by role
-        $coachCount = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->count();
-        $breederCount = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->count();
-        $clinicCount = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->count();
+            $blogs = Blog::orderBy('created_at', 'desc')->take(3)->get();
 
-        // Count dogs
-        $dogCount = Dog::count();
+            $coachCount = User::whereHas('roles', fn ($q) => $q->where('name', 'coach'))->count();
+            $breederCount = User::whereHas('roles', fn ($q) => $q->where('name', 'breeder'))->count();
+            $clinicCount = User::whereHas('roles', fn ($q) => $q->where('name', 'clinic'))->count();
+            $dogCount = Dog::count();
 
-        // Statistics array for display
-        $statistics = [
-            ['title' => 'تعداد مربی', 'counter' => $coachCount],
-            ['title' => 'پرورش دهندگان', 'counter' => $breederCount],
-            ['title' => 'کلینیک ها', 'counter' => $clinicCount],
-            ['title' => 'سگ ها', 'counter' => $dogCount],
-        ];
+            $statistics = [
+                ['title' => 'تعداد مربی', 'counter' => $coachCount],
+                ['title' => 'پرورش دهندگان', 'counter' => $breederCount],
+                ['title' => 'کلینیک ها', 'counter' => $clinicCount],
+                ['title' => 'سگ ها', 'counter' => $dogCount],
+            ];
 
-        // Get latest users for each role
-        $bestCoach = User::whereHas('roles', fn($q) => $q->where('name', 'coach'))->latest()->first();
-        $bestBreeder = User::whereHas('roles', fn($q) => $q->where('name', 'breeder'))->latest()->first();
-        $bestClinic = User::whereHas('roles', fn($q) => $q->where('name', 'clinic'))->latest()->first();
+            $bestCoach = User::whereHas('roles', fn ($q) => $q->where('name', 'coach'))->latest()->first();
+            $bestBreeder = User::whereHas('roles', fn ($q) => $q->where('name', 'breeder'))->latest()->first();
+            $bestClinic = User::whereHas('roles', fn ($q) => $q->where('name', 'clinic'))->latest()->first();
 
-        // Collect non-null best users
-        $bests = collect([$bestCoach, $bestBreeder, $bestClinic])->filter();
+            $bests = collect([$bestCoach, $bestBreeder, $bestClinic])->filter()->values();
 
-        return view('frontend.pages.home', compact('sliders', 'blogs', 'title', 'services', 'statistics', 'bests'));
+            return compact('sliders', 'services', 'blogs', 'statistics', 'bests');
+        }, [AppCache::TAG_HOME]);
+
+        return view('frontend.pages.home', array_merge($payload, compact('title')));
     }
 }

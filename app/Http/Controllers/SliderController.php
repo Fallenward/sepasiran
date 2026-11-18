@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SliderRequest;
 use App\Models\Slider;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\SliderRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -38,6 +39,7 @@ class SliderController extends Controller
     public function store(SliderRequest $request): RedirectResponse
     {
         Slider::create($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider created successfully.');
@@ -69,6 +71,7 @@ class SliderController extends Controller
     public function update(SliderRequest $request, Slider $slider): RedirectResponse
     {
         $slider->update($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider updated successfully');
@@ -77,6 +80,7 @@ class SliderController extends Controller
     public function destroy($id): RedirectResponse
     {
         Slider::find($id)->delete();
+        AppCache::forgetHome();
 
         return Redirect::route('admin.sliders.index')
             ->with('success', 'Slider deleted successfully');

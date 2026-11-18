@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ServiceRequest;
 use App\Models\Service;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\ServiceRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -38,6 +39,7 @@ class ServiceController extends Controller
     public function store(ServiceRequest $request): RedirectResponse
     {
         Service::create($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('services.index')
             ->with('success', 'Service created successfully.');
@@ -69,6 +71,7 @@ class ServiceController extends Controller
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
         $service->update($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('services.index')
             ->with('success', 'Service updated successfully');
@@ -77,6 +80,7 @@ class ServiceController extends Controller
     public function destroy($id): RedirectResponse
     {
         Service::find($id)->delete();
+        AppCache::forgetHome();
 
         return Redirect::route('services.index')
             ->with('success', 'Service deleted successfully');

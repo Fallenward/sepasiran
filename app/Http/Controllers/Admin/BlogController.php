@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BlogRequest;
 use App\Models\Blog;
+use App\Models\Category;
 use App\Models\Post;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use App\Models\Category;
 
 
 class BlogController extends Controller
@@ -42,6 +43,7 @@ class BlogController extends Controller
     public function store(BlogRequest $request): RedirectResponse
     {
         Blog::create($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog created successfully.');
@@ -74,6 +76,7 @@ class BlogController extends Controller
     public function update(BlogRequest $request, Blog $blog): RedirectResponse
     {
         $blog->update($request->validated());
+        AppCache::forgetHome();
 
         return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog updated successfully');
@@ -82,6 +85,7 @@ class BlogController extends Controller
     public function destroy($id): RedirectResponse
     {
         Blog::find($id)->delete();
+        AppCache::forgetHome();
 
         return Redirect::route('admin.blogs.index')
             ->with('success', 'Blog deleted successfully');

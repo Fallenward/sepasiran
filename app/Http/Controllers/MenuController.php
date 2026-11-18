@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MenuRequest;
 use App\Models\Menu;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\MenuRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -38,6 +39,7 @@ class MenuController extends Controller
     public function store(MenuRequest $request): RedirectResponse
     {
         Menu::create($request->validated());
+        AppCache::forgetMenus();
 
         return Redirect::route('menus.index')
             ->with('success', 'Menu created successfully.');
@@ -69,6 +71,7 @@ class MenuController extends Controller
     public function update(MenuRequest $request, Menu $menu): RedirectResponse
     {
         $menu->update($request->validated());
+        AppCache::forgetMenus();
 
         return Redirect::route('menus.index')
             ->with('success', 'Menu updated successfully');
@@ -77,6 +80,7 @@ class MenuController extends Controller
     public function destroy($id): RedirectResponse
     {
         Menu::find($id)->delete();
+        AppCache::forgetMenus();
 
         return Redirect::route('menus.index')
             ->with('success', 'Menu deleted successfully');
