@@ -2,53 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
-use App\Models\Breed;
-use App\Models\Insurance;  // assuming you have an Insurance model
-use Illuminate\Http\Request;
 use App\Models\Comment;
-
-
+use App\Models\Insurance;
+use Illuminate\Http\Request;
 
 class ClinicInsuranceController extends Controller
 {
-public function index(Request $request)
-{
-    // Filter data
-    $cities = City::orderBy('name')->get();
+    public function index(Request $request)
+    {
+        $query = Insurance::query()->where('is_active', true);
 
-    $durations = [
-        '6' => '۶ ماهه',
-        '12' => '۱ ساله',
-        '24' => '۲ ساله',
-    ];
+        if ($request->filled('q')) {
+            $term = '%' . trim((string) $request->q) . '%';
+            $query->where(function ($builder) use ($term) {
+                $builder->where('name', 'like', $term)
+                    ->orWhere('description', 'like', $term)
+                    ->orWhere('contact_phone', 'like', $term)
+                    ->orWhere('website', 'like', $term);
+            });
+        }
 
-    $query = Insurance::with('city'); // eager-load city
+        if ($request->filled('featured')) {
+            $query->where('is_featured', true);
+        }
 
-    if ($request->filled('city')) {
-        $query->where('city_id', $request->input('city'));
+        $insurances = $query->latest()->paginate(9)->appends($request->query());
+
+        $filters = [
+            'featured' => [
+                ['id' => '1', 'name' => 'ویژه'],
+            ],
+        ];
+
+        return view('clinic-insurance.index', compact('insurances', 'filters'));
     }
 
-    $insurances = $query->paginate(6);
-
-    $filters = [
-        'city'     => $cities,
-        'duration' => collect(array_keys($durations)),
-    ];
-
-    return view('clinic-insurance.index', compact(
-        'cities',
-        'durations',
-        'insurances',
-        'filters'
-    ));
-}
-
-public function show($id)
+    public function show($id)
     {
-        $insurance = Insurance::with('city')->findOrFail($id);
+        $insurance = Insurance::query()->findOrFail($id);
 
-        // Dummy statistics - replace with your actual logic
         $statistics = [
             ['title' => 'مراجعه‌کنندگان', 'counter' => 120],
             ['title' => 'مراکز طرف قرارداد', 'counter' => 45],
@@ -64,8 +56,4 @@ public function show($id)
 
         return view('insurance.show', compact('insurance', 'statistics', 'comments'));
     }
-
-
-
-
 }

@@ -20,7 +20,7 @@
 }
 
 body.hold-transition.sidebar-mini {
-  font-family: dana, Tahoma, sans-serif;
+  font-family: "Vazirmatn", dana, Tahoma, sans-serif;
   background: var(--sp-bg);
   color: var(--sp-text);
 }

@@ -3,36 +3,73 @@
 namespace Database\Seeders;
 
 use App\Models\Blog;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-use Faker\Factory as Faker;
-
 class BlogSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        $faker = Faker::create();
+        Blog::query()->delete();
 
-        $types = ['blog', 'news', 'support', 'about-us'];
+        $posts = [
+            [
+                'title' => 'چطور پیاده‌روی روزانه سگ را منظم کنیم؟',
+                'description' => 'برنامه ساده برای انرژی‌سوزی و آرامش بیشتر در خانه.',
+                'image' => 'images/demo/blogs/blog-01.jpg',
+                'type' => 'blog',
+            ],
+            [
+                'title' => 'تغذیه سگ بالغ: اشتباه‌های رایج',
+                'description' => 'نکته‌های کاربردی برای انتخاب غذا و جلوگیری از اضافه‌وزن.',
+                'image' => 'images/demo/blogs/blog-02.jpg',
+                'type' => 'blog',
+            ],
+            [
+                'title' => 'آماده‌سازی خانه برای توله جدید',
+                'description' => 'چک‌لیست وسایل ضروری در هفته اول ورود توله.',
+                'image' => 'images/demo/blogs/blog-03.jpg',
+                'type' => 'news',
+            ],
+            [
+                'title' => 'نشانه‌های نیاز به ویزیت کلینیک',
+                'description' => 'چه علائمی را نباید نادیده بگیرید.',
+                'image' => 'images/demo/blogs/blog-04.jpg',
+                'type' => 'support',
+            ],
+            [
+                'title' => 'بازی‌های کوتاه برای آپارتمان',
+                'description' => '۵ بازی کم‌جا برای تخلیه انرژی سگ‌های شهری.',
+                'image' => 'images/demo/blogs/blog-01.jpg',
+                'type' => 'blog',
+            ],
+            [
+                'title' => 'انتخاب مربی مناسب',
+                'description' => 'چه سوال‌هایی قبل از رزرو جلسه بپرسید.',
+                'image' => 'images/demo/blogs/blog-02.jpg',
+                'type' => 'news',
+            ],
+        ];
 
-        foreach (range(1, 20) as $i) {
-            Blog::create([
-                'type' => $faker->randomElement($types),
-                'title' => $faker->sentence,
-                'slug' => $faker->slug . '-' . $i,
-                'content' => $faker->paragraphs(3, true),
-                'description' => $faker->paragraph,
-                'image' => 'images/blog.svg',
-                'category_id' => rand(1, 6),
-                'author_id' => rand(1, 5),
-                'rating' => $faker->randomFloat(2, 1, 5),
-                'views' => rand(100, 5000),
-                'likes' => rand(0, 500),
-                'status' => $faker->randomElement(['draft', 'published']),
-                'comments_enabled' => $faker->boolean,
-            ]);
+        foreach ($posts as $i => $post) {
+            $slug = Str::slug($post['title']) ?: 'post-' . ($i + 1);
+            Blog::query()->updateOrCreate(
+                ['slug' => $slug . '-' . ($i + 1)],
+                [
+                    'type' => $post['type'],
+                    'title' => $post['title'],
+                    'content' => $post['description'] . "\n\n" . 'این مطلب نمونه برای پیش‌نمایش سپاسیران است.',
+                    'description' => $post['description'],
+                    'image' => $post['image'],
+                    'category_id' => 1,
+                    'author_id' => 1,
+                    'rating' => 4.5,
+                    'views' => rand(120, 1800),
+                    'likes' => rand(10, 120),
+                    'status' => 'published',
+                    'comments_enabled' => true,
+                ]
+            );
         }
     }
 }

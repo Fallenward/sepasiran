@@ -7,8 +7,8 @@
        class="{{ request()->routeIs('frontend.dog.supply.*') ? 'is-active' : '' }}">
         <span><i class="fas fa-search"></i></span>جستجو
     </a>
-    <a href="{{ route('frontend.services.index') }}"
-       class="{{ request()->routeIs('frontend.services.*', 'frontend.coaches.*', 'frontend.clinics.*') ? 'is-active' : '' }}">
+    <a href="{{ route('frontend.booking.index') }}"
+       class="{{ request()->routeIs('frontend.booking.*') ? 'is-active' : '' }}">
         <span><i class="far fa-calendar-check"></i></span>رزرو
     </a>
     <a href="{{ route('frontend.stores.index') }}"

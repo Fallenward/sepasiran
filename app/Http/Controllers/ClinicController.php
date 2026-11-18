@@ -15,28 +15,34 @@ class ClinicController extends Controller
 {
 public function index(Request $request)
 {
-    $cities = City::all();
-    $specialties = Specialty::all();
+    $cities = City::orderBy('name')->get(['id', 'name']);
+    $specialties = Specialty::orderBy('name')->get(['id', 'name']);
 
-    // Fetch users with role 'clinic' and eager load city & specialty
-$query = \App\Models\User::select('users.*')
-    ->join('role_user', 'users.id', '=', 'role_user.user_id')
-    ->join('roles', 'roles.id', '=', 'role_user.role_id')
-    ->where('roles.name', 'clinic')
-    ->with(['city', 'speciality']);
+    $query = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'clinic')
+        ->with(['city', 'speciality']);
 
-    // Filter by city
-    if ($request->has('city') && is_array($request->input('city'))) {
-        $query->whereIn('city_id', $request->input('city'));
+    if ($request->filled('q')) {
+        $term = '%' . trim((string) $request->q) . '%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('users.name', 'like', $term)
+                ->orWhere('users.bio', 'like', $term)
+                ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term))
+                ->orWhereHas('speciality', fn ($q) => $q->where('name', 'like', $term));
+        });
     }
 
-    // Filter by specialty
-    if ($request->has('specialty') && is_array($request->input('specialty'))) {
-        $query->whereIn('specialty_id', $request->input('specialty'));
+    if ($request->filled('city')) {
+        $query->whereIn('users.city_id', (array) $request->input('city'));
     }
 
-    $clinics = $query->paginate(9);
-    $clinics->appends($request->only(['city', 'specialty']));
+    if ($request->filled('specialty')) {
+        $query->whereIn('users.specialty_id', (array) $request->input('specialty'));
+    }
+
+    $clinics = $query->paginate(9)->appends($request->query());
 
     $filters = [
         'city' => $cities,

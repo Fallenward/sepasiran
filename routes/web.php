@@ -23,6 +23,7 @@ use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DogSupplyController;
+use App\Http\Controllers\Frontend\BookingController as FrontendBookingController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
@@ -167,6 +168,7 @@ Route::name('frontend.')->group(function () {
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+    Route::get('/dog-supply/suggest', [DogSupplyController::class, 'suggest'])->name('dog.supply.suggest');
     Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
@@ -218,6 +220,12 @@ Route::name('frontend.')->group(function () {
     Route::get('/service/category/{slug}', [FrontendServiceController::class, 'showServiceCategory'])->name('services.show.category');
     Route::post('/service/store-comment', [FrontendServiceController::class, 'storeComment'])->name('services.store.comment');
     Route::post('/service/{serviceId}/rate', [FrontendServiceController::class, 'rateService']);
+
+    // Public reservation / booking
+    Route::get('/booking', [FrontendBookingController::class, 'index'])->name('booking.index');
+    Route::get('/booking/providers', [FrontendBookingController::class, 'providers'])->name('booking.providers');
+    Route::post('/booking', [FrontendBookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/success/{id}', [FrontendBookingController::class, 'success'])->name('booking.success');
 });
 
 // Misc public routes

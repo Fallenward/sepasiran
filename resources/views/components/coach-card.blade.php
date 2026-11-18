@@ -1,27 +1,25 @@
 @php
-    // Safe fallbacks
-    $imageUrl = $item->profile_picture ?? asset('images/default-profile.jpg');
-    $name = $item->name ?? 'بدون نام';
+    $raw = $item->profile_picture ?? null;
+    $imageUrl = $raw
+        ? (str_starts_with($raw, 'http') ? $raw : (str_starts_with($raw, 'images/') ? asset($raw) : asset('storage/' . ltrim($raw, '/'))))
+        : asset('images/demo/products/product-05.jpg');
+    $name = $item->name ?? 'مربی';
     $cityName = $item->city->name ?? 'نامشخص';
-    $specialtyName = $item->specialty->name ?? 'بدون تخصص';
-    $description = $item->bio ?? '';
+    $specialtyRel = $item->speciality ?? ($item->specialty ?? null);
+    if ($specialtyRel instanceof \Illuminate\Support\Collection) {
+        $specialtyName = optional($specialtyRel->first())->name ?? 'تخصص عمومی';
+    } else {
+        $specialtyName = optional($specialtyRel)->name ?? 'تخصص عمومی';
+    }
 @endphp
-
-<div class="card h-100 position-relative">
-    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $name }}">
-
-    <div class="card-body d-flex flex-column">
-        <h6 class="fw-bold">{{ $name }}</h6>
-
-        @if($description)
-            <small class="text-muted d-block mb-2">{{ Str::limit($description, 80) }}</small>
-        @endif
-
-        <small class="text-muted d-block">{{ $cityName }} | {{ $specialtyName }}</small>
-    </div>
-
-    <a href="{{ route('frontend.coaches.show', $item->id) }}"
-       class="btn btn-outline-primary btn-sm position-absolute start-0 bottom-0 m-2">
-        مشاهده
+<article class="sp-card sp-card--person">
+    <a class="sp-card__link" href="{{ route('frontend.coaches.show', $item->id) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $name }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $name }}</h3>
+            <p class="sp-card__meta">{{ $specialtyName }} · {{ $cityName }}</p>
+        </div>
     </a>
-</div>
+</article>

@@ -1,59 +1,44 @@
 @extends('layouts.app')
 
-@section('title', 'پرورش دهنده')
+@section('title', 'پرورش‌دهندگان')
 
 @section('content')
-    <!-- Header -->
-<x-page-header
-    title="پرورش دهنده"
-    :breadcrumbs="[
-        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-        ['label' => 'پرورش دهنده', 'route' => route('frontend.breeders.index')],
+<x-listing-hero
+    title="پرورش‌دهندگان"
+    lede="جستجو در نام، شهر و نژاد — فیلتر تایپی برای پیدا کردن پرورش‌دهنده مناسب."
+    icon="dogs"
+    image="images/demo/hero/hero-02.jpg"
+    :crumbs="[
+        ['label' => 'خانه', 'route' => route('frontend.home')],
+        ['label' => 'پرورش‌دهندگان'],
     ]"
-    bgColor="#0d47a1"
-    extraClasses="text-align-center"
 />
 
-
-    <div class="container">
-        <div class="row">
-            <!-- Filter Sidebar -->
-            <div class="col-md-4 col-12 mb-4">
-                <x-filter-form :filters="$filters" :action="request()->url()" />
-            </div>
-
-
-            <div class="col-md-8 col-12">
-                <div id="items-list" class="row g-4">
-                    @foreach($breeders as $breeder)
-                        <div class="col-md-4 col-6">
-                            <x-breeder-card :item="$breeder" />
-                        </div>
-                    @endforeach
-                </div>
-
-                @if($breeders->hasMorePages())
-                    <div class="text-center mt-4">
-                        <button id="load-more"
-                                data-next-page="{{ $breeders->currentPage() + 1 }}"
-                                class="btn btn-primary">
-                            مشاهده بیشتر
-                        </button>
+<div class="wrap sp-listing" style="padding-top:28px;padding-bottom:56px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
+            <x-filter-form :filters="$filters" />
+        </div>
+        <div class="sp-listing__results">
+            <div class="grid grid-3">
+                @forelse($breeders as $breeder)
+                    <div class="sp-listing-card">
+                        <x-breeder-card :item="$breeder" />
                     </div>
-                @endif
-
-
-                <!-- Pagination -->
-                <div class="mt-4">
-                    {{ $breeders->appends(request()->only(['city', 'breed', 'size']))->links() }}
-                </div>
-
+                @empty
+                    <div class="panel" style="grid-column:1/-1;text-align:center">
+                        <p style="margin:0;color:var(--sp-text-muted)">پرورش‌دهنده‌ای یافت نشد.</p>
+                    </div>
+                @endforelse
             </div>
+            @if(method_exists($breeders, 'hasPages') && $breeders->hasPages())
+                <nav class="sp-listing__pager" aria-label="صفحه‌بندی">
+                    <div class="sp-pagination">{{ $breeders->onEachSide(1)->links('pagination::bootstrap-5') }}</div>
+                </nav>
+            @endif
         </div>
     </div>
-@endsection
+</div>
 
-@push('scripts')
-    <x-scripts.filter-submit />
-    <x-scripts.load-more-dogs />
-@endpush
+<x-scripts.filter-submit />
+@endsection
