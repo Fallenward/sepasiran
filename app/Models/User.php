@@ -3,6 +3,7 @@
 namespace App\Models;
 
     use Illuminate\Contracts\Auth\MustVerifyEmail;
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,7 +25,8 @@ namespace App\Models;
     {
         protected $perPage = 20;
 
-        use Notifiable;
+        /** @use HasFactory<\Database\Factories\UserFactory> */
+        use HasFactory, Notifiable;
 
         /**
          * The attributes that are mass assignable.
@@ -32,7 +34,7 @@ namespace App\Models;
          * @var array<int, string>
          */
         protected $fillable = [
-            'name', 'email', 'password', 'is_admin'
+            'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet',
         ];
 
         public function city(){
