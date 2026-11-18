@@ -10,29 +10,17 @@
 @endphp
 
 @section('content')
-    <section class="hero" id="hero">
-        <div
-            class="hero__media"
-            data-parallax
-            @if($heroImage)
-                style="background-image:
-                    linear-gradient(105deg, rgba(7, 10, 8, 0.92) 0%, rgba(7, 10, 8, 0.55) 45%, rgba(7, 10, 8, 0.25) 100%),
-                    linear-gradient(to top, #070a08 0%, transparent 45%),
-                    url('{{ $heroImage }}');
-                    background-size: cover;
-                    background-position: center;"
-            @endif
-        ></div>
-        <div class="wrap hero__content">
-            <h1 class="hero__brand">سپاسیران <span class="accent">.</span></h1>
-            <p class="hero__title">همه‌چیز برای همراه چهارپای شما</p>
-            <p class="hero__lede">بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.</p>
-            <div class="hero__cta">
-                <a class="btn btn-primary" href="{{ route('frontend.dog.supply.index') }}">مشاهده سگ‌ها</a>
-                <a class="btn btn-ghost" href="{{ route('frontend.services.index') }}">رزرو خدمات</a>
-            </div>
-        </div>
-    </section>
+    @php
+        $heroProps = [
+            'brand' => 'سپاسیران',
+            'title' => 'همه‌چیز برای همراه چهارپای شما',
+            'lede' => 'بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.',
+            'dogsUrl' => route('frontend.dog.supply.index'),
+            'servicesUrl' => route('frontend.services.index'),
+            'heroImage' => $heroImage,
+        ];
+    @endphp
+    <div data-vue="home-hero" data-props='@json($heroProps)'></div>
 
     <section class="section">
         <div class="wrap">
@@ -129,18 +117,4 @@
             </div>
         </section>
     @endif
-@endsection
-
-@section('scripts')
-    <script>
-        (function () {
-            var media = document.querySelector('[data-parallax]');
-            if (!media || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            window.addEventListener('pointermove', function (e) {
-                var x = (e.clientX / window.innerWidth - 0.5) * 8;
-                var y = (e.clientY / window.innerHeight - 0.5) * 8;
-                media.style.transform = 'translate3d(' + (-x) + 'px,' + (-y) + 'px,0) scale(1.03)';
-            });
-        })();
-    </script>
 @endsection

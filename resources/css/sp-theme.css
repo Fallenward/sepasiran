@@ -1058,3 +1058,67 @@ body.sp-body {
   margin-bottom: 20px;
   font-size: 0.9rem;
 }
+
+/* Page titles — replace legacy blue banners */
+.sp-page-header {
+  margin: 0;
+  padding: 28px 0 20px;
+  background:
+    linear-gradient(105deg, rgba(7, 10, 8, 0.96) 0%, rgba(18, 26, 23, 0.92) 55%, rgba(27, 107, 60, 0.35) 100%),
+    var(--sp-bg-elevated);
+  border-bottom: 1px solid var(--sp-border);
+  border-top: 1px solid rgba(212, 181, 106, 0.12);
+}
+
+.sp-page-header__inner {
+  text-align: center;
+}
+
+.sp-page-header__title {
+  margin: 0 0 10px;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 700;
+  color: var(--sp-text);
+  letter-spacing: 0;
+}
+
+.sp-page-header__title::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sp-page-header-accent, var(--sp-green)), var(--sp-gold));
+}
+
+.sp-page-header__crumbs {
+  justify-content: center;
+  margin: 12px 0 0;
+}
+
+.sp-page-header .breadcrumb-item,
+.sp-page-header .breadcrumb-item a,
+.sp-page-header .breadcrumb-item.active {
+  color: var(--sp-text-muted) !important;
+}
+
+/* Global retirement of legacy blue brand */
+.sp-shell [style*="#0d47a1"],
+.sp-shell [style*="#0D47A1"],
+.sp-shell [style*="#051A3B"],
+.sp-shell [style*="#007bff"],
+.sp-shell [style*="rgb(13, 71, 161)"] {
+  background-color: var(--sp-green) !important;
+  background-image: none !important;
+  border-color: var(--sp-green-deep) !important;
+  color: var(--sp-bg-sunken) !important;
+}
+
+.sp-shell [style*="color: #0d47a1"],
+.sp-shell [style*="color:#0d47a1"],
+.sp-shell [style*="color: #0D47A1"],
+.sp-shell [style*="color:#0D47A1"] {
+  color: var(--sp-green) !important;
+  background-color: transparent !important;
+}
