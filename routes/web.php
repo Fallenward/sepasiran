@@ -232,15 +232,23 @@ Route::name('frontend.')->group(function () {
 
     Route::prefix('booking/api')->name('booking.api.')->group(function () {
         Route::get('/meta', [FrontendBookingApiController::class, 'meta'])->name('meta');
+        Route::get('/cities', [FrontendBookingApiController::class, 'cities'])->name('cities');
         Route::get('/breeds', [FrontendBookingApiController::class, 'breeds'])->name('breeds');
         Route::get('/providers', [FrontendBookingApiController::class, 'providers'])->name('providers');
         Route::get('/slots', [FrontendBookingApiController::class, 'slots'])->name('slots');
-        Route::post('/', [FrontendBookingApiController::class, 'store'])
-            ->middleware('auth')
-            ->name('store');
-        Route::get('/{booking_code}', [FrontendBookingApiController::class, 'show'])
-            ->middleware('auth')
-            ->name('show');
+
+        Route::middleware('auth')->group(function () {
+            Route::get('/my-dogs', [FrontendBookingApiController::class, 'myDogs'])->name('my-dogs');
+            Route::post('/my-dogs', [FrontendBookingApiController::class, 'storeMyDog'])->name('my-dogs.store');
+            Route::post('/quote', [FrontendBookingApiController::class, 'quote'])->name('quote');
+            Route::post('/', [FrontendBookingApiController::class, 'store'])->name('store');
+            Route::get('/inbox/open', [FrontendBookingApiController::class, 'openInbox'])->name('inbox.open');
+            Route::get('/{booking_code}/offers', [FrontendBookingApiController::class, 'listOffers'])->name('offers.index');
+            Route::post('/{booking_code}/offers', [FrontendBookingApiController::class, 'storeOffer'])->name('offers.store');
+            Route::post('/{booking_code}/offers/{offer_id}/accept', [FrontendBookingApiController::class, 'acceptOffer'])->name('offers.accept');
+            Route::post('/{booking_code}/cancel', [FrontendBookingApiController::class, 'cancel'])->name('cancel');
+            Route::get('/{booking_code}', [FrontendBookingApiController::class, 'show'])->name('show');
+        });
     });
 });
 

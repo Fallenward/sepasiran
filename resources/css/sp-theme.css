@@ -2099,6 +2099,32 @@ body.sp-body {
   margin-top: 0;
 }
 
+.sp-booking__dog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 720px) {
+  .sp-booking__dog-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.sp-booking__empty {
+  padding: 18px 0 8px;
+  color: var(--sp-text-muted);
+}
+
+.sp-booking__empty .btn {
+  margin-top: 12px;
+}
+
+.sp-booking__quote {
+  margin-bottom: 12px;
+}
+
 .sp-booking__service-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

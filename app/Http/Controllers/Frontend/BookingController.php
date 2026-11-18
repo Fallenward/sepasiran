@@ -51,11 +51,14 @@ class BookingController extends Controller
 
     public function success(string $code)
     {
-        $booking = Booking::with(['provider', 'breed', 'city'])->where('booking_code', $code)->firstOrFail();
+        $booking = Booking::with(['provider', 'breed', 'city', 'dog.breed', 'offers.provider', 'invitedProviders'])
+            ->where('booking_code', $code)
+            ->firstOrFail();
         $user = Auth::user();
 
         $allowed = $user && (
             (int) $booking->user_id === (int) $user->id
+            || (int) $booking->provider_id === (int) $user->id
             || (method_exists($user, 'hasRole') && $user->hasRole('admin'))
             || !empty($user->is_admin)
         );
@@ -69,6 +72,7 @@ class BookingController extends Controller
         return view('frontend.pages.booking.success', [
             'booking' => $api->serialize($booking),
             'serviceLabels' => collect(BookingCatalog::serviceTypes())->pluck('label', 'key'),
+            'modeLabels' => collect(BookingCatalog::fulfillmentModes())->pluck('label', 'key'),
         ]);
     }
 

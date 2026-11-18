@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Booking extends Model
 {
@@ -12,13 +11,17 @@ class Booking extends Model
     protected $fillable = [
         'booking_code',
         'user_id',
+        'dog_id',
         'service_type',
+        'fulfillment_mode',
         'provider_id',
         'city_id',
         'breed_id',
         'training_type',
         'appointment_date',
         'slot',
+        'preferred_date',
+        'preferred_slot',
         'booking_date',
         'price',
         'tax',
@@ -35,6 +38,7 @@ class Booking extends Model
 
     protected $casts = [
         'appointment_date' => 'datetime',
+        'preferred_date' => 'date',
         'booking_date' => 'date',
         'price' => 'decimal:2',
         'tax' => 'decimal:2',
@@ -47,6 +51,9 @@ class Booking extends Model
         static::creating(function (Booking $booking) {
             if (empty($booking->booking_code)) {
                 $booking->booking_code = static::generateCode();
+            }
+            if (empty($booking->fulfillment_mode)) {
+                $booking->fulfillment_mode = 'direct';
             }
         });
     }
@@ -65,9 +72,20 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function dog()
+    {
+        return $this->belongsTo(Dog::class);
+    }
+
     public function provider()
     {
         return $this->belongsTo(User::class, 'provider_id');
+    }
+
+    public function invitedProviders()
+    {
+        return $this->belongsToMany(User::class, 'booking_providers', 'booking_id', 'provider_id')
+            ->withTimestamps();
     }
 
     public function city()
@@ -78,6 +96,11 @@ class Booking extends Model
     public function breed()
     {
         return $this->belongsTo(Breed::class);
+    }
+
+    public function offers()
+    {
+        return $this->hasMany(BookingOffer::class);
     }
 
     public function carts()
