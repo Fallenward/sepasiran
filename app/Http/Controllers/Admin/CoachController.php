@@ -296,18 +296,22 @@ public function destroyList($id)
     public function coachWallet()
 {
     $userId = auth()->id();
+    $baseQuery = Transaction::where('user_id', $userId);
 
-    $transactions = Transaction::where('user_id', $userId)->latest()->get();
+    $walletBalance = (clone $baseQuery)->where('status', 'completed')->sum('amount');
 
-    $walletBalance = $transactions->where('status', 'completed')->sum('amount');
+    $monthlyIncome = (clone $baseQuery)
+        ->whereMonth('created_at', now()->month)
+        ->where('amount', '>', 0)
+        ->sum('amount');
 
-    $monthlyTransactions = $transactions->filter(function ($transaction) {
-        return $transaction->created_at->isCurrentMonth();
-    });
+    $monthlyExpense = (clone $baseQuery)
+        ->whereMonth('created_at', now()->month)
+        ->where('amount', '<', 0)
+        ->sum('amount');
 
-    $monthlyIncome = $monthlyTransactions->where('amount', '>', 0)->sum('amount');
-    $monthlyExpense = $monthlyTransactions->where('amount', '<', 0)->sum('amount');
     $netProfit = $monthlyIncome + $monthlyExpense;
+    $transactions = $baseQuery->latest()->paginate(20);
 
     return view('admin.coaches.wallet-balance', [
         'transactions' => $transactions,

@@ -49,24 +49,22 @@ $query = \App\Models\User::select('users.*')
     public function clinicwallet(){
 
         $clinic = Auth::user(); // assuming the authenticated user is the clinic
-        $transactions = Transaction::where('user_id', $clinic->id)->latest()->get();
+        $baseQuery = Transaction::where('user_id', $clinic->id);
 
-        $walletBalance = $transactions->sum('amount');
+        $walletBalance = (clone $baseQuery)->sum('amount');
 
-        // Example monthly income and expenses for current month
-        $currentMonth = now()->month;
-
-        $monthlyIncome = $transactions
+        $monthlyIncome = (clone $baseQuery)
             ->where('amount', '>', 0)
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('amount');
 
-        $monthlyExpense = $transactions
+        $monthlyExpense = (clone $baseQuery)
             ->where('amount', '<', 0)
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('amount');
 
         $netProfit = $monthlyIncome + $monthlyExpense;
+        $transactions = $baseQuery->latest()->paginate(20);
 
         return view('admin.clinics.wallet-balance', [
             'transactions' => $transactions,

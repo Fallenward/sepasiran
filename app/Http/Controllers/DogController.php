@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DogRequest;
 use App\Models\Dog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\DogRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -16,11 +16,7 @@ class DogController extends Controller
      */
     public function index(Request $request): View
     {
-        // $dogs = Dog::paginate();
-
-        $dog = Dog::with('owner')->get();
-
-        dd($dog);
+        $dogs = Dog::with('owner')->paginate(20);
 
         return view('dog.index', compact('dogs'))
             ->with('i', ($request->input('page', 1) - 1) * $dogs->perPage());
@@ -31,7 +27,7 @@ class DogController extends Controller
      */
     public function create(): View
     {
-        $dog = new Dog();
+        $dog = new Dog;
 
         return view('dog.create', compact('dog'));
     }
