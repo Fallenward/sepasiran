@@ -113,11 +113,6 @@ class RegisteredUserController extends Controller
 
     private function homeForRole(string $role): string
     {
-        return match ($role) {
-            'breeder' => route('breeder.dashboard'),
-            'coach' => route('coaches.dashboard'),
-            'clinic' => route('clinic.dashboard'),
-            default => route('user.dashboard'),
-        };
+        return route('frontend.home');
     }
 }

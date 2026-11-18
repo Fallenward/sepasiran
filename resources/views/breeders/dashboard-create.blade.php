@@ -4,7 +4,7 @@
 <div class="container">
     <h2>افزودن سگ جدید</h2>
 
-    <form action="{{ route('breeders.dashboard-store') }}" method="POST">
+    <form action="{{ route('breeder.dashboard-store') }}" method="POST">
         @csrf
 
         <div class="form-group">

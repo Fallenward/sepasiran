@@ -147,8 +147,8 @@
     <div class="row text-center mb-4">
         @php
             $shortcuts = [
-                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('breeder.dashboard')],
-                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('breeder.dashboard')],
+                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('frontend.booking.index')],
+                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('frontend.booking.index')],
                 ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('wallet.index')],
             ];
         @endphp
@@ -172,7 +172,7 @@
                 <i class="bi bi-clipboard2-check fs-3"></i>
                 <div class="mt-2">تعداد سفارشات باز</div>
                 <div class="h4 mt-1">{{ $openBookings ?? 0 }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
+                <a href="{{ route('frontend.booking.index') }}" class="btn btn-light btn-sm">مشاهده</a>
             </div>
         </div>
         <div class="col-4">
@@ -188,7 +188,7 @@
                 <i class="bi bi-people fs-3"></i>
                 <div class="mt-2">مبلغ کل درآمد</div>
                 <div class="h4 mt-1">{{ $activeDoctors ?? 0 }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
+                <a href="{{ route('frontend.booking.index') }}" class="btn btn-light btn-sm">مشاهده</a>
             </div>
         </div>
     </div>
@@ -225,11 +225,11 @@
 
     {{-- Footer Navigation --}}
     <nav class="footer-nav">
-        <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-        <a class="nav-link" href="{{ route('breeder.dogs.listing') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
-        <a class="nav-link" href="{{ route('breeders.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
+        <a class="nav-link" href="{{ route('frontend.home') }}"><i class="bi bi-house"></i><br>خانه</a>
+        <a class="nav-link" href="{{ route('frontend.dog.supply.index') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
+        <a class="nav-link" href="{{ route('breeder.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
         <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-gear"></i><br>کیف پول</a>
-        <a class="nav-link" href="{{ route('breeder.profile') }}"><i class="bi bi-person"></i><br>پروفایل</a>
+        <a class="nav-link" href="{{ route('user.dashboard') }}"><i class="bi bi-person"></i><br>پروفایل</a>
     </nav>
 
 </div>

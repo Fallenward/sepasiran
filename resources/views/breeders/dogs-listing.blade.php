@@ -174,7 +174,7 @@
         </table>
     </div>
 
-    <a href="{{ route('breeders.dashboard-create') }}" class="btn btn-primary mt-3">افزودن سگ جدید</a>
+    <a href="{{ route('breeder.dashboard-create') }}" class="btn btn-primary mt-3">افزودن سگ جدید</a>
 
 </div>
 @endsection

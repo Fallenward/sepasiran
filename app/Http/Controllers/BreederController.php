@@ -123,7 +123,7 @@ public function store(Request $request)
 
     Dog::create($validated);
 
-    return redirect()->route('breeders.dashboard')->with('success', 'سگ با موفقیت ثبت شد.');
+    return redirect()->route('breeder.dashboard')->with('success', 'سگ با موفقیت ثبت شد.');
 }
 
 

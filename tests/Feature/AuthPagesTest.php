@@ -31,7 +31,7 @@ class AuthPagesTest extends TestCase
             'role' => 'user',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('user.dashboard'));
+        ])->assertRedirect(route('frontend.home'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
@@ -60,7 +60,7 @@ class AuthPagesTest extends TestCase
             'role' => 'coach',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ])->assertRedirect(route('coaches.dashboard'));
+        ])->assertRedirect(route('frontend.home'));
 
         $user = User::query()->where('phone', '09123334455')->first();
         $this->assertNotNull($user);
