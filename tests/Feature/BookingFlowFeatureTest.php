@@ -118,8 +118,8 @@ class BookingFlowFeatureTest extends TestCase
         $this->actingAs($coach)
             ->get(route('account.bookings.show', $booking))
             ->assertOk()
-            ->assertSee('گفتگو', false)
-            ->assertSee('سلام، سگ من کمی مضطرب است.', false);
+            ->assertDontSee('گفتگو خصوصی', false)
+            ->assertSee('جزئیات رزرو', false);
     }
 
     public function test_direct_booking_provider_can_reject(): void
@@ -167,7 +167,7 @@ class BookingFlowFeatureTest extends TestCase
             ->get(route('frontend.booking.open.show', $code))
             ->assertOk()
             ->assertSee('ارسال پیشنهاد', false)
-            ->assertSee('گفتگو', false)
+            ->assertDontSee('گفتگو خصوصی', false)
             ->assertSee('جزئیات رزرو', false)
             ->assertSee('جزئیات سگ', false)
             ->assertSee($code, false);

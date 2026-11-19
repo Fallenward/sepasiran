@@ -129,12 +129,6 @@
             </section>
         @endif
 
-        @include('frontend.partials.booking-chat', [
-            'booking' => $booking,
-            'isOwner' => $isOwner,
-            'isProvider' => $isProvider,
-            'isLocked' => $isLocked,
-        ])
     @endauth
 </div>
 @endsection
