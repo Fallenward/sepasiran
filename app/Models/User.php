@@ -127,10 +127,25 @@ namespace App\Models;
                 return null;
             }
             if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
-                return $path;
+                $url = $path;
+            } else {
+                $url = asset('storage/' . ltrim($path, '/'));
             }
 
-            return asset('storage/' . ltrim($path, '/'));
+            // Bust browser/CDN cache when profile photo or user row changes.
+            $version = optional($this->updated_at)->getTimestamp() ?: time();
+            $sep = str_contains($url, '?') ? '&' : '?';
+
+            return $url.$sep.'v='.$version;
+        }
+
+        protected static function booted(): void
+        {
+            static::saved(function (self $user) {
+                if ($user->wasChanged(['name', 'family', 'profile_picture', 'photo'])) {
+                    \App\Support\AppCache::forgetUserHeader((int) $user->id);
+                }
+            });
         }
 
         public function profileEditRoute(): string

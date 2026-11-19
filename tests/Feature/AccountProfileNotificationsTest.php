@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\AppCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -49,6 +51,7 @@ class AccountProfileNotificationsTest extends TestCase
         $user->refresh();
         $this->assertSame('Ali', $user->name);
         $this->assertNotEmpty($user->profile_picture);
+        $this->assertStringContainsString('v=', (string) $user->avatarUrl());
     }
 
     public function test_notifications_in_header_and_page(): void
@@ -64,7 +67,8 @@ class AccountProfileNotificationsTest extends TestCase
             ->get(route('frontend.home'))
             ->assertOk()
             ->assertSee('اعلان‌ها', false)
-            ->assertSee('رزرو جدید', false);
+            ->assertSee('رزرو جدید', false)
+            ->assertSee('رفتن به صفحه اعلان‌ها', false);
 
         $this->actingAs($user)
             ->get(route('account.notifications.index'))
@@ -76,5 +80,47 @@ class AccountProfileNotificationsTest extends TestCase
             ->assertOk()
             ->assertSee('ویرایش پروفایل', false)
             ->assertSee('رزرو جدید', false);
+    }
+
+    public function test_header_user_payload_is_cached_and_invalidated(): void
+    {
+        $user = $this->customer();
+        Notification::query()->create([
+            'user_id' => $user->id,
+            'title' => 'اول',
+            'message' => 'پیام اول',
+        ]);
+
+        $first = AppCache::userHeader($user);
+        $this->assertSame(1, $first['unread']);
+        $this->assertTrue(Cache::has(AppCache::userHeaderKey((int) $user->id)));
+
+        $this->actingAs($user)
+            ->postJson(route('account.notifications.read-all'))
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('unread', 0);
+
+        $this->assertFalse(Cache::has(AppCache::userHeaderKey((int) $user->id)));
+        $second = AppCache::userHeader($user->fresh());
+        $this->assertSame(0, $second['unread']);
+    }
+
+    public function test_mark_single_notification_ajax_without_redirect_body(): void
+    {
+        $user = $this->customer();
+        $note = Notification::query()->create([
+            'user_id' => $user->id,
+            'title' => 'تک',
+            'message' => 'پیام تک',
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(route('account.notifications.read', $note))
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('unread', 0);
+
+        $this->assertNotNull($note->fresh()->read_at);
     }
 }

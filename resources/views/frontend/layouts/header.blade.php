@@ -1,8 +1,12 @@
 @php
     $authUser = auth()->user();
     $accountLinks = [];
-    $headerNotifications = collect();
-    $unreadCount = 0;
+    $headerShell = [
+        'display_name' => 'کاربر',
+        'avatar_url' => null,
+        'unread' => 0,
+        'notifications' => [],
+    ];
     if ($authUser) {
         if (!empty($authUser->is_admin) || (method_exists($authUser, 'hasRole') && ($authUser->hasRole('admin') || $authUser->hasRole('administrator')))) {
             $accountLinks[] = ['label' => 'پنل ادمین', 'url' => route('admin.dashboard.index')];
@@ -34,16 +38,15 @@
             return true;
         }));
 
-        $headerNotifications = \App\Models\Notification::query()
-            ->where('user_id', $authUser->id)
-            ->latest()
-            ->limit(6)
-            ->get();
-        $unreadCount = \App\Models\Notification::query()
-            ->where('user_id', $authUser->id)
-            ->whereNull('read_at')
-            ->count();
+        try {
+            $headerShell = \App\Support\AppCache::userHeader($authUser);
+        } catch (\Throwable) {
+            $headerShell['display_name'] = trim(($authUser->name ?? '').' '.($authUser->family ?? '')) ?: 'کاربر';
+            $headerShell['avatar_url'] = $authUser->avatarUrl();
+        }
     }
+    $headerNotifications = collect($headerShell['notifications'] ?? []);
+    $unreadCount = (int) ($headerShell['unread'] ?? 0);
 @endphp
 <header class="sp-nav">
     <a class="sp-brand" href="{{ route('frontend.home') }}">
@@ -112,45 +115,60 @@
             <a class="btn btn-ghost" href="{{ route('login') }}">ورود</a>
             <a class="btn btn-primary" href="{{ route('register') }}">ثبت‌نام</a>
         @else
-            <div class="sp-nav__notify">
-                <button type="button" class="sp-nav__notify-btn" aria-haspopup="true" aria-expanded="false" aria-label="اعلان‌ها">
+            <div class="sp-nav__notify" data-sp-notify>
+                <button type="button"
+                        class="sp-nav__notify-btn"
+                        data-sp-notify-toggle
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-label="اعلان‌ها">
                     <i class="fas fa-bell"></i>
-                    @if($unreadCount > 0)
-                        <span class="sp-nav__notify-badge">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
-                    @endif
+                    <span class="sp-nav__notify-badge {{ $unreadCount > 0 ? '' : 'is-hidden' }}" data-sp-notify-badge>
+                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                    </span>
                 </button>
-                <div class="sp-menu__dropdown sp-nav__notify-menu" role="menu">
+                <div class="sp-menu__dropdown sp-nav__notify-menu" role="menu" data-sp-notify-menu>
                     <div class="sp-nav__notify-head">
                         <strong>اعلان‌ها</strong>
-                        <a href="{{ route('account.notifications.index') }}">مشاهده همه</a>
+                        <a href="{{ route('account.notifications.index') }}" data-sp-notify-all>مشاهده همه</a>
                     </div>
-                    @forelse($headerNotifications as $note)
-                        <a class="sp-nav__notify-item {{ $note->read_at ? '' : 'is-unread' }}" href="{{ route('account.notifications.index') }}">
-                            <span class="sp-nav__notify-title">{{ $note->title ?: 'اعلان' }}</span>
-                            <span class="sp-nav__notify-msg">{{ \Illuminate\Support\Str::limit($note->message, 72) }}</span>
-                        </a>
-                    @empty
-                        <p class="sp-nav__notify-empty">اعلان جدیدی نیست.</p>
-                    @endforelse
-                    @if($unreadCount > 0)
-                        <form action="{{ route('account.notifications.read-all') }}" method="POST" class="sp-nav__notify-foot">
-                            @csrf
-                            <button type="submit">خواندن همه</button>
-                        </form>
-                    @endif
+                    <div class="sp-nav__notify-list" data-sp-notify-list>
+                        @forelse($headerNotifications as $note)
+                            <a class="sp-nav__notify-item {{ empty($note['read_at']) ? 'is-unread' : '' }}"
+                               href="{{ $note['url'] }}"
+                               data-sp-notify-item
+                               data-id="{{ $note['id'] }}"
+                               data-read-url="{{ route('account.notifications.read', $note['id']) }}"
+                               data-unread="{{ empty($note['read_at']) ? '1' : '0' }}">
+                                <span class="sp-nav__notify-title">{{ $note['title'] }}</span>
+                                <span class="sp-nav__notify-msg">{{ $note['message'] }}</span>
+                            </a>
+                        @empty
+                            <p class="sp-nav__notify-empty">اعلان جدیدی نیست.</p>
+                        @endforelse
+                    </div>
+                    <div class="sp-nav__notify-foot">
+                        <a class="sp-nav__notify-page" href="{{ route('account.notifications.index') }}">رفتن به صفحه اعلان‌ها</a>
+                        <button type="button"
+                                class="sp-nav__notify-readall {{ $unreadCount > 0 ? '' : 'is-hidden' }}"
+                                data-sp-notify-readall
+                                data-url="{{ route('account.notifications.read-all') }}">
+                            خواندن همه
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="sp-nav__account">
-                <button type="button" class="btn btn-ghost sp-nav__account-btn" aria-haspopup="true" aria-expanded="false">
-                    @if($authUser->avatarUrl())
-                        <img class="sp-nav__account-avatar" src="{{ $authUser->avatarUrl() }}" alt="">
+            <div class="sp-nav__account" data-sp-account>
+                <button type="button" class="btn btn-ghost sp-nav__account-btn" data-sp-account-toggle aria-haspopup="true" aria-expanded="false">
+                    @if(!empty($headerShell['avatar_url']))
+                        <img class="sp-nav__account-avatar" src="{{ $headerShell['avatar_url'] }}" alt="" data-sp-avatar>
                     @endif
                     حساب من
                 </button>
                 <div class="sp-menu__dropdown sp-nav__account-menu" role="menu">
                     <div class="sp-nav__account-name">
-                        {{ trim(($authUser->name ?? '').' '.($authUser->family ?? '')) ?: 'کاربر' }}
+                        {{ $headerShell['display_name'] }}
                     </div>
                     @foreach($accountLinks as $link)
                         <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>

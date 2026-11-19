@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Support\AppCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,6 +71,8 @@ class ProfileController extends Controller
 
         $user->fill($validated);
         $user->save();
+
+        AppCache::forgetUserHeader((int) $user->id);
 
         return redirect()
             ->route('account.profile.edit')

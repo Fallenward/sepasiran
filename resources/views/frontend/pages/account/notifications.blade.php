@@ -5,8 +5,9 @@
 @section('content')
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
-                @include('frontend.partials.dashboard-nav')
-<section class="sp-dash__hero">
+        @include('frontend.partials.dashboard-nav')
+
+        <section class="sp-dash__hero">
             <div class="sp-dash__hero-main">
                 <div class="sp-dash__avatar" aria-hidden="true"><i class="fas fa-bell"></i></div>
                 <div>
@@ -20,10 +21,12 @@
                     <strong>عملیات</strong>
                     <p>اعلان‌های خوانده‌نشده را یکجا پاک کنید.</p>
                 </div>
-                <form method="POST" action="{{ route('account.notifications.read-all') }}">
-                    @csrf
-                    <button type="submit" class="sp-btn sp-btn--primary">خواندن همه</button>
-                </form>
+                <button type="button"
+                        class="sp-btn sp-btn--primary"
+                        data-sp-notify-readall
+                        data-url="{{ route('account.notifications.read-all') }}">
+                    خواندن همه
+                </button>
             </aside>
         </section>
 
@@ -32,21 +35,26 @@
                 <h2>لیست اعلان‌ها</h2>
                 <a href="{{ $backUrl }}">داشبورد</a>
             </header>
-            <div class="sp-dash__list">
+            <div class="sp-dash__list" data-sp-notify-page-list>
                 @forelse($notifications as $note)
-                    <article class="sp-dash__row {{ $note->read_at ? '' : 'is-unread' }}">
+                    <article id="notification-{{ $note->id }}"
+                             class="sp-dash__row {{ $note->read_at ? '' : 'is-unread' }}"
+                             data-notification-id="{{ $note->id }}">
                         <span class="sp-dash__row-icon"><i class="fas fa-bell"></i></span>
                         <div>
                             <strong>{{ $note->title ?: 'اعلان' }}</strong>
                             <p class="sp-dash__muted">{{ $note->message }}</p>
-                            <p class="sp-dash__muted">{{ optional($note->created_at)->format('Y/m/d H:i') }}</p>
+                            <p class="sp-dash__muted"><span class="num">{{ optional($note->created_at)->format('Y/m/d H:i') }}</span></p>
                         </div>
                         <div class="sp-dash__row-meta">
                             @if(!$note->read_at)
-                                <form method="POST" action="{{ route('account.notifications.read', $note) }}">
-                                    @csrf
-                                    <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:36px;padding:6px 12px">خواندم</button>
-                                </form>
+                                <button type="button"
+                                        class="sp-btn sp-btn--ghost"
+                                        style="min-height:36px;padding:6px 12px"
+                                        data-sp-notify-mark
+                                        data-url="{{ route('account.notifications.read', $note) }}">
+                                    خواندم
+                                </button>
                             @else
                                 <span class="sp-dash__chip is-done">خوانده‌شده</span>
                             @endif
@@ -65,3 +73,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(() => {
+  const focusId = @json($focusId ?? 0);
+  if (!focusId) return;
+  const el = document.getElementById('notification-' + focusId);
+  if (!el) return;
+  el.classList.add('is-focus');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+})();
+</script>
+@endpush
