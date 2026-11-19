@@ -327,6 +327,13 @@ class BookingFlowFeatureTest extends TestCase
             ])
             ->assertCreated();
 
+        // Provider cannot message before the reserver starts the thread.
+        $this->actingAs($coachA)
+            ->postJson(route('frontend.booking.api.messages.store', $code), [
+                'body' => 'provider first should fail',
+            ])
+            ->assertStatus(422);
+
         $this->actingAs($customer)
             ->postJson(route('frontend.booking.api.messages.store', $code), [
                 'body' => 'secret for A only',
@@ -336,15 +343,22 @@ class BookingFlowFeatureTest extends TestCase
             ->assertJsonPath('message.provider_id', $coachA->id);
 
         $this->actingAs($coachA)
+            ->postJson(route('frontend.booking.api.messages.store', $code), [
+                'body' => 'A can reply now',
+            ])
+            ->assertCreated();
+
+        $this->actingAs($coachA)
             ->getJson(route('frontend.booking.api.messages.index', $code))
             ->assertOk()
-            ->assertJsonCount(1, 'results')
-            ->assertJsonPath('results.0.body', 'secret for A only');
+            ->assertJsonCount(2, 'results')
+            ->assertJsonPath('can_reply', true);
 
         $this->actingAs($coachB)
             ->getJson(route('frontend.booking.api.messages.index', $code))
             ->assertOk()
-            ->assertJsonCount(0, 'results');
+            ->assertJsonCount(0, 'results')
+            ->assertJsonPath('can_reply', false);
 
         $this->actingAs($customer)
             ->getJson(route('frontend.booking.api.messages.index', ['booking_code' => $code, 'provider_id' => $coachB->id]))
@@ -356,6 +370,33 @@ class BookingFlowFeatureTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['provider_id' => $coachA->id])
             ->assertJsonFragment(['provider_id' => $coachB->id]);
+    }
+
+    public function test_provider_without_offer_cannot_chat_on_open_booking(): void
+    {
+        $customer = $this->makeRoleUser('user');
+        $coach = $this->makeRoleUser('coach');
+        $city = $this->makeCity();
+        $dog = $this->makeDog($customer);
+
+        $code = $this->actingAs($customer)
+            ->postJson(route('frontend.booking.api.store'), [
+                'dog_id' => $dog->id,
+                'city_id' => $city->id,
+                'service_type' => 'coach',
+                'training_type' => 'beginner',
+                'fulfillment_mode' => 'open',
+                'contact_name' => 'Saeed',
+                'contact_phone' => '09121234567',
+            ])
+            ->assertCreated()
+            ->json('booking.booking_code');
+
+        $this->actingAs($coach)
+            ->postJson(route('frontend.booking.api.messages.store', $code), [
+                'body' => 'no offer yet',
+            ])
+            ->assertForbidden();
     }
 
     public function test_account_booking_hub_links_to_discussion_page(): void

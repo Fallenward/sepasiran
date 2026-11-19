@@ -16,7 +16,12 @@
         <h2>گفتگو خصوصی</h2>
         <button type="button" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 12px" data-chat-refresh>به‌روز</button>
     </header>
-    <p class="sp-dash__muted" style="margin-bottom:10px">هر گفتگو فقط بین شما و یک طرف است (رزرو + ارائه‌دهنده).</p>
+    <p class="sp-dash__muted" style="margin-bottom:10px">
+        گفتگو خصوصی است (رزرو + ارائه‌دهنده). ارائه‌دهنده فقط بعد از ارسال پیشنهاد می‌تواند وارد شود، و صاحب رزرو باید اول پیام بدهد.
+    </p>
+    <p class="sp-dash__muted" data-chat-gate style="display:none;margin-bottom:10px;color:var(--sp-gold)">
+        منتظر پیام اول صاحب رزرو باشید.
+    </p>
 
     @if($isOwner)
         <div class="sp-booking-chat__threads" data-chat-threads>
@@ -104,6 +109,9 @@
     thread.scrollTop = thread.scrollHeight;
   };
 
+  const gate = chat.querySelector('[data-chat-gate]');
+  const composer = form;
+
   const loadMessages = async () => {
     if (!providerId) {
       thread.innerHTML = '<p class="sp-dash__muted">یک طرف گفتگو را انتخاب کنید.</p>';
@@ -116,6 +124,9 @@
     if (!res.ok) return;
     const data = await res.json();
     renderMessages(data.results || []);
+    const canReply = data.can_reply !== false;
+    if (gate) gate.style.display = (!isOwner && !canReply) ? '' : 'none';
+    if (composer) composer.style.display = canReply ? '' : 'none';
   };
 
   const loadThreads = async () => {

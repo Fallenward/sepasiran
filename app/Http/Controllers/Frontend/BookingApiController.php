@@ -746,8 +746,15 @@ class BookingApiController extends Controller
             ->get()
             ->map(fn (BookingMessage $m) => $this->serializeMessage($m));
 
+        $isOwner = (int) $booking->user_id === (int) Auth::id();
+        $canReply = $isOwner
+            || $this->isAdmin(Auth::user())
+            || $this->ownerHasMessagedFirst($booking, $providerId);
+
         return response()->json([
             'provider_id' => $providerId,
+            'owner_started' => $this->ownerHasMessagedFirst($booking, $providerId),
+            'can_reply' => $canReply,
             'results' => $messages,
         ]);
     }
@@ -778,6 +785,30 @@ class BookingApiController extends Controller
         ]);
 
         $providerId = $this->resolveThreadProviderId($request, $booking);
+        $senderId = (int) Auth::id();
+        $isOwner = (int) $booking->user_id === $senderId;
+
+        // Non-owners (providers) may only reply after: (1) they sent an offer / were requested,
+        // and (2) the booking reserver messaged first in this booking+provider thread.
+        if (! $isOwner && ! $this->isAdmin(Auth::user())) {
+            $hasOfferOrAssignment = $this->isAssignedProvider($booking, $senderId)
+                || BookingOffer::query()
+                    ->where('booking_id', $booking->id)
+                    ->where('provider_id', $senderId)
+                    ->exists();
+
+            if (! $hasOfferOrAssignment) {
+                throw ValidationException::withMessages([
+                    'booking' => 'برای گفتگو ابتدا باید پیشنهاد/درخواست ارسال کنید.',
+                ]);
+            }
+
+            if (! $this->ownerHasMessagedFirst($booking, $providerId)) {
+                throw ValidationException::withMessages([
+                    'booking' => 'گفتگو وقتی شروع می‌شود که صاحب رزرو اول پیام بدهد.',
+                ]);
+            }
+        }
 
         if (! empty($data['booking_offer_id'])) {
             $offer = BookingOffer::query()
@@ -793,7 +824,7 @@ class BookingApiController extends Controller
 
         $message = BookingMessage::query()->create([
             'booking_id' => $booking->id,
-            'user_id' => Auth::id(),
+            'user_id' => $senderId,
             'provider_id' => $providerId,
             'booking_offer_id' => $data['booking_offer_id'] ?? null,
             'body' => $data['body'],
@@ -983,39 +1014,33 @@ class BookingApiController extends Controller
 
     private function canChat(Booking $booking, int $userId): bool
     {
+        // Booking owner (reserver) can always open chat threads.
         if ((int) $booking->user_id === $userId) {
             return true;
         }
-        if ((int) $booking->provider_id === $userId) {
-            return true;
-        }
+
+        // Direct: invited / assigned provider may chat after the customer requested them.
         if ($this->isAssignedProvider($booking, $userId)) {
             return true;
         }
 
-        $hasOffer = BookingOffer::query()
+        // Open: provider may chat only after they submitted an offer/request.
+        return BookingOffer::query()
             ->where('booking_id', $booking->id)
             ->where('provider_id', $userId)
             ->exists();
+    }
 
-        if ($hasOffer) {
-            return true;
-        }
-
-        // Open marketplace: any role-matched provider may chat before offering.
-        $user = Auth::user();
-        if (
-            $user
-            && ($booking->fulfillment_mode ?? 'direct') === 'open'
-            && in_array(strtoupper((string) $booking->status), ['OPEN', 'PENDING', 'QUOTED'], true)
-            && method_exists($user, 'hasRole')
-        ) {
-            $role = BookingCatalog::roleFor((string) $booking->service_type);
-
-            return $role && $user->hasRole($role);
-        }
-
-        return false;
+    /**
+     * Providers may reply only after the booking reserver has messaged first in this thread.
+     */
+    private function ownerHasMessagedFirst(Booking $booking, int $providerId): bool
+    {
+        return BookingMessage::query()
+            ->where('booking_id', $booking->id)
+            ->where('provider_id', $providerId)
+            ->where('user_id', $booking->user_id)
+            ->exists();
     }
 
     private function isAssignedProvider(Booking $booking, int $userId): bool
@@ -1064,22 +1089,14 @@ class BookingApiController extends Controller
             ]);
         }
 
-        // Must be invited, assigned, offerer, or role-matched open participant who already messaged/offered.
+        // Thread only with invited/assigned providers or those who already sent an offer.
         $allowed = (int) $booking->provider_id === $requested
             || $booking->invitedProviders()->where('provider_id', $requested)->exists()
-            || BookingOffer::query()->where('booking_id', $booking->id)->where('provider_id', $requested)->exists()
-            || BookingMessage::query()->where('booking_id', $booking->id)->where('provider_id', $requested)->exists()
-            || (
-                ($booking->fulfillment_mode ?? 'direct') === 'open'
-                && User::query()
-                    ->where('id', $requested)
-                    ->whereHas('roles', fn ($q) => $q->where('name', BookingCatalog::roleFor((string) $booking->service_type)))
-                    ->exists()
-            );
+            || BookingOffer::query()->where('booking_id', $booking->id)->where('provider_id', $requested)->exists();
 
         if (! $allowed) {
             throw ValidationException::withMessages([
-                'provider_id' => 'گفتگو با این ارائه‌دهنده مجاز نیست.',
+                'provider_id' => 'گفتگو فقط پس از ارسال پیشنهاد/درخواست توسط ارائه‌دهنده ممکن است.',
             ]);
         }
 
