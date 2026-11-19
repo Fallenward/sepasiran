@@ -13,9 +13,17 @@
         'COMPLETED' => ['انجام شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
     ];
+    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
     $statusKey = strtoupper((string) $booking->status);
     [$stLabel, $stClass] = $statusMap[$statusKey] ?? [$booking->status, 'is-pending'];
     $code = $booking->booking_code;
+    $isOpen = ($booking->fulfillment_mode ?? 'direct') === 'open';
+    $isLocked = in_array($statusKey, $lockedStatuses, true);
+    $providerCanDecide = $isProvider && ! $isLocked;
+    $ownerCanCancel = $isOwner && ! $isLocked;
+    $myOffer = $isProvider
+        ? $booking->offers->firstWhere('provider_id', auth()->id())
+        : null;
 @endphp
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
@@ -31,17 +39,43 @@
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">
-                <div>
-                    <strong>بازگشت</strong>
-                    <p>به لیست رزروها برگردید.</p>
-                </div>
-                <a class="sp-btn sp-btn--ghost" href="{{ $backUrl }}">رزروها</a>
+                @if($providerCanDecide)
+                    <div>
+                        <strong>تصمیم شما</strong>
+                        <p>پذیرش یا رد این درخواست.</p>
+                    </div>
+                    <div class="sp-dash__inline-form" style="flex-wrap:wrap">
+                        <button type="button" class="sp-btn sp-btn--primary" data-booking-respond="accept" data-code="{{ $code }}">پذیرش</button>
+                        <button type="button" class="sp-btn sp-btn--ghost" data-booking-respond="reject" data-code="{{ $code }}" style="color:var(--sp-danger)">رد</button>
+                    </div>
+                @elseif($ownerCanCancel && ! $isOpen)
+                    <div>
+                        <strong>لغو</strong>
+                        <p>درخواست را کنار بگذارید.</p>
+                    </div>
+                    <form method="POST" action="{{ route('account.bookings.status', $booking) }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="tab" value="mine">
+                        <input type="hidden" name="status" value="CANCELLED">
+                        <button type="submit" class="sp-btn sp-btn--ghost" style="color:var(--sp-danger)">لغو درخواست</button>
+                    </form>
+                @else
+                    <div>
+                        <strong>بازگشت</strong>
+                        <p>به لیست رزروها برگردید.</p>
+                    </div>
+                    <a class="sp-btn sp-btn--ghost" href="{{ $backUrl }}">رزروها</a>
+                @endif
             </aside>
         </section>
 
         @if(session('success'))
             <div class="sp-dash__flash">{{ session('success') }}</div>
         @endif
+        @error('status')
+            <div class="sp-dash__flash" style="border-color:rgba(220,80,80,.4);color:#f0b4b4">{{ $message }}</div>
+        @enderror
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
@@ -52,7 +86,7 @@
                 <article class="sp-dash__row">
                     <span class="sp-dash__row-icon"><i class="fas fa-ticket-alt"></i></span>
                     <div>
-                        <strong>{{ strtoupper((string) $booking->service_type) }} · {{ $booking->fulfillment_mode === 'open' ? 'درخواست باز' : 'مستقیم' }}</strong>
+                        <strong>{{ strtoupper((string) $booking->service_type) }} · {{ $isOpen ? 'درخواست باز' : 'مستقیم' }}</strong>
                         <p class="sp-dash__muted">
                             @if($isOwner)
                                 ارائه‌دهنده: {{ optional($booking->provider)->name ?? 'هنوز مشخص نشده' }}
@@ -64,19 +98,20 @@
                             @if($booking->dog) سگ: {{ $booking->dog->title }} · @endif
                             <span class="num">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }}</span> ت
                         </p>
+                        @if($providerCanDecide)
+                            <div class="sp-dash__inline-form" style="margin-top:12px">
+                                <button type="button" class="sp-btn sp-btn--primary" data-booking-respond="accept" data-code="{{ $code }}">پذیرش درخواست</button>
+                                <button type="button" class="sp-btn sp-btn--ghost" data-booking-respond="reject" data-code="{{ $code }}" style="color:var(--sp-danger)">رد درخواست</button>
+                            </div>
+                        @elseif($isLocked)
+                            <p class="sp-dash__muted" style="margin-top:8px">تصمیم نهایی ثبت شده است.</p>
+                        @endif
                     </div>
                 </article>
             </div>
-
-            @if($isProvider && $booking->fulfillment_mode === 'direct' && $statusKey === 'PENDING')
-                <div class="sp-dash__inline-form" style="margin-top:14px">
-                    <button type="button" class="sp-btn sp-btn--primary" data-booking-respond="accept" data-code="{{ $code }}">پذیرش درخواست</button>
-                    <button type="button" class="sp-btn sp-btn--ghost" data-booking-respond="reject" data-code="{{ $code }}" style="color:var(--sp-danger)">رد درخواست</button>
-                </div>
-            @endif
         </section>
 
-        @if($isOwner && $booking->fulfillment_mode === 'open')
+        @if($isOwner && $isOpen)
             <section class="sp-dash__panel">
                 <header class="sp-dash__panel-head">
                     <h2>پیشنهادهای دریافتی</h2>
@@ -89,12 +124,12 @@
                                 <strong>{{ optional($offer->provider)->name }} {{ optional($offer->provider)->family }}</strong>
                                 <p class="sp-dash__muted">{{ $offer->message ?: 'بدون پیام' }}</p>
                                 <p class="sp-dash__muted"><span class="num">{{ number_format((float) $offer->price) }}</span> ت · {{ $offer->status }}</p>
-                                @if($offer->status === 'pending' && $statusKey === 'OPEN')
+                                @if($offer->status === 'pending' && ! $isLocked)
                                     <div class="sp-dash__inline-form">
                                         <button type="button" class="sp-btn sp-btn--primary" style="min-height:34px;padding:6px 12px"
-                                                data-offer-accept data-code="{{ $code }}" data-offer="{{ $offer->id }}">پذیرش</button>
+                                                data-offer-accept data-code="{{ $code }}" data-offer="{{ $offer->id }}">پذیرش پیشنهاد</button>
                                         <button type="button" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 12px;color:var(--sp-danger)"
-                                                data-offer-reject data-code="{{ $code }}" data-offer="{{ $offer->id }}">رد</button>
+                                                data-offer-reject data-code="{{ $code }}" data-offer="{{ $offer->id }}">رد پیشنهاد</button>
                                     </div>
                                 @endif
                             </div>
@@ -106,11 +141,10 @@
             </section>
         @endif
 
-        @if($isProvider && $booking->fulfillment_mode === 'open' && $statusKey === 'OPEN')
-            @php $myOffer = $booking->offers->firstWhere('provider_id', auth()->id()); @endphp
+        @if($isProvider && $isOpen && ! $isLocked)
             <section class="sp-dash__panel">
                 <header class="sp-dash__panel-head">
-                    <h2>ارسال پیشنهاد</h2>
+                    <h2>ارسال پیشنهاد قیمت (اختیاری قبل از پذیرش)</h2>
                 </header>
                 @if($myOffer)
                     <p class="sp-dash__muted">پیشنهاد فعلی شما: <span class="num">{{ number_format((float) $myOffer->price) }}</span> ت ({{ $myOffer->status }})</p>
@@ -145,7 +179,7 @@
                     <p class="sp-dash__muted" data-chat-empty>هنوز پیامی نیست. برای توافق ابتدا گفتگو کنید.</p>
                 @endforelse
             </div>
-            @if(!in_array($statusKey, ['CANCELLED', 'COMPLETED'], true))
+            @if(! $isLocked)
                 <form class="sp-booking-chat__composer" data-chat-form>
                     <input type="text" name="body" maxlength="2000" placeholder="پیام خود را بنویسید..." required>
                     <button class="sp-btn sp-btn--primary" type="submit">ارسال</button>

@@ -577,17 +577,26 @@ class BookingApiController extends Controller
             ->where('booking_code', $bookingCode)
             ->firstOrFail();
 
-        abort_unless($this->isAssignedProvider($booking, (int) Auth::id()), 403);
+        $userId = (int) Auth::id();
+        $canRespond = $this->isAssignedProvider($booking, $userId)
+            || (
+                ($booking->fulfillment_mode ?? 'direct') === 'open'
+                && method_exists(Auth::user(), 'hasRole')
+                && Auth::user()->hasRole(BookingCatalog::roleFor((string) $booking->service_type))
+            );
 
-        if ($booking->fulfillment_mode !== 'direct' || strtoupper((string) $booking->status) !== 'PENDING') {
+        abort_unless($canRespond, 403);
+
+        $status = strtoupper((string) $booking->status);
+        if (in_array($status, ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'], true)) {
             throw ValidationException::withMessages([
-                'booking' => 'فقط درخواست‌های مستقیم در انتظار قابل پاسخ هستند.',
+                'booking' => 'این درخواست قبلاً تصمیم‌گیری شده است.',
             ]);
         }
 
         if ($data['action'] === 'accept') {
             $booking->update([
-                'provider_id' => Auth::id(),
+                'provider_id' => $userId,
                 'status' => 'ACCEPTED',
             ]);
         } else {

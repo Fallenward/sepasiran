@@ -70,7 +70,7 @@
                         [$stLabel, $stClass] = $statusMap[$statusKey] ?? [$booking->status, 'is-pending'];
                         $isLocked = in_array($statusKey, $lockedStatuses, true);
                         $isOpenFlow = ($booking->fulfillment_mode ?? 'direct') === 'open';
-                        $providerCanDecide = $tab === 'inbox' && ! $isLocked && ! $isOpenFlow;
+                        $providerCanDecide = $tab === 'inbox' && ! $isLocked;
                         $ownerCanCancel = $tab === 'mine' && ! $isLocked;
                     @endphp
                     <article class="sp-dash__row">
@@ -111,8 +111,6 @@
                                         <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 14px;color:var(--sp-danger)">رد</button>
                                     </form>
                                 </div>
-                            @elseif($tab === 'inbox' && $isOpenFlow && ! $isLocked)
-                                <p class="sp-dash__muted">درخواست باز است — پیشنهاد و گفتگو را از صفحه جزئیات مدیریت کنید.</p>
                             @elseif($ownerCanCancel)
                                 <form class="sp-dash__inline-form" method="POST" action="{{ route('account.bookings.status', $booking) }}">
                                     @csrf

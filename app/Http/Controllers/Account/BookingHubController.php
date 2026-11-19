@@ -42,14 +42,22 @@ class BookingHubController extends Controller
         $inbox = collect();
         $inboxPaginator = null;
         if ($isProvider) {
+            $serviceTypes = collect(\App\Support\BookingCatalog::serviceTypes())
+                ->filter(function (array $row) use ($user) {
+                    return $user->hasRole($row['role']);
+                })
+                ->pluck('key')
+                ->values()
+                ->all();
+
             $inboxPaginator = Booking::query()
-                ->where(function ($q) use ($user) {
+                ->where(function ($q) use ($user, $serviceTypes) {
                     $q->where('provider_id', $user->id)
                         ->orWhereHas('invitedProviders', fn ($iq) => $iq->where('provider_id', $user->id))
-                        ->orWhere(function ($open) use ($user) {
+                        ->orWhere(function ($open) use ($serviceTypes) {
                             $open->where('fulfillment_mode', 'open')
-                                ->where('status', 'OPEN')
-                                ->whereHas('offers', fn ($oq) => $oq->where('provider_id', $user->id));
+                                ->whereIn('status', ['OPEN', 'PENDING', 'QUOTED'])
+                                ->when($serviceTypes !== [], fn ($qq) => $qq->whereIn('service_type', $serviceTypes));
                         });
                 })
                 ->with(['user', 'dog', 'offers' => fn ($q) => $q->where('provider_id', $user->id)])
@@ -80,9 +88,15 @@ class BookingHubController extends Controller
     {
         $user = Auth::user();
         $isOwner = (int) $booking->user_id === (int) $user->id;
+        $roleForService = \App\Support\BookingCatalog::roleFor((string) $booking->service_type);
+        $isOpenMatch = ($booking->fulfillment_mode ?? 'direct') === 'open'
+            && in_array(strtoupper((string) $booking->status), ['OPEN', 'PENDING', 'QUOTED'], true)
+            && $roleForService
+            && $user->hasRole($roleForService);
         $isProvider = (int) $booking->provider_id === (int) $user->id
             || $booking->invitedProviders()->where('provider_id', $user->id)->exists()
-            || $booking->offers()->where('provider_id', $user->id)->exists();
+            || $booking->offers()->where('provider_id', $user->id)->exists()
+            || $isOpenMatch;
 
         abort_unless($isOwner || $isProvider || $user->hasRole('admin'), 403);
 
@@ -141,13 +155,8 @@ class BookingHubController extends Controller
             ]);
         }
 
-        // Provider may accept or reject a direct pending request.
+        // Provider may accept or reject any undecided request (direct or open).
         if ($isProvider && $decision === 'ACCEPTED') {
-            if ($booking->fulfillment_mode === 'open' && strtoupper((string) $booking->status) === 'OPEN') {
-                throw ValidationException::withMessages([
-                    'status' => 'برای درخواست باز، مشتری باید یکی از پیشنهادها را بپذیرد.',
-                ]);
-            }
             $booking->forceFill([
                 'status' => 'ACCEPTED',
                 'provider_id' => $user->id,

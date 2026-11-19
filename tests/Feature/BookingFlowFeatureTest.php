@@ -137,6 +137,42 @@ class BookingFlowFeatureTest extends TestCase
             ->assertJsonPath('booking.status', 'CANCELLED');
     }
 
+    public function test_open_booking_detail_shows_accept_reject_for_provider(): void
+    {
+        $customer = $this->makeRoleUser('user');
+        $coach = $this->makeRoleUser('coach');
+        $city = $this->makeCity();
+        $dog = $this->makeDog($customer);
+
+        $code = $this->actingAs($customer)
+            ->postJson(route('frontend.booking.api.store'), [
+                'dog_id' => $dog->id,
+                'city_id' => $city->id,
+                'service_type' => 'coach',
+                'training_type' => 'beginner',
+                'fulfillment_mode' => 'open',
+                'contact_name' => 'Saeed',
+                'contact_phone' => '09121234567',
+            ])
+            ->assertCreated()
+            ->json('booking.booking_code');
+
+        $booking = Booking::query()->where('booking_code', $code)->firstOrFail();
+
+        $this->actingAs($coach)
+            ->get(route('account.bookings.show', $booking))
+            ->assertOk()
+            ->assertSee('پذیرش', false)
+            ->assertSee('رد', false)
+            ->assertSee('data-booking-respond="accept"', false);
+
+        $this->actingAs($coach)
+            ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'accept'])
+            ->assertOk()
+            ->assertJsonPath('booking.status', 'ACCEPTED')
+            ->assertJsonPath('booking.provider.id', $coach->id);
+    }
+
     public function test_open_booking_offer_chat_accept_and_reject_offer(): void
     {
         $customer = $this->makeRoleUser('user');
