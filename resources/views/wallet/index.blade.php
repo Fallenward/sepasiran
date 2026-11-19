@@ -43,7 +43,7 @@
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
                 <h2>سود خالص این ماه</h2>
-                <span class="sp-dash__chip {{ $netProfit >= 0 ? 'is-active' : 'is-danger' }} latin">{{ number_format($netProfit) }} ت</span>
+                <span class="sp-dash__chip {{ $netProfit >= 0 ? 'is-active' : 'is-danger' }}"><span class="num">{{ number_format($netProfit) }}</span> ت</span>
             </header>
             <p class="sp-dash__muted">اختلاف واریز و برداشت تکمیل‌شده در ماه جاری.</p>
         </section>
@@ -77,7 +77,7 @@
                         </div>
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
-                            <span class="sp-dash__muted latin">{{ number_format((float) $transaction->amount) }} ت</span>
+                            <span class="sp-dash__muted"><span class="num">{{ number_format((float) $transaction->amount) }}</span> ت</span>
                         </div>
                     </article>
                 @empty

@@ -8,7 +8,7 @@
                     <span class="sp-dash__metric-icon"><i class="{{ $metric['icon'] }}"></i></span>
                 @endif
             </div>
-            <p class="sp-dash__metric-value latin">{{ $metric['value'] }}</p>
+            <p class="sp-dash__metric-value num">{{ $metric['value'] }}</p>
             @if(!empty($metric['hint']))
                 <p class="sp-dash__metric-hint">{{ $metric['hint'] }}</p>
             @endif

@@ -19,9 +19,9 @@
             <aside class="sp-dash__hero-cta">
                 <div>
                     <strong>درخواست‌های باز</strong>
-                    <p>{{ number_format($pendingRequests ?? 0) }} مورد در صف پاسخ.</p>
+                    <p><span class="num">{{ number_format($pendingRequests ?? 0) }}</span> مورد در صف پاسخ.</p>
                 </div>
-                <a class="sp-btn sp-btn--primary" href="{{ route('coaches.reservations') }}">مشاهده درخواست‌ها</a>
+                <a class="sp-btn sp-btn--primary" href="{{ route('coaches.courses.create') }}">افزودن دوره</a>
             </aside>
         </section>
 
@@ -36,7 +36,7 @@
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
                 <h2>دوره‌های من</h2>
-                <a href="{{ route('coaches.dashboard') }}">داشبورد</a>
+                <a href="{{ route('coaches.courses.index') }}">مدیریت دوره‌ها</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($courses as $course)
@@ -44,7 +44,7 @@
                         <span class="sp-dash__row-icon"><i class="fas fa-book"></i></span>
                         <div>
                             <strong>{{ $course->title }}</strong>
-                            <p class="sp-dash__muted">{{ $course->status }} · {{ number_format((float) ($course->price ?? 0)) }} ت</p>
+                            <p class="sp-dash__muted">{{ $course->status }} · <span class="num">{{ number_format((float) ($course->price ?? 0)) }}</span> ت</p>
                         </div>
                         <span class="sp-dash__chip {{ ($course->is_active ?? false) ? 'is-active' : 'is-done' }}">
                             {{ ($course->is_active ?? false) ? 'فعال' : 'غیرفعال' }}
@@ -66,7 +66,7 @@
                         <span class="sp-dash__row-icon"><i class="fas fa-tag"></i></span>
                         <div>
                             <strong>{{ $product->title }}</strong>
-                            <p class="sp-dash__muted latin">{{ number_format((float) $product->price) }} ت</p>
+                            <p class="sp-dash__muted"><span class="num">{{ number_format((float) $product->price) }}</span> ت</p>
                         </div>
                         <span class="sp-dash__chip {{ $product->is_active ? 'is-active' : 'is-done' }}">
                             {{ $product->is_active ? 'فعال' : 'غیرفعال' }}

@@ -47,8 +47,9 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'درخواست‌های رزرو', 'hint' => 'صندوق درخواست مشتریان', 'url' => route('coaches.reservations'), 'icon' => 'fas fa-inbox'],
-                ['label' => 'فضای مربی‌گری', 'hint' => 'دوره‌ها و محصولات', 'url' => route('coaches.listing'), 'icon' => 'fas fa-chalkboard-teacher'],
+                ['label' => 'درخواست‌های رزرو', 'hint' => 'صندوق درخواست مشتریان', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
+                ['label' => 'دوره‌های من', 'hint' => 'افزودن و ویرایش دوره', 'url' => route('coaches.courses.index'), 'icon' => 'fas fa-graduation-cap'],
+                ['label' => 'فضای مربی‌گری', 'hint' => 'نمای کلی دوره‌ها', 'url' => route('coaches.listing'), 'icon' => 'fas fa-chalkboard-teacher'],
                 ['label' => 'کیف پول', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],
@@ -69,7 +70,7 @@
                         </div>
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
-                            <span class="sp-dash__muted latin">{{ number_format((float) ($appointment->total ?? $appointment->price ?? 0)) }} ت</span>
+                            <span class="sp-dash__muted"><span class="num">{{ number_format((float) ($appointment->total ?? $appointment->price ?? 0)) }}</span> ت</span>
                         </div>
                     </article>
                 @empty
@@ -84,7 +85,7 @@
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
                 <h2>درخواست‌های رزرو</h2>
-                <a href="{{ route('coaches.reservations') }}">مشاهده همه</a>
+                <a href="{{ route('account.bookings.index', ['tab' => 'inbox']) }}">مشاهده همه</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($upcoming as $booking)
@@ -93,7 +94,7 @@
                         <span class="sp-dash__row-icon"><i class="far fa-envelope"></i></span>
                         <div>
                             <strong>{{ $booking->user->name ?? 'کاربر' }}</strong>
-                            <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>
+                            <p class="sp-dash__muted">{{ $booking->booking_code }}</p>
                         </div>
                         <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
                     </article>

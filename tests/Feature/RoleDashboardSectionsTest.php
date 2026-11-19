@@ -36,7 +36,7 @@ class RoleDashboardSectionsTest extends TestCase
 
         $this->get(route('account.bookings.index'))
             ->assertOk()
-            ->assertSee('رزروهای من', false);
+            ->assertSee('درخواست‌های من', false);
 
         $this->get(route('account.dogs.index'))->assertOk();
         $this->get(route('account.dogs.create'))->assertOk();
@@ -58,11 +58,15 @@ class RoleDashboardSectionsTest extends TestCase
 
         $this->get(route('coaches.reservations'))
             ->assertOk()
-            ->assertSee('درخواست‌های رزرو', false);
+            ->assertSee('درخواست‌های دریافتی', false);
+
+        $this->get(route('coaches.courses.index'))
+            ->assertOk()
+            ->assertSee('دوره‌های من', false);
 
         $this->get(route('coaches.dashboard'))
             ->assertOk()
-            ->assertSee('درخواست‌های رزرو', false);
+            ->assertSee('دوره‌های من', false);
     }
 
     public function test_clinic_and_breeder_reservation_inboxes(): void

@@ -43,6 +43,7 @@ use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\BookingHubController;
 use App\Http\Controllers\Account\OwnedDogController;
+use App\Http\Controllers\Account\CoachCourseController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -129,6 +130,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:coach')->name('dashboard');
         Route::get('/wallet', [CoachController::class, 'coachWallet'])->name('wallet');
         Route::get('/listing', [CoachController::class, 'listing'])->name('listing');
+        Route::get('/courses', [CoachCourseController::class, 'index'])->middleware('role:coach')->name('courses.index');
+        Route::get('/courses/create', [CoachCourseController::class, 'create'])->middleware('role:coach')->name('courses.create');
+        Route::post('/courses', [CoachCourseController::class, 'store'])->middleware('role:coach')->name('courses.store');
+        Route::get('/courses/{course}/edit', [CoachCourseController::class, 'edit'])->middleware('role:coach')->name('courses.edit');
+        Route::put('/courses/{course}', [CoachCourseController::class, 'update'])->middleware('role:coach')->name('courses.update');
+        Route::delete('/courses/{course}', [CoachCourseController::class, 'destroy'])->middleware('role:coach')->name('courses.destroy');
         Route::get('/reservations', [BookingHubController::class, 'inbox'])->middleware('role:coach')->name('reservations');
 
 
@@ -155,7 +162,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
-        Route::get('/bookings', [BookingHubController::class, 'mine'])->name('bookings.index');
+        Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
         Route::get('/reservations', [BookingHubController::class, 'inbox'])->name('reservations.index');
         Route::get('/dogs', [OwnedDogController::class, 'index'])->name('dogs.index');
         Route::get('/dogs/create', [OwnedDogController::class, 'create'])->name('dogs.create');

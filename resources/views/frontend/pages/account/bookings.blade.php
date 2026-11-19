@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', ($mode === 'inbox' ? 'درخواست‌های رزرو' : 'رزروهای من') . ' — سپاسیران')
+@section('title', 'رزروها و درخواست‌ها — سپاسیران')
 
 @section('content')
 @php
@@ -23,30 +23,37 @@
                 <div class="sp-dash__avatar" aria-hidden="true"><i class="far fa-calendar-check"></i></div>
                 <div>
                     <p class="sp-dash__eyebrow">{{ $roleLabel }}</p>
-                    <h1 class="sp-dash__title">{{ $mode === 'inbox' ? 'درخواست‌های رزرو' : 'رزروهای من' }}</h1>
-                    <p class="sp-dash__lede">
-                        {{ $mode === 'inbox'
-                            ? 'درخواست‌هایی که مشتریان برای شما ارسال کرده‌اند.'
-                            : 'پیگیری وضعیت رزروهای ثبت‌شده توسط شما.' }}
-                    </p>
+                    <h1 class="sp-dash__title">رزروها و درخواست‌ها</h1>
+                    <p class="sp-dash__lede">هم درخواست‌هایی که فرستاده‌اید و هم درخواست‌هایی که دریافت کرده‌اید.</p>
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">
                 <div>
-                    <strong>{{ $mode === 'inbox' ? 'داشبورد نقش' : 'رزرو جدید' }}</strong>
-                    <p>{{ $mode === 'inbox' ? 'بازگشت به خلاصه حساب.' : 'خدمت تازه رزرو کنید.' }}</p>
+                    <strong>رزرو جدید</strong>
+                    <p>خدمت تازه ثبت کنید.</p>
                 </div>
-                @if($mode === 'inbox')
-                    <a class="sp-btn sp-btn--ghost" href="{{ $backUrl }}">داشبورد</a>
-                @else
-                    <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.index') }}">رزرو جدید</a>
-                @endif
+                <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.index') }}">شروع رزرو</a>
             </aside>
         </section>
 
+        <div class="sp-dash__tabs" role="tablist">
+            <a class="sp-dash__tab {{ $tab === 'mine' ? 'is-active' : '' }}"
+               href="{{ route('account.bookings.index', ['tab' => 'mine']) }}">
+                درخواست‌های من
+                <span class="num">{{ number_format($mineCount ?? 0) }}</span>
+            </a>
+            @if($isProvider)
+                <a class="sp-dash__tab {{ $tab === 'inbox' ? 'is-active' : '' }}"
+                   href="{{ route('account.bookings.index', ['tab' => 'inbox']) }}">
+                    درخواست‌های دریافتی
+                    <span class="num">{{ number_format($inboxCount ?? 0) }}</span>
+                </a>
+            @endif
+        </div>
+
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
-                <h2>{{ $mode === 'inbox' ? 'صندوق درخواست‌ها' : 'لیست رزروها' }}</h2>
+                <h2>{{ $tab === 'inbox' ? 'صندوق دریافتی' : 'ارسال‌شده توسط من' }}</h2>
             </header>
             <div class="sp-dash__list">
                 @forelse($bookings as $booking)
@@ -55,7 +62,7 @@
                         <span class="sp-dash__row-icon"><i class="fas fa-ticket-alt"></i></span>
                         <div>
                             <strong>
-                                @if($mode === 'inbox')
+                                @if($tab === 'inbox')
                                     {{ $booking->user->name ?? 'مشتری' }} {{ $booking->user->family ?? '' }}
                                 @else
                                     {{ strtoupper((string) $booking->service_type) }}
@@ -64,7 +71,7 @@
                                     @endif
                                 @endif
                             </strong>
-                            <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>
+                            <p class="sp-dash__muted"><span class="num">{{ $booking->booking_code }}</span></p>
                             <p class="sp-dash__muted">
                                 {{ optional($booking->appointment_date ?? $booking->preferred_date)->format('Y/m/d H:i') ?? 'زمان اعلام نشده' }}
                                 @if($booking->dog) · {{ $booking->dog->title }} @endif
@@ -72,16 +79,13 @@
                         </div>
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
-                            <span class="sp-dash__muted latin">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }} ت</span>
+                            <span class="sp-dash__muted"><span class="num">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }}</span> ت</span>
                         </div>
                     </article>
                 @empty
                     <div class="sp-dash__empty">
                         <div class="sp-dash__empty-visual" aria-hidden="true"></div>
-                        <p>{{ $mode === 'inbox' ? 'درخواستی در صندوق نیست.' : 'هنوز رزروی ثبت نکرده‌اید.' }}</p>
-                        @if($mode !== 'inbox')
-                            <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.index') }}">شروع رزرو</a>
-                        @endif
+                        <p>{{ $tab === 'inbox' ? 'درخواست دریافتی ندارید.' : 'هنوز رزروی ارسال نکرده‌اید.' }}</p>
                     </div>
                 @endforelse
             </div>

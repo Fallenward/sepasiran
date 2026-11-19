@@ -10,9 +10,9 @@
         ],
         [
             'label' => 'رزروهای من',
-            'url' => route('account.bookings.index'),
+            'url' => route('account.bookings.index', ['tab' => 'mine']),
             'icon' => 'far fa-calendar-alt',
-            'active' => request()->routeIs('account.bookings.*'),
+            'active' => request()->routeIs('account.bookings.*', 'account.reservations.*') && request('tab', 'mine') === 'mine',
         ],
         [
             'label' => 'سگ‌های من',
@@ -47,21 +47,22 @@
     ];
 
     if ($navUser && method_exists($navUser, 'hasRole') && ($navUser->hasRole('coach') || $navUser->hasRole('clinic') || $navUser->hasRole('breeder'))) {
-        $inboxUrl = route('account.reservations.index');
-        if ($navUser->hasRole('coach') && \Illuminate\Support\Facades\Route::has('coaches.reservations')) {
-            $inboxUrl = route('coaches.reservations');
-        } elseif ($navUser->hasRole('clinic') && \Illuminate\Support\Facades\Route::has('clinic.reservations')) {
-            $inboxUrl = route('clinic.reservations');
-        } elseif ($navUser->hasRole('breeder') && \Illuminate\Support\Facades\Route::has('breeder.reservations')) {
-            $inboxUrl = route('breeder.reservations');
-        }
-
         array_splice($links, 1, 0, [[
             'label' => 'درخواست رزرو',
-            'url' => $inboxUrl,
+            'url' => route('account.bookings.index', ['tab' => 'inbox']),
             'icon' => 'fas fa-inbox',
-            'active' => request()->routeIs('account.reservations.*', 'coaches.reservations', 'clinic.reservations', 'breeder.reservations'),
+            'active' => (request()->routeIs('account.bookings.*', 'account.reservations.*', 'coaches.reservations', 'clinic.reservations', 'breeder.reservations') && request('tab') === 'inbox')
+                || request()->routeIs('coaches.reservations', 'clinic.reservations', 'breeder.reservations'),
         ]]);
+    }
+
+    if ($navUser && method_exists($navUser, 'hasRole') && $navUser->hasRole('coach')) {
+        $links[] = [
+            'label' => 'دوره‌ها',
+            'url' => route('coaches.courses.index'),
+            'icon' => 'fas fa-graduation-cap',
+            'active' => request()->routeIs('coaches.courses.*'),
+        ];
     }
 
     if ($navUser && method_exists($navUser, 'hasRole') && $navUser->hasRole('coach')) {

@@ -56,6 +56,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            font: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
             plugins: {
                 legend: {
                     position: 'bottom',
@@ -64,6 +65,7 @@
                         boxWidth: 12,
                         usePointStyle: true,
                         padding: 16,
+                        font: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
                     },
                 },
                 tooltip: {
@@ -72,18 +74,24 @@
                     bodyColor: '#C5D4CB',
                     borderColor: 'rgba(125, 207, 154, 0.28)',
                     borderWidth: 1,
+                    titleFont: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
+                    bodyFont: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
                 },
             },
             scales: {
                 x: {
                     grid: { color: 'rgba(232, 240, 235, 0.06)' },
-                    ticks: { color: '#8A9E93' },
+                    ticks: {
+                        color: '#8A9E93',
+                        font: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
+                    },
                 },
                 y: {
                     beginAtZero: true,
                     grid: { color: 'rgba(232, 240, 235, 0.06)' },
                     ticks: {
                         color: '#8A9E93',
+                        font: { family: 'dana, Vazirmatn, Tahoma, sans-serif' },
                         callback: (v) => new Intl.NumberFormat('fa-IR').format(v),
                     },
                 },

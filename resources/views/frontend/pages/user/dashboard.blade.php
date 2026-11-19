@@ -67,7 +67,7 @@
                         <span class="sp-dash__row-icon"><i class="far fa-clock"></i></span>
                         <div>
                             <strong>{{ $booking->service_type }}</strong>
-                            <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>
+                            <p class="sp-dash__muted">{{ $booking->booking_code }}</p>
                         </div>
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>

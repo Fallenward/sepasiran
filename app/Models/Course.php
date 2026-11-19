@@ -42,7 +42,7 @@ namespace App\Models;
          *
          * @var array<int, string>
          */
-        protected $fillable = ['title', 'slug', 'short_description', 'description', 'thumbnail', 'instructor_id', 'category_id', 'level_id', 'price', 'discount_price', 'status', 'is_featured', 'has_certificate', 'language', 'video_demo_url', 'duration', 'view_count', 'is_active'];
+        protected $fillable = ['title', 'slug', 'short_description', 'description', 'thumbnail', 'user_id', 'instructor_id', 'category_id', 'level_id', 'price', 'discount_price', 'status', 'is_featured', 'has_certificate', 'language', 'video_demo_url', 'duration', 'view_count', 'is_active'];
 
 
         // Course.php (Model)

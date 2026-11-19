@@ -37,7 +37,7 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'درخواست‌های رزرو', 'hint' => 'درخواست خرید/رزرو مشتریان', 'url' => route('breeder.reservations'), 'icon' => 'fas fa-inbox'],
+                ['label' => 'درخواست‌های رزرو', 'hint' => 'درخواست خرید/رزرو مشتریان', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
                 ['label' => 'افزودن آگهی سگ', 'hint' => 'ثبت سگ برای فروش', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
                 ['label' => 'لیست آگهی‌ها', 'hint' => 'مدیریت سگ‌های عرضه‌شده', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
                 ['label' => 'سگ‌های حساب', 'hint' => 'سگ‌های شخصی حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
@@ -50,10 +50,10 @@
                 <h2>وضعیت گله</h2>
             </header>
             <div class="sp-dash__stat-row">
-                <div class="sp-dash__stat-pill"><span>در انتظار تأیید</span><strong class="latin">{{ number_format($pendingDogs) }}</strong></div>
-                <div class="sp-dash__stat-pill"><span>فروخته‌شده</span><strong class="latin">{{ number_format($soldDogs) }}</strong></div>
-                <div class="sp-dash__stat-pill"><span>در صف</span><strong class="latin">{{ number_format($waitingDogs) }}</strong></div>
-                <div class="sp-dash__stat-pill"><span>رزرو تأییدشده</span><strong class="latin">{{ number_format($openBookings) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>در انتظار تأیید</span><strong class="num">{{ number_format($pendingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>فروخته‌شده</span><strong class="num">{{ number_format($soldDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>در صف</span><strong class="num">{{ number_format($waitingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>رزرو تأییدشده</span><strong class="num">{{ number_format($openBookings) }}</strong></div>
             </div>
         </section>
 

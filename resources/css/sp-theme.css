@@ -32,7 +32,8 @@
   --sp-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --sp-duration-fast: 160ms;
   --sp-duration: 280ms;
-  --font-ui: "Vazirmatn", dana, Tahoma, sans-serif;
+  --font-ui: dana, "Vazirmatn", Tahoma, sans-serif;
+  --font-num: dana, "Vazirmatn", Tahoma, sans-serif;
   --font-latin: Syne, "Vazirmatn", dana, sans-serif;
   --content: 1200px;
 }
@@ -77,7 +78,10 @@ a:hover {
 .num {
   direction: ltr;
   unicode-bidi: isolate;
+  font-family: var(--font-num);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  font-feature-settings: "tnum" 1;
 }
 
 .latin {
@@ -2864,7 +2868,11 @@ body.sp-body {
   font-size: clamp(1.35rem, 2vw, 1.7rem);
   font-weight: 750;
   color: var(--sp-text);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .sp-dash__metric-hint {
@@ -3423,4 +3431,55 @@ body.sp-body {
   .sp-dash__nav {
     top: 64px;
   }
+}
+
+
+.sp-dash__tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.sp-dash__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text-muted);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.sp-dash__tab:hover {
+  color: var(--sp-text);
+  border-color: var(--sp-border-strong);
+}
+
+.sp-dash__tab.is-active {
+  background: var(--sp-green);
+  border-color: transparent;
+  color: #0c1210;
+}
+
+.sp-dash__tab .num {
+  opacity: 0.85;
+}
+
+.sp-dash input.num,
+.sp-dash .field input[type="number"] {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+}
+
+.sp-dash__stat-pill strong.num,
+.sp-dash__chip .num,
+.sp-dash__muted .num {
+  font-family: var(--font-num);
 }

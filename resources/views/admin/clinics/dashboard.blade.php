@@ -47,7 +47,7 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('clinic.reservations'), 'icon' => 'fas fa-inbox'],
+                ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
                 ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'پروفایل', 'hint' => 'ویرایش اطلاعات', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
@@ -57,7 +57,7 @@
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
                 <h2>درخواست‌ها و نوبت‌ها</h2>
-                <a href="{{ route('clinic.reservations') }}">مشاهده همه</a>
+                <a href="{{ route('account.bookings.index', ['tab' => 'inbox']) }}">مشاهده همه</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($recentBookings as $booking)
@@ -66,7 +66,7 @@
                         <span class="sp-dash__row-icon"><i class="fas fa-notes-medical"></i></span>
                         <div>
                             <strong>{{ $booking->user->name ?? 'مراجع' }} {{ $booking->user->family ?? '' }}</strong>
-                            <p class="sp-dash__muted latin">{{ $booking->booking_code }}</p>
+                            <p class="sp-dash__muted">{{ $booking->booking_code }}</p>
                         </div>
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
