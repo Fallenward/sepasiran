@@ -111,6 +111,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/wallet', [AdminWalletController::class, 'index'])
         ->middleware('throttle:payment')
         ->name('wallet.index');
+    Route::post('/wallet/deposit', [AdminWalletController::class, 'deposit'])
+        ->middleware('throttle:payment')
+        ->name('wallet.deposit');
 
     // Breeder routes
     Route::prefix('breeder')->name('breeder.')->group(function () {
@@ -163,10 +166,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
         Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
+        Route::patch('/bookings/{booking}/status', [BookingHubController::class, 'updateStatus'])->name('bookings.status');
         Route::get('/reservations', [BookingHubController::class, 'inbox'])->name('reservations.index');
         Route::get('/dogs', [OwnedDogController::class, 'index'])->name('dogs.index');
         Route::get('/dogs/create', [OwnedDogController::class, 'create'])->name('dogs.create');
         Route::post('/dogs', [OwnedDogController::class, 'store'])->name('dogs.store');
+        Route::get('/dogs/{dog}/edit', [OwnedDogController::class, 'edit'])->name('dogs.edit');
+        Route::put('/dogs/{dog}', [OwnedDogController::class, 'update'])->name('dogs.update');
+        Route::delete('/dogs/{dog}', [OwnedDogController::class, 'destroy'])->name('dogs.destroy');
     });
 
     // User / customer account hub (any authenticated user)

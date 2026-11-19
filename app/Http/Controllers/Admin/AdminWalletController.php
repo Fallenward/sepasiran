@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Support\DashboardFinance;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminWalletController extends Controller
@@ -49,5 +53,37 @@ class AdminWalletController extends Controller
             'roleLabel' => method_exists($user, 'primaryRoleLabel') ? $user->primaryRoleLabel() : 'حساب',
             'backUrl' => $user->dashboardRoute(),
         ]);
+    }
+
+    public function deposit(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'amount' => ['required', 'integer', 'min:10000', 'max:500000000'],
+        ], [
+            'amount.required' => 'مبلغ افزایش موجودی الزامی است.',
+            'amount.min' => 'حداقل مبلغ ۱۰٬۰۰۰ تومان است.',
+        ]);
+
+        $amount = (int) $data['amount'];
+
+        DB::transaction(function () use ($user, $amount) {
+            Transaction::query()->create([
+                'user_id' => $user->id,
+                'transaction_id' => 'WLT-'.Str::upper(Str::random(12)),
+                'description' => 'افزایش موجودی کیف پول',
+                'status' => 'completed',
+                'amount' => $amount,
+                'base_price' => $amount,
+                'payment_method' => 'online',
+            ]);
+
+            $user->increment('wallet', $amount);
+        });
+
+        return redirect()
+            ->route('wallet.index')
+            ->with('success', 'موجودی کیف پول با موفقیت افزایش یافت.');
     }
 }

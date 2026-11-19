@@ -41,6 +41,32 @@ class Dog extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function media()
+    {
+        return $this->hasMany(DogMedia::class)->latest();
+    }
+
+    public function primaryImageUrl(): ?string
+    {
+        $first = $this->relationLoaded('media')
+            ? $this->media->first()
+            : $this->media()->first();
+
+        if ($first) {
+            return $first->publicUrl();
+        }
+
+        if (! empty($this->image)) {
+            if (str_starts_with($this->image, 'http') || str_starts_with($this->image, '/')) {
+                return $this->image;
+            }
+
+            return asset($this->image);
+        }
+
+        return null;
+    }
+
     public function insurance()
     {
         return $this->belongsTo(Insurance::class);

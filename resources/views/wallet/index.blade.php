@@ -28,8 +28,28 @@
                     <strong>بازگشت به داشبورد</strong>
                     <p>به خلاصه حساب نقش خود برگردید.</p>
                 </div>
-                <a class="sp-btn sp-btn--ghost" href="{{ $backUrl ?? route('user.dashboard') }}">داشبورد من</a>
+                <a class="sp-btn sp-btn--ghost" href="{{ $backUrl ?? route('user.dashboard') }}">داشبورد</a>
             </aside>
+        </section>
+
+        @if(session('success'))
+            <div class="sp-dash__flash">{{ session('success') }}</div>
+        @endif
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>افزایش موجودی</h2>
+            </header>
+            <form class="sp-dash__inline-form" method="POST" action="{{ route('wallet.deposit') }}">
+                @csrf
+                <div class="field" style="margin:0;flex:1;min-width:180px">
+                    <label for="amount">مبلغ (تومان)</label>
+                    <input id="amount" class="num" name="amount" type="number" min="10000" step="1000" value="{{ old('amount', 100000) }}" required>
+                    @error('amount')<p class="auth-alert">{{ $message }}</p>@enderror
+                </div>
+                <button class="sp-btn sp-btn--primary" type="submit">افزودن به کیف پول</button>
+            </form>
+            <p class="sp-dash__muted" style="margin-top:10px">مبلغ انتخابی به موجودی حساب اضافه و در تراکنش‌ها ثبت می‌شود.</p>
         </section>
 
         @include('frontend.partials.dashboard-metrics', [

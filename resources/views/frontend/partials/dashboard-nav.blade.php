@@ -3,16 +3,16 @@
     $dashHome = $navUser ? $navUser->dashboardRoute() : route('user.dashboard');
     $links = [
         [
-            'label' => 'خلاصه',
+            'label' => 'داشبورد',
             'url' => $dashHome,
             'icon' => 'fas fa-th-large',
             'active' => request()->routeIs('user.dashboard', 'breeder.dashboard', 'coaches.dashboard', 'clinic.dashboard'),
         ],
         [
-            'label' => 'رزروهای من',
-            'url' => route('account.bookings.index', ['tab' => 'mine']),
+            'label' => 'رزروها',
+            'url' => route('account.bookings.index'),
             'icon' => 'far fa-calendar-alt',
-            'active' => request()->routeIs('account.bookings.*', 'account.reservations.*') && request('tab', 'mine') === 'mine',
+            'active' => request()->routeIs('account.bookings.*', 'account.reservations.*', 'coaches.reservations', 'clinic.reservations', 'breeder.reservations'),
         ],
         [
             'label' => 'سگ‌های من',
@@ -46,16 +46,6 @@
         ],
     ];
 
-    if ($navUser && method_exists($navUser, 'hasRole') && ($navUser->hasRole('coach') || $navUser->hasRole('clinic') || $navUser->hasRole('breeder'))) {
-        array_splice($links, 1, 0, [[
-            'label' => 'درخواست رزرو',
-            'url' => route('account.bookings.index', ['tab' => 'inbox']),
-            'icon' => 'fas fa-inbox',
-            'active' => (request()->routeIs('account.bookings.*', 'account.reservations.*', 'coaches.reservations', 'clinic.reservations', 'breeder.reservations') && request('tab') === 'inbox')
-                || request()->routeIs('coaches.reservations', 'clinic.reservations', 'breeder.reservations'),
-        ]]);
-    }
-
     if ($navUser && method_exists($navUser, 'hasRole') && $navUser->hasRole('coach')) {
         $links[] = [
             'label' => 'دوره‌ها',
@@ -63,9 +53,6 @@
             'icon' => 'fas fa-graduation-cap',
             'active' => request()->routeIs('coaches.courses.*'),
         ];
-    }
-
-    if ($navUser && method_exists($navUser, 'hasRole') && $navUser->hasRole('coach')) {
         $links[] = [
             'label' => 'فضای مربی',
             'url' => route('coaches.listing'),

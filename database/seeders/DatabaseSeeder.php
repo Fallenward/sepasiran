@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             CitiesTableSeeder::class,
             SpecialtySeeder::class,
             BreedSeeder::class,
+            DogAttributeSeeder::class,
             CategorySeeder::class,
             SkillSeeder::class,
             SlidersTableSeeder::class,

@@ -11,18 +11,11 @@
         if (!empty($authUser->is_admin) || (method_exists($authUser, 'hasRole') && ($authUser->hasRole('admin') || $authUser->hasRole('administrator')))) {
             $accountLinks[] = ['label' => 'پنل ادمین', 'url' => route('admin.dashboard.index')];
         }
+        $accountLinks[] = ['label' => 'داشبورد', 'url' => $authUser->dashboardRoute()];
         if (method_exists($authUser, 'hasRole') && $authUser->hasRole('breeder')) {
-            $accountLinks[] = ['label' => 'داشبورد پرورش‌دهنده', 'url' => route('breeder.dashboard')];
             $accountLinks[] = ['label' => 'افزودن سگ', 'url' => route('breeder.dashboard-create')];
             $accountLinks[] = ['label' => 'لیست سگ‌های من', 'url' => route('breeder.dogs.listing')];
         }
-        if (method_exists($authUser, 'hasRole') && $authUser->hasRole('coach')) {
-            $accountLinks[] = ['label' => 'داشبورد مربی', 'url' => route('coaches.dashboard')];
-        }
-        if (method_exists($authUser, 'hasRole') && $authUser->hasRole('clinic')) {
-            $accountLinks[] = ['label' => 'داشبورد کلینیک', 'url' => route('clinic.dashboard')];
-        }
-        $accountLinks[] = ['label' => 'داشبورد من', 'url' => route('user.dashboard')];
         $accountLinks[] = ['label' => 'ویرایش پروفایل', 'url' => route('account.profile.edit')];
         $accountLinks[] = ['label' => 'اعلان‌ها', 'url' => route('account.notifications.index')];
         $accountLinks[] = ['label' => 'رزرو خدمت', 'url' => route('frontend.booking.index')];

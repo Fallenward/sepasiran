@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class BookingHubController extends Controller
 {
+    private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED'];
+
     /**
      * Unified reservation hub with both:
      * - requests the user sent (mine)
@@ -58,7 +63,40 @@ class BookingHubController extends Controller
             'backUrl' => $user->dashboardRoute(),
             'mineCount' => $mine->total(),
             'inboxCount' => $inboxPaginator ? $inboxPaginator->total() : 0,
+            'lockedStatuses' => self::LOCKED,
         ]);
+    }
+
+    public function updateStatus(Request $request, Booking $booking): RedirectResponse
+    {
+        $user = Auth::user();
+        $isOwner = (int) $booking->user_id === (int) $user->id;
+        $isProvider = (int) $booking->provider_id === (int) $user->id;
+
+        abort_unless($isOwner || $isProvider, 403);
+
+        if (in_array(strtoupper((string) $booking->status), self::LOCKED, true)) {
+            throw ValidationException::withMessages([
+                'status' => 'وضعیت این درخواست پس از پذیرش قابل تغییر نیست.',
+            ]);
+        }
+
+        $allowed = $isProvider
+            ? ['PENDING', 'OPEN', 'QUOTED', 'ACCEPTED', 'CANCELLED']
+            : ['PENDING', 'OPEN', 'CANCELLED'];
+
+        $data = $request->validate([
+            'status' => ['required', 'string', Rule::in($allowed)],
+            'tab' => ['nullable', 'string', Rule::in(['mine', 'inbox'])],
+        ]);
+
+        $booking->forceFill(['status' => strtoupper($data['status'])])->save();
+
+        $tab = $data['tab'] ?? ($isProvider && ! $isOwner ? 'inbox' : 'mine');
+
+        return redirect()
+            ->route('account.bookings.index', ['tab' => $tab])
+            ->with('success', 'وضعیت درخواست به‌روز شد.');
     }
 
     /** @deprecated keep named routes working */
