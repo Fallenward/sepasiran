@@ -166,6 +166,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
         Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingHubController::class, 'show'])->name('bookings.show');
         Route::patch('/bookings/{booking}/status', [BookingHubController::class, 'updateStatus'])->name('bookings.status');
         Route::get('/reservations', [BookingHubController::class, 'inbox'])->name('reservations.index');
         Route::get('/dogs', [OwnedDogController::class, 'index'])->name('dogs.index');
@@ -278,6 +279,10 @@ Route::name('frontend.')->group(function () {
             Route::get('/{booking_code}/offers', [FrontendBookingApiController::class, 'listOffers'])->name('offers.index');
             Route::post('/{booking_code}/offers', [FrontendBookingApiController::class, 'storeOffer'])->name('offers.store');
             Route::post('/{booking_code}/offers/{offer_id}/accept', [FrontendBookingApiController::class, 'acceptOffer'])->name('offers.accept');
+            Route::post('/{booking_code}/offers/{offer_id}/reject', [FrontendBookingApiController::class, 'rejectOffer'])->name('offers.reject');
+            Route::post('/{booking_code}/respond', [FrontendBookingApiController::class, 'respond'])->name('respond');
+            Route::get('/{booking_code}/messages', [FrontendBookingApiController::class, 'messages'])->name('messages.index');
+            Route::post('/{booking_code}/messages', [FrontendBookingApiController::class, 'storeMessage'])->name('messages.store');
             Route::post('/{booking_code}/cancel', [FrontendBookingApiController::class, 'cancel'])->name('cancel');
             Route::get('/{booking_code}', [FrontendBookingApiController::class, 'show'])->name('show');
         });

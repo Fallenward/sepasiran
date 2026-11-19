@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\BookingMessage;
 use App\Models\BookingOffer;
 use App\Models\Breed;
 use App\Models\City;
@@ -558,6 +559,158 @@ class BookingApiController extends Controller
         ]))]);
     }
 
+    /**
+     * Provider accept/reject for a direct PENDING booking.
+     */
+    public function respond(Request $request, string $bookingCode): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $data = $request->validate([
+            'action' => ['required', Rule::in(['accept', 'reject'])],
+        ]);
+
+        $booking = Booking::query()
+            ->with(['invitedProviders', 'provider', 'dog.breed', 'city', 'offers.provider'])
+            ->where('booking_code', $bookingCode)
+            ->firstOrFail();
+
+        abort_unless($this->isAssignedProvider($booking, (int) Auth::id()), 403);
+
+        if ($booking->fulfillment_mode !== 'direct' || strtoupper((string) $booking->status) !== 'PENDING') {
+            throw ValidationException::withMessages([
+                'booking' => 'فقط درخواست‌های مستقیم در انتظار قابل پاسخ هستند.',
+            ]);
+        }
+
+        if ($data['action'] === 'accept') {
+            $booking->update([
+                'provider_id' => Auth::id(),
+                'status' => 'ACCEPTED',
+            ]);
+        } else {
+            $booking->update(['status' => 'CANCELLED']);
+        }
+
+        return response()->json([
+            'booking' => $this->serialize($booking->fresh([
+                'provider', 'breed', 'city', 'dog.breed', 'offers.provider', 'invitedProviders',
+            ])),
+        ]);
+    }
+
+    /**
+     * Customer rejects one open offer without closing the booking.
+     */
+    public function rejectOffer(string $bookingCode, int $offerId): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $booking = Booking::query()
+            ->with(['offers'])
+            ->where('booking_code', $bookingCode)
+            ->firstOrFail();
+
+        if ((int) $booking->user_id !== (int) Auth::id() && ! $this->isAdmin(Auth::user())) {
+            abort(403);
+        }
+
+        if (strtoupper((string) $booking->status) !== 'OPEN') {
+            throw ValidationException::withMessages([
+                'booking' => 'این درخواست دیگر باز نیست.',
+            ]);
+        }
+
+        $offer = $booking->offers->firstWhere('id', $offerId);
+        if (! $offer || $offer->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'offer_id' => 'پیشنهاد معتبر نیست.',
+            ]);
+        }
+
+        $offer->update(['status' => 'rejected']);
+
+        return response()->json([
+            'offer' => $this->serializeOffer($offer->fresh('provider')),
+            'booking' => $this->serialize($booking->fresh([
+                'provider', 'breed', 'city', 'dog.breed', 'offers.provider', 'invitedProviders',
+            ])),
+        ]);
+    }
+
+    public function messages(string $bookingCode): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $booking = Booking::query()
+            ->with(['invitedProviders', 'offers'])
+            ->where('booking_code', $bookingCode)
+            ->firstOrFail();
+
+        abort_unless($this->canChat($booking, (int) Auth::id()), 403);
+
+        $messages = BookingMessage::query()
+            ->with('user')
+            ->where('booking_id', $booking->id)
+            ->orderBy('id')
+            ->get()
+            ->map(fn (BookingMessage $m) => $this->serializeMessage($m));
+
+        return response()->json(['results' => $messages]);
+    }
+
+    public function storeMessage(Request $request, string $bookingCode): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $booking = Booking::query()
+            ->with(['invitedProviders', 'offers'])
+            ->where('booking_code', $bookingCode)
+            ->firstOrFail();
+
+        abort_unless($this->canChat($booking, (int) Auth::id()), 403);
+
+        if (in_array(strtoupper((string) $booking->status), ['CANCELLED', 'COMPLETED'], true)) {
+            throw ValidationException::withMessages([
+                'booking' => 'گفتگو برای این رزرو بسته است.',
+            ]);
+        }
+
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:2000'],
+            'booking_offer_id' => ['nullable', 'integer', 'exists:booking_offers,id'],
+        ]);
+
+        if (! empty($data['booking_offer_id'])) {
+            $ownsOffer = BookingOffer::query()
+                ->where('id', $data['booking_offer_id'])
+                ->where('booking_id', $booking->id)
+                ->exists();
+            if (! $ownsOffer) {
+                throw ValidationException::withMessages([
+                    'booking_offer_id' => 'پیشنهاد نامعتبر است.',
+                ]);
+            }
+        }
+
+        $message = BookingMessage::query()->create([
+            'booking_id' => $booking->id,
+            'user_id' => Auth::id(),
+            'booking_offer_id' => $data['booking_offer_id'] ?? null,
+            'body' => $data['body'],
+        ])->load('user');
+
+        return response()->json(['message' => $this->serializeMessage($message)], 201);
+    }
+
     public function serialize(Booking $booking): array
     {
         $provider = $booking->provider;
@@ -619,6 +772,10 @@ class BookingApiController extends Controller
             'offers' => $booking->relationLoaded('offers')
                 ? $booking->offers->map(fn (BookingOffer $o) => $this->serializeOffer($o))->values()->all()
                 : [],
+            'customer' => $booking->relationLoaded('user') && $booking->user ? [
+                'id' => $booking->user->id,
+                'display_name' => trim(($booking->user->name ?? '').' '.($booking->user->family ?? '')) ?: $booking->user->name,
+            ] : null,
         ];
     }
 
@@ -691,24 +848,72 @@ class BookingApiController extends Controller
     private function canView(Booking $booking): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return false;
-        }
-        if ((int) $booking->user_id === (int) $user->id) {
-            return true;
-        }
-        if ((int) $booking->provider_id === (int) $user->id) {
-            return true;
-        }
-        if ($booking->relationLoaded('invitedProviders')
-            && $booking->invitedProviders->contains('id', $user->id)) {
-            return true;
         }
         if ($this->isAdmin($user)) {
             return true;
         }
 
-        return false;
+        return $this->canChat($booking, (int) $user->id)
+            || (
+                strtoupper((string) $booking->status) === 'OPEN'
+                && $booking->fulfillment_mode === 'open'
+                && method_exists($user, 'hasRole')
+                && $user->hasRole(BookingCatalog::roleFor((string) $booking->service_type))
+            );
+    }
+
+    private function canChat(Booking $booking, int $userId): bool
+    {
+        if ((int) $booking->user_id === $userId) {
+            return true;
+        }
+        if ((int) $booking->provider_id === $userId) {
+            return true;
+        }
+        if ($this->isAssignedProvider($booking, $userId)) {
+            return true;
+        }
+
+        $hasOffer = BookingOffer::query()
+            ->where('booking_id', $booking->id)
+            ->where('provider_id', $userId)
+            ->exists();
+
+        return $hasOffer;
+    }
+
+    private function isAssignedProvider(Booking $booking, int $userId): bool
+    {
+        if ((int) $booking->provider_id === $userId) {
+            return true;
+        }
+
+        if ($booking->relationLoaded('invitedProviders')) {
+            return $booking->invitedProviders->contains('id', $userId);
+        }
+
+        return $booking->invitedProviders()->where('provider_id', $userId)->exists();
+    }
+
+    private function serializeMessage(BookingMessage $message): array
+    {
+        $user = $message->user;
+        $name = $user ? trim(($user->name ?? '').' '.($user->family ?? '')) : '';
+
+        return [
+            'id' => $message->id,
+            'booking_id' => $message->booking_id,
+            'booking_offer_id' => $message->booking_offer_id,
+            'body' => $message->body,
+            'created_at' => optional($message->created_at)?->toIso8601String(),
+            'user' => $user ? [
+                'id' => $user->id,
+                'display_name' => $name !== '' ? $name : $user->name,
+            ] : null,
+            'mine' => Auth::check() && (int) $message->user_id === (int) Auth::id(),
+        ];
     }
 
     private function isAdmin(?User $user): bool

@@ -103,6 +103,11 @@ class Booking extends Model
         return $this->hasMany(BookingOffer::class);
     }
 
+    public function messages()
+    {
+        return $this->hasMany(BookingMessage::class)->orderBy('id');
+    }
+
     public function carts()
     {
         return $this->belongsToMany(Cart::class, 'booking_cart', 'booking_id', 'cart_id')

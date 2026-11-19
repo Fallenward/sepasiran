@@ -15,11 +15,6 @@ class BookingHubController extends Controller
 {
     private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED'];
 
-    /**
-     * Unified reservation hub with both:
-     * - requests the user sent (mine)
-     * - requests the user received as provider (inbox)
-     */
     public function index(Request $request): View
     {
         $user = Auth::user();
@@ -34,7 +29,8 @@ class BookingHubController extends Controller
 
         $mine = Booking::query()
             ->where('user_id', $user->id)
-            ->with(['provider', 'dog'])
+            ->with(['provider', 'dog', 'offers'])
+            ->withCount(['offers', 'messages'])
             ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) desc')
             ->paginate(15, ['*'], 'mine_page')
             ->appends(['tab' => 'mine']);
@@ -43,8 +39,17 @@ class BookingHubController extends Controller
         $inboxPaginator = null;
         if ($isProvider) {
             $inboxPaginator = Booking::query()
-                ->where('provider_id', $user->id)
-                ->with(['user', 'dog'])
+                ->where(function ($q) use ($user) {
+                    $q->where('provider_id', $user->id)
+                        ->orWhereHas('invitedProviders', fn ($iq) => $iq->where('provider_id', $user->id))
+                        ->orWhere(function ($open) use ($user) {
+                            $open->where('fulfillment_mode', 'open')
+                                ->where('status', 'OPEN')
+                                ->whereHas('offers', fn ($oq) => $oq->where('provider_id', $user->id));
+                        });
+                })
+                ->with(['user', 'dog', 'offers' => fn ($q) => $q->where('provider_id', $user->id)])
+                ->withCount(['messages'])
                 ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) desc')
                 ->paginate(15, ['*'], 'inbox_page')
                 ->appends(['tab' => 'inbox']);
@@ -67,11 +72,45 @@ class BookingHubController extends Controller
         ]);
     }
 
+    public function show(Booking $booking): View
+    {
+        $user = Auth::user();
+        $isOwner = (int) $booking->user_id === (int) $user->id;
+        $isProvider = (int) $booking->provider_id === (int) $user->id
+            || $booking->invitedProviders()->where('provider_id', $user->id)->exists()
+            || $booking->offers()->where('provider_id', $user->id)->exists();
+
+        abort_unless($isOwner || $isProvider || $user->hasRole('admin'), 403);
+
+        $booking->load([
+            'provider',
+            'user',
+            'dog.breed',
+            'city',
+            'offers.provider',
+            'invitedProviders',
+            'messages.user',
+        ]);
+
+        return view('frontend.pages.account.booking-show', [
+            'user' => $user,
+            'booking' => $booking,
+            'isOwner' => $isOwner,
+            'isProvider' => $isProvider,
+            'roleLabel' => $user->primaryRoleLabel(),
+            'backUrl' => route('account.bookings.index', [
+                'tab' => $isOwner ? 'mine' : 'inbox',
+            ]),
+            'lockedStatuses' => self::LOCKED,
+        ]);
+    }
+
     public function updateStatus(Request $request, Booking $booking): RedirectResponse
     {
         $user = Auth::user();
         $isOwner = (int) $booking->user_id === (int) $user->id;
-        $isProvider = (int) $booking->provider_id === (int) $user->id;
+        $isProvider = (int) $booking->provider_id === (int) $user->id
+            || $booking->invitedProviders()->where('provider_id', $user->id)->exists();
 
         abort_unless($isOwner || $isProvider, 403);
 
@@ -91,6 +130,9 @@ class BookingHubController extends Controller
         ]);
 
         $booking->forceFill(['status' => strtoupper($data['status'])])->save();
+        if (strtoupper($data['status']) === 'ACCEPTED' && $isProvider) {
+            $booking->forceFill(['provider_id' => $user->id])->save();
+        }
 
         $tab = $data['tab'] ?? ($isProvider && ! $isOwner ? 'inbox' : 'mine');
 
@@ -99,7 +141,6 @@ class BookingHubController extends Controller
             ->with('success', 'وضعیت درخواست به‌روز شد.');
     }
 
-    /** @deprecated keep named routes working */
     public function mine(Request $request): View
     {
         $request->query->set('tab', 'mine');
@@ -107,7 +148,6 @@ class BookingHubController extends Controller
         return $this->index($request);
     }
 
-    /** @deprecated keep named routes working */
     public function inbox(Request $request): View
     {
         $request->query->set('tab', 'inbox');

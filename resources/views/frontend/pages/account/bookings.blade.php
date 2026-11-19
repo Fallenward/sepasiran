@@ -111,6 +111,7 @@
                         <div class="sp-dash__row-meta">
                             <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
                             <span class="sp-dash__muted"><span class="num">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }}</span> ت</span>
+                            <a class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 12px" href="{{ route('account.bookings.show', $booking) }}">گفتگو / تصمیم</a>
                         </div>
                     </article>
                 @empty

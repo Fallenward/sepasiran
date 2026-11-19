@@ -3690,3 +3690,60 @@ body.sp-body {
 .sp-dash__muted .num {
   font-family: var(--font-num);
 }
+
+.sp-booking-chat__thread {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 8px 2px 12px;
+}
+
+.sp-booking-chat__bubble {
+  max-width: min(520px, 92%);
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(18, 26, 23, 0.75);
+  border: 1px solid var(--sp-border);
+}
+
+.sp-booking-chat__bubble.is-mine {
+  margin-inline-start: auto;
+  background: rgba(79, 191, 120, 0.12);
+  border-color: rgba(125, 207, 154, 0.35);
+}
+
+.sp-booking-chat__bubble strong {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.sp-booking-chat__bubble p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.sp-booking-chat__bubble span {
+  display: block;
+  margin-top: 6px;
+  color: var(--sp-text-subtle);
+  font-size: 0.72rem;
+}
+
+.sp-booking-chat__composer {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.sp-booking-chat__composer input {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  padding: 10px 14px;
+  font-family: inherit;
+}
