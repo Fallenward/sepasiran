@@ -94,29 +94,49 @@ window.showMessage = function (message, type) {
         }
     };
 
-    const navRoot = document.querySelector('[data-sp-nav]');
-    const navToggle = document.querySelector('[data-sp-nav-toggle]');
-    const navScrim = document.querySelector('[data-sp-nav-scrim]');
+    const siteSheet = document.querySelector('[data-sp-sheet]');
+    const sheetOpenBtn = document.querySelector('[data-sp-sheet-open]');
+    const dashNav = document.querySelector('[data-sp-dash-nav]');
+    const dashSheet = document.querySelector('[data-sp-dash-nav-sheet]');
+    const dashToggle = document.querySelector('[data-sp-dash-nav-toggle]');
 
-    const setNavOpen = (open) => {
-        if (!navRoot) return;
-        navRoot.classList.toggle('is-open', open);
-        document.body.classList.toggle('is-nav-lock', open);
-        if (navToggle) {
-            navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            navToggle.setAttribute('aria-label', open ? 'بستن منو' : 'باز کردن منو');
+    const syncBodyLock = () => {
+        const locked = Boolean(siteSheet?.classList.contains('is-open') || dashNav?.classList.contains('is-open'));
+        document.body.classList.toggle('is-sheet-lock', locked);
+    };
+
+    const setSheetOpen = (open) => {
+        if (!siteSheet) return;
+        if (open) {
+            siteSheet.removeAttribute('hidden');
+            requestAnimationFrame(() => siteSheet.classList.add('is-open'));
+        } else {
+            siteSheet.classList.remove('is-open');
+            window.setTimeout(() => {
+                if (!siteSheet.classList.contains('is-open')) {
+                    siteSheet.setAttribute('hidden', '');
+                }
+            }, 260);
         }
-        if (navScrim) {
-            if (open) navScrim.removeAttribute('hidden');
-            else navScrim.setAttribute('hidden', '');
+        if (sheetOpenBtn) sheetOpenBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        syncBodyLock();
+    };
+
+    const setDashNavOpen = (open) => {
+        if (!dashNav || !dashSheet) return;
+        if (open) {
+            dashSheet.removeAttribute('hidden');
+            requestAnimationFrame(() => dashNav.classList.add('is-open'));
+        } else {
+            dashNav.classList.remove('is-open');
+            window.setTimeout(() => {
+                if (!dashNav.classList.contains('is-open')) {
+                    dashSheet.setAttribute('hidden', '');
+                }
+            }, 200);
         }
-        if (!open) {
-            document.querySelectorAll('.sp-menu__item.is-expanded').forEach((item) => {
-                item.classList.remove('is-expanded');
-                const trigger = item.querySelector('[data-sp-menu-section]');
-                if (trigger) trigger.setAttribute('aria-expanded', 'false');
-            });
-        }
+        if (dashToggle) dashToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        syncBodyLock();
     };
 
     const closeOpenMenus = (except = null) => {
@@ -129,35 +149,31 @@ window.showMessage = function (message, type) {
     };
 
     document.addEventListener('click', async (event) => {
-        const navToggleBtn = event.target.closest('[data-sp-nav-toggle]');
-        if (navToggleBtn) {
+        if (event.target.closest('[data-sp-sheet-open]')) {
             event.preventDefault();
-            const opening = !navRoot?.classList.contains('is-open');
             closeOpenMenus();
-            setNavOpen(opening);
+            setDashNavOpen(false);
+            setSheetOpen(!(siteSheet?.classList.contains('is-open')));
             return;
         }
 
-        if (event.target.closest('[data-sp-nav-close]') || event.target.closest('[data-sp-nav-scrim]')) {
+        if (event.target.closest('[data-sp-sheet-close]')) {
             event.preventDefault();
-            setNavOpen(false);
+            setSheetOpen(false);
             return;
         }
 
-        const sectionBtn = event.target.closest('[data-sp-menu-section]');
-        if (sectionBtn && window.matchMedia('(max-width: 767px)').matches) {
+        if (event.target.closest('[data-sp-dash-nav-toggle]')) {
             event.preventDefault();
-            const item = sectionBtn.closest('.sp-menu__item');
-            if (!item) return;
-            const opening = !item.classList.contains('is-expanded');
-            item.parentElement?.querySelectorAll('.sp-menu__item.is-expanded').forEach((other) => {
-                if (other !== item) {
-                    other.classList.remove('is-expanded');
-                    other.querySelector('[data-sp-menu-section]')?.setAttribute('aria-expanded', 'false');
-                }
-            });
-            item.classList.toggle('is-expanded', opening);
-            sectionBtn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+            closeOpenMenus();
+            setSheetOpen(false);
+            setDashNavOpen(!(dashNav?.classList.contains('is-open')));
+            return;
+        }
+
+        if (event.target.closest('[data-sp-dash-nav-close]')) {
+            event.preventDefault();
+            setDashNavOpen(false);
             return;
         }
 
@@ -167,7 +183,8 @@ window.showMessage = function (message, type) {
             const wrap = notifyToggle.closest('[data-sp-notify]');
             const opening = !wrap.classList.contains('is-open');
             closeOpenMenus(opening ? wrap : null);
-            setNavOpen(false);
+            setSheetOpen(false);
+            setDashNavOpen(false);
             wrap.classList.toggle('is-open', opening);
             notifyToggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
             return;
@@ -247,14 +264,16 @@ window.showMessage = function (message, type) {
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-            setNavOpen(false);
+            setSheetOpen(false);
+            setDashNavOpen(false);
             closeOpenMenus();
         }
     });
 
     window.addEventListener('resize', () => {
         if (window.matchMedia('(min-width: 768px)').matches) {
-            setNavOpen(false);
+            setSheetOpen(false);
+            setDashNavOpen(false);
         }
     });
 })();

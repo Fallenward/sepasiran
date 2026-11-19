@@ -81,10 +81,11 @@
             'active' => request()->routeIs('breeder.dashboard-create', 'breeder.dashboard-store'),
         ];
     }
+
+    $activeLink = collect($links)->firstWhere('active', true) ?? $links[0];
 @endphp
-<nav class="sp-dash__nav" aria-label="ناوبری حساب">
-    <p class="sp-dash__nav-label">بخش‌های حساب</p>
-    <div class="sp-dash__nav-track">
+<nav class="sp-dash__nav" aria-label="ناوبری حساب" data-sp-dash-nav>
+    <div class="sp-dash__nav-track" aria-hidden="false">
         @foreach($links as $link)
             <a href="{{ $link['url'] }}"
                class="sp-dash__nav-link {{ !empty($link['active']) ? 'is-active' : '' }}">
@@ -92,5 +93,44 @@
                 <span>{{ $link['label'] }}</span>
             </a>
         @endforeach
+    </div>
+
+    <div class="sp-dash__nav-mobile">
+        <button type="button"
+                class="sp-dash__nav-current"
+                data-sp-dash-nav-toggle
+                aria-expanded="false"
+                aria-controls="spDashNavSheet">
+            <span class="sp-dash__nav-current-icon" aria-hidden="true"><i class="{{ $activeLink['icon'] }}"></i></span>
+            <span class="sp-dash__nav-current-text">
+                <small>بخش فعلی</small>
+                <strong>{{ $activeLink['label'] }}</strong>
+            </span>
+            <i class="fas fa-chevron-down sp-dash__nav-caret" aria-hidden="true"></i>
+        </button>
+
+        <div class="sp-dash__nav-sheet" id="spDashNavSheet" data-sp-dash-nav-sheet hidden>
+            <button type="button" class="sp-dash__nav-sheet-scrim" data-sp-dash-nav-close aria-label="بستن"></button>
+            <div class="sp-dash__nav-sheet-panel" role="dialog" aria-modal="true" aria-label="بخش‌های حساب">
+                <header class="sp-dash__nav-sheet-head">
+                    <strong>جابه‌جایی در حساب</strong>
+                    <button type="button" class="sp-dash__nav-sheet-close" data-sp-dash-nav-close aria-label="بستن">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </header>
+                <div class="sp-dash__nav-sheet-list">
+                    @foreach($links as $link)
+                        <a href="{{ $link['url'] }}"
+                           class="sp-dash__nav-sheet-link {{ !empty($link['active']) ? 'is-active' : '' }}">
+                            <i class="{{ $link['icon'] }}" aria-hidden="true"></i>
+                            <span>{{ $link['label'] }}</span>
+                            @if(!empty($link['active']))
+                                <em>فعلی</em>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     </div>
 </nav>
