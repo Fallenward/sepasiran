@@ -1278,6 +1278,69 @@ a:hover {
   margin-bottom: 2px;
 }
 
+.sp-nav__burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-inline-start: auto;
+  border: 1px solid var(--sp-border);
+  border-radius: 12px;
+  background: rgba(18, 26, 23, 0.72);
+  color: var(--sp-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  order: 3;
+}
+
+.sp-nav__burger-lines {
+  display: grid;
+  gap: 5px;
+  width: 18px;
+}
+
+.sp-nav__burger-lines span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 160ms var(--sp-ease-out), opacity 160ms var(--sp-ease-out);
+}
+
+.sp-nav.is-open .sp-nav__burger-lines span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.sp-nav.is-open .sp-nav__burger-lines span:nth-child(2) {
+  opacity: 0;
+}
+
+.sp-nav.is-open .sp-nav__burger-lines span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.sp-nav__scrim {
+  display: none;
+}
+
+.sp-menu__drawer-head {
+  display: none;
+}
+
+.sp-nav__drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--sp-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sp-text);
+  cursor: pointer;
+}
+
 @media (min-width: 768px) {
   .mobile-nav {
     display: none;
@@ -1285,15 +1348,180 @@ a:hover {
   .sp-menu {
     display: flex;
   }
+  .sp-nav__burger,
+  .sp-nav__scrim,
+  .sp-menu__drawer-head {
+    display: none !important;
+  }
 }
 
 @media (max-width: 767px) {
+  .sp-nav {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .sp-nav__actions {
+    order: 2;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+
+  .sp-nav__burger {
+    display: inline-flex;
+    margin-inline-start: 0;
+  }
+
+  .sp-nav__desktop-only {
+    display: none !important;
+  }
+
+  .sp-nav__scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 88;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: rgba(4, 8, 6, 0.62);
+    backdrop-filter: blur(2px);
+  }
+
+  .sp-nav.is-open .sp-nav__scrim {
+    display: block;
+  }
+
   .sp-menu {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: 89;
+    display: flex;
+    flex-direction: column;
+    width: min(88vw, 320px);
+    max-width: 100%;
+    padding: 16px 14px 88px;
+    background: var(--sp-bg-elevated);
+    border-inline-start: 1px solid var(--sp-glass-border);
+    box-shadow: var(--sp-shadow-soft);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(110%);
+    visibility: hidden;
+    transition: transform 220ms var(--sp-ease-out), visibility 220ms;
+  }
+
+  html[dir="rtl"] .sp-menu {
+    transform: translateX(-110%);
+  }
+
+  .sp-nav.is-open .sp-menu {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .sp-menu__drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--sp-border);
+  }
+
+  .sp-menu__drawer-head strong {
+    font-size: 1.05rem;
+  }
+
+  .sp-menu__list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .sp-menu__item {
+    width: 100%;
+  }
+
+  .sp-menu__trigger {
+    width: 100%;
+    justify-content: space-between;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: rgba(18, 26, 23, 0.55);
+  }
+
+  .sp-menu__item.is-expanded > .sp-menu__trigger,
+  .sp-menu__trigger.is-active {
+    border-color: rgba(79, 191, 120, 0.35);
+    background: rgba(79, 191, 120, 0.1);
+    color: var(--sp-text);
+  }
+
+  .sp-menu__dropdown {
+    position: static;
+    inset: auto;
+    min-width: 0;
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding: 4px 0 4px 0;
+    padding-inline-start: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
     display: none;
   }
-  .sp-nav__actions .btn-ghost {
+
+  .sp-menu__item.is-expanded > .sp-menu__dropdown {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sp-menu__item:hover > .sp-menu__dropdown,
+  .sp-menu__item:focus-within > .sp-menu__dropdown {
+    /* mobile uses tap accordion only */
     display: none;
   }
+
+  .sp-menu__item.is-expanded:hover > .sp-menu__dropdown,
+  .sp-menu__item.is-expanded:focus-within > .sp-menu__dropdown {
+    display: grid;
+  }
+
+  .sp-menu__dropdown a,
+  .sp-menu__logout button {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  body.is-nav-lock {
+    overflow: hidden;
+  }
+
+  .sp-nav__notify-menu {
+    position: fixed;
+    top: 64px;
+    inset-inline: 12px;
+    inset-inline-start: 12px;
+    inset-inline-end: 12px;
+    width: auto;
+    min-width: 0;
+    max-height: min(70vh, 420px);
+    overflow: auto;
+  }
+
   .section {
     padding: 40px 0;
   }
@@ -3568,6 +3796,14 @@ body.sp-body {
   margin-bottom: 4px;
 }
 
+.sp-dash__nav-label {
+  display: none;
+  margin: 0 0 8px;
+  color: var(--sp-text-subtle);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .sp-dash__nav-track {
   display: flex;
   gap: 8px;
@@ -3624,6 +3860,40 @@ body.sp-body {
 @media (max-width: 767px) {
   .sp-dash__nav {
     top: 64px;
+  }
+
+  .sp-dash__nav-label {
+    display: block;
+  }
+
+  .sp-dash__nav-track {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    padding: 10px;
+  }
+
+  .sp-dash__nav-link {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 12px;
+    white-space: normal;
+    line-height: 1.35;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-color: var(--sp-border);
+    background: rgba(12, 18, 16, 0.45);
+  }
+
+  .sp-dash__nav-link span {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 420px) {
+  .sp-dash__nav-track {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -94,6 +94,31 @@ window.showMessage = function (message, type) {
         }
     };
 
+    const navRoot = document.querySelector('[data-sp-nav]');
+    const navToggle = document.querySelector('[data-sp-nav-toggle]');
+    const navScrim = document.querySelector('[data-sp-nav-scrim]');
+
+    const setNavOpen = (open) => {
+        if (!navRoot) return;
+        navRoot.classList.toggle('is-open', open);
+        document.body.classList.toggle('is-nav-lock', open);
+        if (navToggle) {
+            navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            navToggle.setAttribute('aria-label', open ? 'بستن منو' : 'باز کردن منو');
+        }
+        if (navScrim) {
+            if (open) navScrim.removeAttribute('hidden');
+            else navScrim.setAttribute('hidden', '');
+        }
+        if (!open) {
+            document.querySelectorAll('.sp-menu__item.is-expanded').forEach((item) => {
+                item.classList.remove('is-expanded');
+                const trigger = item.querySelector('[data-sp-menu-section]');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        }
+    };
+
     const closeOpenMenus = (except = null) => {
         document.querySelectorAll('.sp-nav__notify.is-open, .sp-nav__account.is-open').forEach((el) => {
             if (except && el === except) return;
@@ -104,12 +129,45 @@ window.showMessage = function (message, type) {
     };
 
     document.addEventListener('click', async (event) => {
+        const navToggleBtn = event.target.closest('[data-sp-nav-toggle]');
+        if (navToggleBtn) {
+            event.preventDefault();
+            const opening = !navRoot?.classList.contains('is-open');
+            closeOpenMenus();
+            setNavOpen(opening);
+            return;
+        }
+
+        if (event.target.closest('[data-sp-nav-close]') || event.target.closest('[data-sp-nav-scrim]')) {
+            event.preventDefault();
+            setNavOpen(false);
+            return;
+        }
+
+        const sectionBtn = event.target.closest('[data-sp-menu-section]');
+        if (sectionBtn && window.matchMedia('(max-width: 767px)').matches) {
+            event.preventDefault();
+            const item = sectionBtn.closest('.sp-menu__item');
+            if (!item) return;
+            const opening = !item.classList.contains('is-expanded');
+            item.parentElement?.querySelectorAll('.sp-menu__item.is-expanded').forEach((other) => {
+                if (other !== item) {
+                    other.classList.remove('is-expanded');
+                    other.querySelector('[data-sp-menu-section]')?.setAttribute('aria-expanded', 'false');
+                }
+            });
+            item.classList.toggle('is-expanded', opening);
+            sectionBtn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+            return;
+        }
+
         const notifyToggle = event.target.closest('[data-sp-notify-toggle]');
         if (notifyToggle) {
             event.preventDefault();
             const wrap = notifyToggle.closest('[data-sp-notify]');
             const opening = !wrap.classList.contains('is-open');
             closeOpenMenus(opening ? wrap : null);
+            setNavOpen(false);
             wrap.classList.toggle('is-open', opening);
             notifyToggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
             return;
@@ -184,6 +242,19 @@ window.showMessage = function (message, type) {
 
         if (!event.target.closest('[data-sp-notify]') && !event.target.closest('[data-sp-account]')) {
             closeOpenMenus();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            setNavOpen(false);
+            closeOpenMenus();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.matchMedia('(min-width: 768px)').matches) {
+            setNavOpen(false);
         }
     });
 })();

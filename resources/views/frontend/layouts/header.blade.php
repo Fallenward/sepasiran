@@ -41,20 +41,39 @@
     $headerNotifications = collect($headerShell['notifications'] ?? []);
     $unreadCount = (int) ($headerShell['unread'] ?? 0);
 @endphp
-<header class="sp-nav">
+<header class="sp-nav" data-sp-nav>
     <a class="sp-brand" href="{{ route('frontend.home') }}">
         <span class="sp-brand__fa">سپاسیران</span>
         <span class="sp-brand__en latin">Sepasiran</span>
     </a>
 
-    <nav class="sp-menu" aria-label="منوی اصلی">
+    <button type="button"
+            class="sp-nav__burger"
+            data-sp-nav-toggle
+            aria-controls="spMainMenu"
+            aria-expanded="false"
+            aria-label="باز کردن منو">
+        <span class="sp-nav__burger-lines" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </span>
+    </button>
+
+    <div class="sp-nav__scrim" data-sp-nav-scrim hidden></div>
+
+    <nav class="sp-menu" id="spMainMenu" aria-label="منوی اصلی" data-sp-menu>
+        <div class="sp-menu__drawer-head">
+            <strong>منو</strong>
+            <button type="button" class="sp-nav__drawer-close" data-sp-nav-close aria-label="بستن منو">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
         <ul class="sp-menu__list">
             <li class="sp-menu__item sp-menu__item--link">
                 <a class="sp-menu__trigger {{ request()->routeIs('frontend.home') ? 'is-active' : '' }}"
                    href="{{ route('frontend.home') }}">خانه</a>
             </li>
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+                <button type="button" class="sp-menu__trigger" aria-haspopup="true" aria-expanded="false" data-sp-menu-section>سگ‌ها</button>
                 <div class="sp-menu__dropdown" role="menu">
                     <a href="{{ route('frontend.dog.supply.index') }}"
                        class="{{ request()->routeIs('frontend.dog.supply.*') ? 'is-active' : '' }}">لیست سگ‌ها</a>
@@ -63,7 +82,7 @@
                 </div>
             </li>
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
+                <button type="button" class="sp-menu__trigger" aria-haspopup="true" aria-expanded="false" data-sp-menu-section>خدمات</button>
                 <div class="sp-menu__dropdown" role="menu">
                     <a href="{{ route('frontend.booking.index') }}"
                        class="{{ request()->routeIs('frontend.booking.index', 'frontend.booking.store', 'frontend.booking.success') ? 'is-active' : '' }}">رزرو خدمت</a>
@@ -77,14 +96,14 @@
                 </div>
             </li>
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+                <button type="button" class="sp-menu__trigger" aria-haspopup="true" aria-expanded="false" data-sp-menu-section>فروشگاه</button>
                 <div class="sp-menu__dropdown" role="menu">
                     <a href="{{ route('frontend.stores.index') }}"
                        class="{{ request()->routeIs('frontend.stores.*', 'frontend.products.*') ? 'is-active' : '' }}">محصولات</a>
                 </div>
             </li>
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">حساب</button>
+                <button type="button" class="sp-menu__trigger" aria-haspopup="true" aria-expanded="false" data-sp-menu-section>حساب</button>
                 <div class="sp-menu__dropdown" role="menu">
                     @guest
                         <a href="{{ route('login') }}">ورود</a>
@@ -107,7 +126,7 @@
 
     <div class="sp-nav__actions">
         @guest
-            <a class="btn btn-ghost" href="{{ route('login') }}">ورود</a>
+            <a class="btn btn-ghost sp-nav__desktop-only" href="{{ route('login') }}">ورود</a>
             <a class="btn btn-primary" href="{{ route('register') }}">ثبت‌نام</a>
         @else
             <div class="sp-nav__notify" data-sp-notify>
@@ -154,7 +173,7 @@
                 </div>
             </div>
 
-            <div class="sp-nav__account" data-sp-account>
+            <div class="sp-nav__account sp-nav__desktop-only" data-sp-account>
                 <button type="button" class="btn btn-ghost sp-nav__account-btn" data-sp-account-toggle aria-haspopup="true" aria-expanded="false">
                     @if(!empty($headerShell['avatar_url']))
                         <img class="sp-nav__account-avatar" src="{{ $headerShell['avatar_url'] }}" alt="" data-sp-avatar>
@@ -170,7 +189,7 @@
                     @endforeach
                 </div>
             </div>
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
+            <form action="{{ route('logout') }}" method="POST" class="m-0 sp-nav__desktop-only">
                 @csrf
                 <button type="submit" class="btn btn-primary">خروج</button>
             </form>

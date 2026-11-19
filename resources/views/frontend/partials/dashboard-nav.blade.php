@@ -83,6 +83,7 @@
     }
 @endphp
 <nav class="sp-dash__nav" aria-label="ناوبری حساب">
+    <p class="sp-dash__nav-label">بخش‌های حساب</p>
     <div class="sp-dash__nav-track">
         @foreach($links as $link)
             <a href="{{ $link['url'] }}"
