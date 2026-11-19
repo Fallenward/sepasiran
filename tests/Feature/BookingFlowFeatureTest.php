@@ -167,7 +167,9 @@ class BookingFlowFeatureTest extends TestCase
             ->get(route('frontend.booking.open.show', $code))
             ->assertOk()
             ->assertSee('ارسال پیشنهاد', false)
-            ->assertSee('گفتگو', false);
+            ->assertSee('گفتگو', false)
+            ->assertSee('جزئیات کامل رزرو', false)
+            ->assertSee($code, false);
 
         $this->actingAs($coach)
             ->get(route('account.bookings.index', ['tab' => 'inbox']))

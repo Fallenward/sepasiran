@@ -57,32 +57,11 @@
         </div>
     </header>
 
-    <section class="sp-dash__panel">
-        <header class="sp-dash__panel-head"><h2>{{ $fa['summary'] }}</h2></header>
-        <div class="sp-dash__list">
-            <article class="sp-dash__row">
-                <span class="sp-dash__row-icon"><i class="fas fa-ticket-alt"></i></span>
-                <div>
-                    <strong>{{ $serviceLabel }} · {{ $fa['open_req'] }}</strong>
-                    <p class="sp-dash__muted">
-                        @if($isOwner)
-                            {{ $fa['owner_you'] }}
-                        @else
-                            {{ $fa['customer'] }}: {{ optional($booking->user)->name }} {{ optional($booking->user)->family }}
-                        @endif
-                    </p>
-                    <p class="sp-dash__muted">
-                        {{ optional($booking->city)->name }}
-                        @if($booking->dog) · {{ $fa['dog'] }}: {{ $booking->dog->title }} @endif
-                        · <span class="num">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }}</span> ت
-                    </p>
-                    @if($booking->notes)
-                        <p class="sp-dash__muted">{{ $booking->notes }}</p>
-                    @endif
-                </div>
-            </article>
-        </div>
-    </section>
+    @include('frontend.partials.booking-full-details', [
+        'booking' => $booking,
+        'showContact' => $isOwner || $isProvider || auth()->check(),
+        'hideCustomer' => false,
+    ])
 
     @guest
         <section class="sp-dash__panel">

@@ -77,39 +77,23 @@
             <div class="sp-dash__flash" style="border-color:rgba(220,80,80,.4);color:#f0b4b4">{{ $message }}</div>
         @enderror
 
-        <section class="sp-dash__panel">
-            <header class="sp-dash__panel-head">
-                <h2>خلاصه درخواست</h2>
-                <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
-            </header>
-            <div class="sp-dash__list">
-                <article class="sp-dash__row">
-                    <span class="sp-dash__row-icon"><i class="fas fa-ticket-alt"></i></span>
-                    <div>
-                        <strong>{{ strtoupper((string) $booking->service_type) }} · {{ $isOpen ? 'درخواست باز' : 'مستقیم' }}</strong>
-                        <p class="sp-dash__muted">
-                            @if($isOwner)
-                                ارائه‌دهنده: {{ optional($booking->provider)->name ?? 'هنوز مشخص نشده' }}
-                            @else
-                                مشتری: {{ optional($booking->user)->name }} {{ optional($booking->user)->family }}
-                            @endif
-                        </p>
-                        <p class="sp-dash__muted">
-                            @if($booking->dog) سگ: {{ $booking->dog->title }} · @endif
-                            <span class="num">{{ number_format((float) ($booking->total ?? $booking->price ?? 0)) }}</span> ت
-                        </p>
-                        @if($providerCanDecide)
-                            <div class="sp-dash__inline-form" style="margin-top:12px">
-                                <button type="button" class="sp-btn sp-btn--primary" data-booking-respond="accept" data-code="{{ $code }}">پذیرش درخواست</button>
-                                <button type="button" class="sp-btn sp-btn--ghost" data-booking-respond="reject" data-code="{{ $code }}" style="color:var(--sp-danger)">رد درخواست</button>
-                            </div>
-                        @elseif($isLocked)
-                            <p class="sp-dash__muted" style="margin-top:8px">تصمیم نهایی ثبت شده است.</p>
-                        @endif
-                    </div>
-                </article>
-            </div>
-        </section>
+        @include('frontend.partials.booking-full-details', [
+            'booking' => $booking,
+            'showContact' => true,
+            'hideCustomer' => false,
+        ])
+
+        @if($providerCanDecide)
+            <section class="sp-dash__panel">
+                <header class="sp-dash__panel-head"><h2>تصمیم</h2></header>
+                <div class="sp-dash__inline-form">
+                    <button type="button" class="sp-btn sp-btn--primary" data-booking-respond="accept" data-code="{{ $code }}">پذیرش درخواست</button>
+                    <button type="button" class="sp-btn sp-btn--ghost" data-booking-respond="reject" data-code="{{ $code }}" style="color:var(--sp-danger)">رد درخواست</button>
+                </div>
+            </section>
+        @elseif($isLocked)
+            <p class="sp-dash__muted" style="margin: 0 0 16px">تصمیم نهایی ثبت شده است.</p>
+        @endif
 
         @if($isOwner && $isOpen)
             <section class="sp-dash__panel">
