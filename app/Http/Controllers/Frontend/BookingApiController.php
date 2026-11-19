@@ -751,10 +751,10 @@ class BookingApiController extends Controller
                 'id' => $booking->dog->id,
                 'title' => $booking->dog->title,
                 'breed_id' => $booking->dog->breed_id,
-                'breed_name' => $booking->dog->breed?->name,
+                'breed_name' => $booking->dog->breedName(),
                 'image' => $booking->dog->image,
             ] : null,
-            'breed' => $booking->breed ? ['id' => $booking->breed->id, 'name' => $booking->breed->name] : null,
+            'breed' => $this->serializeBreedRelation($booking),
             'provider' => $provider ? [
                 'id' => $provider->id,
                 'display_name' => $display !== '' ? $display : $provider->name,
@@ -784,7 +784,7 @@ class BookingApiController extends Controller
             'contact_name' => $booking->contact_name,
             'contact_phone' => $booking->contact_phone,
             'notes' => $booking->notes,
-            'city' => $booking->city ? ['id' => $booking->city->id, 'name' => $booking->city->name] : null,
+            'city' => $this->serializeCityRelation($booking),
             'offers' => $booking->relationLoaded('offers')
                 ? $booking->offers->map(fn (BookingOffer $o) => $this->serializeOffer($o))->values()->all()
                 : [],
@@ -801,12 +801,38 @@ class BookingApiController extends Controller
             'id' => $dog->id,
             'title' => $dog->title,
             'breed_id' => $dog->breed_id,
-            'breed_name' => $dog->breed?->name,
+            'breed_name' => $dog->breedName(),
             'image' => $dog->image,
             'age' => $dog->age,
             'color' => $dog->color,
             'status' => $dog->status,
         ];
+    }
+
+    private function serializeBreedRelation(Booking $booking): ?array
+    {
+        $breed = $booking->relationLoaded('breed')
+            ? $booking->getRelation('breed')
+            : (is_object($booking->breed ?? null) ? $booking->breed : $booking->breed()->first());
+
+        if (! is_object($breed)) {
+            return null;
+        }
+
+        return ['id' => $breed->id, 'name' => $breed->name];
+    }
+
+    private function serializeCityRelation(Booking $booking): ?array
+    {
+        $city = $booking->relationLoaded('city')
+            ? $booking->getRelation('city')
+            : (is_object($booking->city ?? null) ? $booking->city : $booking->city()->first());
+
+        if (! is_object($city)) {
+            return null;
+        }
+
+        return ['id' => $city->id, 'name' => $city->name];
     }
 
     private function serializeOffer(BookingOffer $offer): array
