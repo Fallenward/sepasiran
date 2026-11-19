@@ -3802,3 +3802,14 @@ body.sp-body {
   border-radius: 14px;
   border: 1px solid var(--sp-border);
 }
+.sp-booking-chat__threads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sp-booking-chat__thread-btn.is-active {
+  border-color: rgba(125, 207, 154, 0.55);
+  background: rgba(79, 191, 120, 0.14);
+}

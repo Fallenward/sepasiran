@@ -234,6 +234,7 @@ class BookingFlowFeatureTest extends TestCase
         $this->actingAs($customer)
             ->postJson(route('frontend.booking.api.messages.store', $code), [
                 'body' => 'در مورد زمان صحبت کنیم',
+                'provider_id' => $coachA->id,
                 'booking_offer_id' => $offerA,
             ])
             ->assertCreated();
@@ -289,6 +290,72 @@ class BookingFlowFeatureTest extends TestCase
         $this->actingAs($stranger)
             ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'accept'])
             ->assertForbidden();
+    }
+
+    public function test_open_chat_is_private_per_provider_thread(): void
+    {
+        $customer = $this->makeRoleUser('user');
+        $coachA = $this->makeRoleUser('coach', ['name' => 'Alpha']);
+        $coachB = $this->makeRoleUser('coach', ['name' => 'Beta']);
+        $city = $this->makeCity();
+        $dog = $this->makeDog($customer);
+
+        $code = $this->actingAs($customer)
+            ->postJson(route('frontend.booking.api.store'), [
+                'dog_id' => $dog->id,
+                'city_id' => $city->id,
+                'service_type' => 'coach',
+                'training_type' => 'beginner',
+                'fulfillment_mode' => 'open',
+                'contact_name' => 'Saeed',
+                'contact_phone' => '09121234567',
+            ])
+            ->assertCreated()
+            ->json('booking.booking_code');
+
+        $this->actingAs($coachA)
+            ->postJson(route('frontend.booking.api.offers.store', $code), [
+                'price' => 800000,
+                'message' => 'A',
+            ])
+            ->assertCreated();
+
+        $this->actingAs($coachB)
+            ->postJson(route('frontend.booking.api.offers.store', $code), [
+                'price' => 900000,
+                'message' => 'B',
+            ])
+            ->assertCreated();
+
+        $this->actingAs($customer)
+            ->postJson(route('frontend.booking.api.messages.store', $code), [
+                'body' => 'secret for A only',
+                'provider_id' => $coachA->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('message.provider_id', $coachA->id);
+
+        $this->actingAs($coachA)
+            ->getJson(route('frontend.booking.api.messages.index', $code))
+            ->assertOk()
+            ->assertJsonCount(1, 'results')
+            ->assertJsonPath('results.0.body', 'secret for A only');
+
+        $this->actingAs($coachB)
+            ->getJson(route('frontend.booking.api.messages.index', $code))
+            ->assertOk()
+            ->assertJsonCount(0, 'results');
+
+        $this->actingAs($customer)
+            ->getJson(route('frontend.booking.api.messages.index', ['booking_code' => $code, 'provider_id' => $coachB->id]))
+            ->assertOk()
+            ->assertJsonCount(0, 'results');
+
+        $this->actingAs($customer)
+            ->getJson(route('frontend.booking.api.threads', $code))
+            ->assertOk()
+            ->assertJsonFragment(['provider_id' => $coachA->id])
+            ->assertJsonFragment(['provider_id' => $coachB->id]);
     }
 
     public function test_account_booking_hub_links_to_discussion_page(): void

@@ -147,29 +147,12 @@
             </section>
         @endif
 
-        <section class="sp-dash__panel sp-booking-chat" data-booking-chat data-code="{{ $code }}">
-            <header class="sp-dash__panel-head">
-                <h2>گفتگو</h2>
-                <button type="button" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 12px" data-chat-refresh>به‌روز</button>
-            </header>
-            <div class="sp-booking-chat__thread" data-chat-thread>
-                @forelse($booking->messages as $message)
-                    <div class="sp-booking-chat__bubble {{ (int) $message->user_id === (int) auth()->id() ? 'is-mine' : '' }}">
-                        <strong>{{ optional($message->user)->name }}</strong>
-                        <p>{{ $message->body }}</p>
-                        <span class="num">{{ optional($message->created_at)->format('Y/m/d H:i') }}</span>
-                    </div>
-                @empty
-                    <p class="sp-dash__muted" data-chat-empty>هنوز پیامی نیست. برای توافق ابتدا گفتگو کنید.</p>
-                @endforelse
-            </div>
-            @if(! $isLocked)
-                <form class="sp-booking-chat__composer" data-chat-form>
-                    <input type="text" name="body" maxlength="2000" placeholder="پیام خود را بنویسید..." required>
-                    <button class="sp-btn sp-btn--primary" type="submit">ارسال</button>
-                </form>
-            @endif
-        </section>
+        @include('frontend.partials.booking-chat', [
+            'booking' => $booking,
+            'isOwner' => $isOwner,
+            'isProvider' => $isProvider,
+            'isLocked' => $isLocked,
+        ])
     </div>
 </div>
 @endsection
@@ -246,53 +229,6 @@
       }
     });
   }
-
-  const chat = document.querySelector('[data-booking-chat]');
-  if (!chat) return;
-  const code = chat.dataset.code;
-  const thread = chat.querySelector('[data-chat-thread]');
-  const form = chat.querySelector('[data-chat-form]');
-
-  const renderMessages = (rows) => {
-    if (!rows.length) {
-      thread.innerHTML = '<p class="sp-dash__muted" data-chat-empty>هنوز پیامی نیست. برای توافق ابتدا گفتگو کنید.</p>';
-      return;
-    }
-    thread.innerHTML = rows.map((m) => `
-      <div class="sp-booking-chat__bubble ${m.mine ? 'is-mine' : ''}">
-        <strong>${m.user?.display_name || 'کاربر'}</strong>
-        <p>${(m.body || '').replace(/[<>&]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p>
-        <span class="num">${(m.created_at || '').replace('T', ' ').slice(0, 16)}</span>
-      </div>
-    `).join('');
-    thread.scrollTop = thread.scrollHeight;
-  };
-
-  const loadMessages = async () => {
-    const res = await fetch(`/booking/api/${code}/messages`, {
-      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      credentials: 'same-origin',
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    renderMessages(data.results || []);
-  };
-
-  chat.querySelector('[data-chat-refresh]')?.addEventListener('click', loadMessages);
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = form.querySelector('input[name="body"]');
-    const body = (input?.value || '').trim();
-    if (!body) return;
-    try {
-      await postJson(`/booking/api/${code}/messages`, { body });
-      input.value = '';
-      await loadMessages();
-    } catch (err) {
-      window.showMessage?.(err?.message || 'ارسال پیام ناموفق بود', 'error');
-    }
-  });
 })();
 </script>
 @endpush

@@ -283,6 +283,7 @@ Route::name('frontend.')->group(function () {
             Route::post('/{booking_code}/offers/{offer_id}/accept', [FrontendBookingApiController::class, 'acceptOffer'])->name('offers.accept');
             Route::post('/{booking_code}/offers/{offer_id}/reject', [FrontendBookingApiController::class, 'rejectOffer'])->name('offers.reject');
             Route::post('/{booking_code}/respond', [FrontendBookingApiController::class, 'respond'])->name('respond');
+            Route::get('/{booking_code}/threads', [FrontendBookingApiController::class, 'threads'])->name('threads');
             Route::get('/{booking_code}/messages', [FrontendBookingApiController::class, 'messages'])->name('messages.index');
             Route::post('/{booking_code}/messages', [FrontendBookingApiController::class, 'storeMessage'])->name('messages.store');
             Route::post('/{booking_code}/cancel', [FrontendBookingApiController::class, 'cancel'])->name('cancel');

@@ -658,7 +658,72 @@ class BookingApiController extends Controller
         ]);
     }
 
-    public function messages(string $bookingCode): JsonResponse
+    /**
+     * List 1:1 chat threads for a booking (keyed by booking + provider).
+     */
+    public function threads(string $bookingCode): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $booking = Booking::query()
+            ->with(['invitedProviders', 'offers.provider', 'provider'])
+            ->where('booking_code', $bookingCode)
+            ->firstOrFail();
+
+        abort_unless($this->canChat($booking, (int) Auth::id()), 403);
+
+        $userId = (int) Auth::id();
+        $isOwner = (int) $booking->user_id === $userId;
+
+        $providerIds = collect();
+        if ($isOwner || $this->isAdmin(Auth::user())) {
+            $providerIds = $providerIds
+                ->merge($booking->offers->pluck('provider_id'))
+                ->merge(
+                    BookingMessage::query()
+                        ->where('booking_id', $booking->id)
+                        ->whereNotNull('provider_id')
+                        ->pluck('provider_id')
+                );
+            if ($booking->provider_id) {
+                $providerIds->push($booking->provider_id);
+            }
+            $providerIds = $providerIds->merge(
+                $booking->invitedProviders->pluck('id')
+            )->unique()->filter()->values();
+        } else {
+            $providerIds = collect([$userId]);
+        }
+
+        $users = User::query()->whereIn('id', $providerIds->all())->get()->keyBy('id');
+        $counts = BookingMessage::query()
+            ->selectRaw('provider_id, COUNT(*) as c')
+            ->where('booking_id', $booking->id)
+            ->whereIn('provider_id', $providerIds->all() ?: [0])
+            ->groupBy('provider_id')
+            ->pluck('c', 'provider_id');
+
+        $results = $providerIds->map(function ($pid) use ($users, $counts, $booking) {
+            $user = $users->get($pid);
+            if (! $user) {
+                return null;
+            }
+            $name = trim(($user->name ?? '').' '.($user->family ?? ''));
+
+            return [
+                'provider_id' => (int) $pid,
+                'display_name' => $name !== '' ? $name : $user->name,
+                'message_count' => (int) ($counts[$pid] ?? 0),
+                'has_offer' => $booking->offers->contains('provider_id', (int) $pid),
+            ];
+        })->filter()->values();
+
+        return response()->json(['results' => $results]);
+    }
+
+    public function messages(Request $request, string $bookingCode): JsonResponse
     {
         if (! Auth::check()) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
@@ -671,14 +736,20 @@ class BookingApiController extends Controller
 
         abort_unless($this->canChat($booking, (int) Auth::id()), 403);
 
+        $providerId = $this->resolveThreadProviderId($request, $booking);
+
         $messages = BookingMessage::query()
             ->with('user')
             ->where('booking_id', $booking->id)
+            ->where('provider_id', $providerId)
             ->orderBy('id')
             ->get()
             ->map(fn (BookingMessage $m) => $this->serializeMessage($m));
 
-        return response()->json(['results' => $messages]);
+        return response()->json([
+            'provider_id' => $providerId,
+            'results' => $messages,
+        ]);
     }
 
     public function storeMessage(Request $request, string $bookingCode): JsonResponse
@@ -702,15 +773,18 @@ class BookingApiController extends Controller
 
         $data = $request->validate([
             'body' => ['required', 'string', 'max:2000'],
+            'provider_id' => ['nullable', 'integer', 'exists:users,id'],
             'booking_offer_id' => ['nullable', 'integer', 'exists:booking_offers,id'],
         ]);
 
+        $providerId = $this->resolveThreadProviderId($request, $booking);
+
         if (! empty($data['booking_offer_id'])) {
-            $ownsOffer = BookingOffer::query()
+            $offer = BookingOffer::query()
                 ->where('id', $data['booking_offer_id'])
                 ->where('booking_id', $booking->id)
-                ->exists();
-            if (! $ownsOffer) {
+                ->first();
+            if (! $offer || (int) $offer->provider_id !== $providerId) {
                 throw ValidationException::withMessages([
                     'booking_offer_id' => 'پیشنهاد نامعتبر است.',
                 ]);
@@ -720,6 +794,7 @@ class BookingApiController extends Controller
         $message = BookingMessage::query()->create([
             'booking_id' => $booking->id,
             'user_id' => Auth::id(),
+            'provider_id' => $providerId,
             'booking_offer_id' => $data['booking_offer_id'] ?? null,
             'body' => $data['body'],
         ])->load('user');
@@ -956,6 +1031,61 @@ class BookingApiController extends Controller
         return $booking->invitedProviders()->where('provider_id', $userId)->exists();
     }
 
+    /**
+     * Resolve the provider side of a private thread (booking_id + provider_id).
+     */
+    private function resolveThreadProviderId(Request $request, Booking $booking): int
+    {
+        $userId = (int) Auth::id();
+        $isOwner = (int) $booking->user_id === $userId;
+        $requested = (int) ($request->input('provider_id') ?: $request->query('provider_id') ?: 0);
+
+        // Provider always chats in their own thread.
+        if (! $isOwner && ! $this->isAdmin(Auth::user())) {
+            if (! $this->canChat($booking, $userId)) {
+                abort(403);
+            }
+
+            return $userId;
+        }
+
+        // Customer / admin must pick a provider thread.
+        if ($requested < 1) {
+            if ($booking->provider_id) {
+                $requested = (int) $booking->provider_id;
+            } elseif ($booking->relationLoaded('offers') && $booking->offers->isNotEmpty()) {
+                $requested = (int) $booking->offers->first()->provider_id;
+            }
+        }
+
+        if ($requested < 1) {
+            throw ValidationException::withMessages([
+                'provider_id' => 'برای گفتگو باید طرف مقابل (ارائه‌دهنده) مشخص باشد.',
+            ]);
+        }
+
+        // Must be invited, assigned, offerer, or role-matched open participant who already messaged/offered.
+        $allowed = (int) $booking->provider_id === $requested
+            || $booking->invitedProviders()->where('provider_id', $requested)->exists()
+            || BookingOffer::query()->where('booking_id', $booking->id)->where('provider_id', $requested)->exists()
+            || BookingMessage::query()->where('booking_id', $booking->id)->where('provider_id', $requested)->exists()
+            || (
+                ($booking->fulfillment_mode ?? 'direct') === 'open'
+                && User::query()
+                    ->where('id', $requested)
+                    ->whereHas('roles', fn ($q) => $q->where('name', BookingCatalog::roleFor((string) $booking->service_type)))
+                    ->exists()
+            );
+
+        if (! $allowed) {
+            throw ValidationException::withMessages([
+                'provider_id' => 'گفتگو با این ارائه‌دهنده مجاز نیست.',
+            ]);
+        }
+
+        return $requested;
+    }
+
     private function serializeMessage(BookingMessage $message): array
     {
         $user = $message->user;
@@ -964,6 +1094,7 @@ class BookingApiController extends Controller
         return [
             'id' => $message->id,
             'booking_id' => $message->booking_id,
+            'provider_id' => $message->provider_id,
             'booking_offer_id' => $message->booking_offer_id,
             'body' => $message->body,
             'created_at' => optional($message->created_at)?->toIso8601String(),

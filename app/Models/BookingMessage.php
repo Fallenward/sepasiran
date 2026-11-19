@@ -10,6 +10,7 @@ class BookingMessage extends Model
     protected $fillable = [
         'booking_id',
         'user_id',
+        'provider_id',
         'booking_offer_id',
         'body',
     ];
@@ -22,6 +23,12 @@ class BookingMessage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** The provider side of this 1:1 thread (booking + provider). */
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'provider_id');
     }
 
     public function offer(): BelongsTo
