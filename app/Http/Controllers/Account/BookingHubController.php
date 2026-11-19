@@ -31,8 +31,13 @@ class BookingHubController extends Controller
             $tab = 'mine';
         }
 
+        // Dashboard is for direct bookings only — open marketplace lives on the public site.
         $mine = Booking::query()
             ->where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('fulfillment_mode', 'direct')
+                    ->orWhereNull('fulfillment_mode');
+            })
             ->with(['provider', 'dog', 'offers'])
             ->withCount(['offers', 'messages'])
             ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) desc')
@@ -42,25 +47,17 @@ class BookingHubController extends Controller
         $inbox = collect();
         $inboxPaginator = null;
         if ($isProvider) {
-            $serviceTypes = collect(\App\Support\BookingCatalog::serviceTypes())
-                ->filter(function (array $row) use ($user) {
-                    return $user->hasRole($row['role']);
-                })
-                ->pluck('key')
-                ->values()
-                ->all();
-
+            // Direct pending (and other direct statuses) only — open requests are on /booking/open.
             $inboxPaginator = Booking::query()
-                ->where(function ($q) use ($user, $serviceTypes) {
-                    $q->where('provider_id', $user->id)
-                        ->orWhereHas('invitedProviders', fn ($iq) => $iq->where('provider_id', $user->id))
-                        ->orWhere(function ($open) use ($serviceTypes) {
-                            $open->where('fulfillment_mode', 'open')
-                                ->whereIn('status', ['OPEN', 'PENDING', 'QUOTED'])
-                                ->when($serviceTypes !== [], fn ($qq) => $qq->whereIn('service_type', $serviceTypes));
-                        });
+                ->where(function ($q) {
+                    $q->where('fulfillment_mode', 'direct')
+                        ->orWhereNull('fulfillment_mode');
                 })
-                ->with(['user', 'dog', 'offers' => fn ($q) => $q->where('provider_id', $user->id)])
+                ->where(function ($q) use ($user) {
+                    $q->where('provider_id', $user->id)
+                        ->orWhereHas('invitedProviders', fn ($iq) => $iq->where('provider_id', $user->id));
+                })
+                ->with(['user', 'dog'])
                 ->withCount(['messages'])
                 ->orderByRaw('COALESCE(appointment_date, preferred_date, booking_date) desc')
                 ->paginate(15, ['*'], 'inbox_page')
@@ -84,19 +81,17 @@ class BookingHubController extends Controller
         ]);
     }
 
-    public function show(Booking $booking): View
+    public function show(Booking $booking): View|\Illuminate\Http\RedirectResponse
     {
+        // Open marketplace lives on the public site, not the account dashboard.
+        if (($booking->fulfillment_mode ?? 'direct') === 'open') {
+            return redirect()->route('frontend.booking.open.show', $booking->booking_code);
+        }
+
         $user = Auth::user();
         $isOwner = (int) $booking->user_id === (int) $user->id;
-        $roleForService = \App\Support\BookingCatalog::roleFor((string) $booking->service_type);
-        $isOpenMatch = ($booking->fulfillment_mode ?? 'direct') === 'open'
-            && in_array(strtoupper((string) $booking->status), ['OPEN', 'PENDING', 'QUOTED'], true)
-            && $roleForService
-            && $user->hasRole($roleForService);
         $isProvider = (int) $booking->provider_id === (int) $user->id
-            || $booking->invitedProviders()->where('provider_id', $user->id)->exists()
-            || $booking->offers()->where('provider_id', $user->id)->exists()
-            || $isOpenMatch;
+            || $booking->invitedProviders()->where('provider_id', $user->id)->exists();
 
         abort_unless($isOwner || $isProvider || $user->hasRole('admin'), 403);
 

@@ -137,7 +137,7 @@ class BookingFlowFeatureTest extends TestCase
             ->assertJsonPath('booking.status', 'CANCELLED');
     }
 
-    public function test_open_booking_detail_shows_accept_reject_for_provider(): void
+    public function test_open_bookings_live_on_public_board_not_dashboard(): void
     {
         $customer = $this->makeRoleUser('user');
         $coach = $this->makeRoleUser('coach');
@@ -159,18 +159,29 @@ class BookingFlowFeatureTest extends TestCase
 
         $booking = Booking::query()->where('booking_code', $code)->firstOrFail();
 
-        $this->actingAs($coach)
-            ->get(route('account.bookings.show', $booking))
+        $this->get(route('frontend.booking.open'))
             ->assertOk()
-            ->assertSee('پذیرش', false)
-            ->assertSee('رد', false)
-            ->assertSee('data-booking-respond="accept"', false);
+            ->assertSee($code, false);
 
         $this->actingAs($coach)
-            ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'accept'])
+            ->get(route('frontend.booking.open.show', $code))
             ->assertOk()
-            ->assertJsonPath('booking.status', 'ACCEPTED')
-            ->assertJsonPath('booking.provider.id', $coach->id);
+            ->assertSee('ارسال پیشنهاد', false)
+            ->assertSee('گفتگو', false);
+
+        $this->actingAs($coach)
+            ->get(route('account.bookings.index', ['tab' => 'inbox']))
+            ->assertOk()
+            ->assertDontSee($code, false);
+
+        $this->actingAs($customer)
+            ->get(route('account.bookings.index', ['tab' => 'mine']))
+            ->assertOk()
+            ->assertDontSee($code, false);
+
+        $this->actingAs($coach)
+            ->get(route('account.bookings.show', $booking))
+            ->assertRedirect(route('frontend.booking.open.show', $code));
     }
 
     public function test_open_booking_offer_chat_accept_and_reject_offer(): void

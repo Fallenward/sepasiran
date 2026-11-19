@@ -66,7 +66,9 @@
                 <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
                 <div class="sp-menu__dropdown" role="menu">
                     <a href="{{ route('frontend.booking.index') }}"
-                       class="{{ request()->routeIs('frontend.booking.*') ? 'is-active' : '' }}">رزرو خدمت</a>
+                       class="{{ request()->routeIs('frontend.booking.index', 'frontend.booking.store', 'frontend.booking.success') ? 'is-active' : '' }}">رزرو خدمت</a>
+                    <a href="{{ route('frontend.booking.open') }}"
+                       class="{{ request()->routeIs('frontend.booking.open*') ? 'is-active' : '' }}">درخواست‌های باز</a>
                     <a href="{{ route('frontend.services.index') }}">همه خدمات</a>
                     <a href="{{ route('frontend.coaches.index') }}">مربی‌ها</a>
                     <a href="{{ route('frontend.clinics.index') }}">کلینیک‌ها</a>

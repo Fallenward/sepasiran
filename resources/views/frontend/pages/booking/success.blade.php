@@ -48,6 +48,10 @@
         </div>
 
         @if(($booking['fulfillment_mode'] ?? '') === 'open')
+            <p style="margin:18px 0 0;text-align:right">
+                <a class="sp-btn sp-btn--primary" href="{{ route('frontend.booking.open.show', $booking['booking_code']) }}">مدیریت در صفحه درخواست‌های باز</a>
+                <a class="sp-btn sp-btn--ghost" href="{{ route('frontend.booking.open') }}">همه درخواست‌های باز</a>
+            </p>
             <div class="sp-booking__offers" id="offersBox" style="text-align:right;margin-top:22px">
                 <h3 style="margin:0 0 12px;font-size:1.05rem">پیشنهادها</h3>
                 <div id="offersList">

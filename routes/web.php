@@ -260,6 +260,8 @@ Route::name('frontend.')->group(function () {
     Route::post('/booking', [FrontendBookingController::class, 'store'])
         ->middleware('auth')
         ->name('booking.store');
+    Route::get('/booking/open', [FrontendBookingController::class, 'openBoard'])->name('booking.open');
+    Route::get('/booking/open/{code}', [FrontendBookingController::class, 'openShow'])->name('booking.open.show');
     Route::get('/booking/success/{code}', [FrontendBookingController::class, 'success'])->name('booking.success');
     Route::get('/booking/providers', [FrontendBookingController::class, 'providersShim'])->name('booking.providers');
 

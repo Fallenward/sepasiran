@@ -84,4 +84,102 @@ class BookingController extends Controller
 
         return app(BookingApiController::class)->providers($request);
     }
+
+    /**
+     * Public marketplace for open booking requests (not in account dashboard).
+     */
+    public function openBoard(Request $request)
+    {
+        $serviceType = $request->query('service_type');
+        $query = Booking::query()
+            ->with(['city', 'dog.breed', 'user'])
+            ->withCount(['offers', 'messages'])
+            ->where('fulfillment_mode', 'open')
+            ->where('status', 'OPEN')
+            ->orderByDesc('id');
+
+        if ($serviceType && in_array($serviceType, BookingCatalog::keys(), true)) {
+            $query->where('service_type', $serviceType);
+        }
+
+        $user = Auth::user();
+        $mineOpen = collect();
+        if ($user) {
+            $mineOpen = Booking::query()
+                ->with(['city', 'dog.breed'])
+                ->withCount(['offers', 'messages'])
+                ->where('user_id', $user->id)
+                ->where('fulfillment_mode', 'open')
+                ->whereIn('status', ['OPEN', 'ACCEPTED', 'CANCELLED'])
+                ->orderByDesc('id')
+                ->limit(20)
+                ->get();
+        }
+
+        return view('frontend.pages.booking.open-board', [
+            'bookings' => $query->paginate(20)->withQueryString(),
+            'mineOpen' => $mineOpen,
+            'serviceTypes' => BookingCatalog::serviceTypes(),
+            'selectedService' => $serviceType,
+            'authUser' => $user,
+            'isAuthenticated' => Auth::check(),
+            'loginUrl' => route('login', ['redirect' => url()->current()]),
+        ]);
+    }
+
+    public function openShow(string $code)
+    {
+        $booking = Booking::query()
+            ->with([
+                'provider',
+                'user',
+                'dog.breed',
+                'city',
+                'offers.provider',
+                'messages.user',
+            ])
+            ->where('booking_code', $code)
+            ->where('fulfillment_mode', 'open')
+            ->firstOrFail();
+
+        $user = Auth::user();
+        $isOwner = $user && (int) $booking->user_id === (int) $user->id;
+        $role = BookingCatalog::roleFor((string) $booking->service_type);
+        $isProvider = $user
+            && method_exists($user, 'hasRole')
+            && $role
+            && $user->hasRole($role)
+            && ! $isOwner;
+        $isAdmin = $user && (
+            ! empty($user->is_admin)
+            || (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('is_admin')))
+        );
+
+        // Guests can view open listings; actions need auth.
+        if (strtoupper((string) $booking->status) !== 'OPEN' && ! $isOwner && ! $isAdmin) {
+            // After accept, only parties see detail.
+            abort_unless(
+                $user && (
+                    $isOwner
+                    || (int) $booking->provider_id === (int) $user->id
+                    || $booking->offers()->where('provider_id', $user->id)->exists()
+                    || $isAdmin
+                ),
+                403
+            );
+        }
+
+        $api = app(BookingApiController::class);
+
+        return view('frontend.pages.booking.open-show', [
+            'booking' => $booking,
+            'serialized' => $api->serialize($booking->loadMissing(['offers.provider', 'invitedProviders', 'dog.breed', 'city', 'provider', 'user'])),
+            'isOwner' => (bool) $isOwner,
+            'isProvider' => (bool) $isProvider,
+            'isAuthenticated' => Auth::check(),
+            'loginUrl' => route('login', ['redirect' => url()->current()]),
+            'authUser' => $user,
+            'serviceLabels' => collect(BookingCatalog::serviceTypes())->pluck('label', 'key'),
+        ]);
+    }
 }

@@ -594,6 +594,13 @@ class BookingApiController extends Controller
             ]);
         }
 
+        // Open marketplace: only the customer accepts an offer; providers must not cancel the listing.
+        if (($booking->fulfillment_mode ?? 'direct') === 'open') {
+            throw ValidationException::withMessages([
+                'booking' => 'برای درخواست باز، پیشنهاد بفرستید؛ پذیرش نهایی با صاحب درخواست است.',
+            ]);
+        }
+
         if ($data['action'] === 'accept') {
             $booking->update([
                 'provider_id' => $userId,
@@ -890,7 +897,24 @@ class BookingApiController extends Controller
             ->where('provider_id', $userId)
             ->exists();
 
-        return $hasOffer;
+        if ($hasOffer) {
+            return true;
+        }
+
+        // Open marketplace: any role-matched provider may chat before offering.
+        $user = Auth::user();
+        if (
+            $user
+            && ($booking->fulfillment_mode ?? 'direct') === 'open'
+            && in_array(strtoupper((string) $booking->status), ['OPEN', 'PENDING', 'QUOTED'], true)
+            && method_exists($user, 'hasRole')
+        ) {
+            $role = BookingCatalog::roleFor((string) $booking->service_type);
+
+            return $role && $user->hasRole($role);
+        }
+
+        return false;
     }
 
     private function isAssignedProvider(Booking $booking, int $userId): bool

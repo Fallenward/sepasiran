@@ -42,7 +42,13 @@
             'label' => 'رزرو جدید',
             'url' => route('frontend.booking.index'),
             'icon' => 'far fa-calendar-plus',
-            'active' => request()->routeIs('frontend.booking.*'),
+            'active' => request()->routeIs('frontend.booking.index', 'frontend.booking.store', 'frontend.booking.success'),
+        ],
+        [
+            'label' => 'درخواست‌های باز',
+            'url' => route('frontend.booking.open'),
+            'icon' => 'fas fa-door-open',
+            'active' => request()->routeIs('frontend.booking.open*'),
         ],
     ];
 

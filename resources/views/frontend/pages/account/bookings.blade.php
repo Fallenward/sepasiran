@@ -25,7 +25,7 @@
                 <div>
                     <p class="sp-dash__eyebrow">{{ $roleLabel }}</p>
                     <h1 class="sp-dash__title">رزروها و درخواست‌ها</h1>
-                    <p class="sp-dash__lede">برای هر درخواست فقط می‌توانید بپذیرید یا رد کنید؛ وضعیت‌های دیگر از اینجا انتخاب نمی‌شوند.</p>
+                    <p class="sp-dash__lede">اینجا فقط رزروهای مستقیم است. درخواست‌های باز را در <a href="{{ route('frontend.booking.open') }}">صفحه عمومی درخواست‌های باز</a> ببینید و پیشنهاد/گفتگو کنید.</p>
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">
