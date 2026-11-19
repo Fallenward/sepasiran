@@ -24,6 +24,25 @@ class Dog extends Model
         return $this->belongsTo(Breed::class, 'breed_id');
     }
 
+    /**
+     * Safe breed label — some legacy rows still have a string `breed` column
+     * that shadows the breed() relation when accessed as $dog->breed.
+     */
+    public function breedName(): ?string
+    {
+        $related = $this->relationLoaded('breed')
+            ? $this->getRelation('breed')
+            : $this->breed()->first();
+
+        if (is_object($related) && isset($related->name)) {
+            return (string) $related->name;
+        }
+
+        $legacy = $this->attributes['breed'] ?? null;
+
+        return is_string($legacy) && $legacy !== '' ? $legacy : null;
+    }
+
     // City relation (you have city_id in migration but missing in fillable, consider adding if used)
     public function city()
     {

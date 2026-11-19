@@ -66,9 +66,9 @@
                     <div>
                         <strong>{{ $labels[$booking->service_type] ?? strtoupper((string) $booking->service_type) }}</strong>
                         <p class="sp-dash__muted">
-                            {{ optional($booking->city)->name ?? 'شهر نامشخص' }}
+                            {{ is_object($booking->city) ? ($booking->city->name ?? 'شهر نامشخص') : 'شهر نامشخص' }}
                             @if($booking->dog) · {{ $booking->dog->title }} @endif
-                            @if(optional($booking->dog)->breed) · {{ $booking->dog->breed->name }} @endif
+                            @if($booking->dog?->breedName()) · {{ $booking->dog->breedName() }} @endif
                         </p>
                         <p class="sp-dash__muted">
                             <span class="num">{{ $booking->booking_code }}</span>
