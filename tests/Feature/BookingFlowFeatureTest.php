@@ -168,7 +168,8 @@ class BookingFlowFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('ارسال پیشنهاد', false)
             ->assertSee('گفتگو', false)
-            ->assertSee('جزئیات کامل رزرو', false)
+            ->assertSee('جزئیات رزرو', false)
+            ->assertSee('جزئیات سگ', false)
             ->assertSee($code, false);
 
         $this->actingAs($coach)

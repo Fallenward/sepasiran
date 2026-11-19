@@ -134,6 +134,7 @@ class BookingController extends Controller
                 'provider',
                 'user',
                 'dog.breed',
+                'dog.media',
                 'city',
                 'offers.provider',
                 'messages.user',

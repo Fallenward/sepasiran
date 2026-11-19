@@ -99,6 +99,7 @@ class BookingHubController extends Controller
             'provider',
             'user',
             'dog.breed',
+            'dog.media',
             'city',
             'offers.provider',
             'invitedProviders',

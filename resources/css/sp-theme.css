@@ -3784,3 +3784,21 @@ body.sp-body {
   object-fit: cover;
   aspect-ratio: 1;
 }
+.sp-booking-details__dog {
+  display: grid;
+  gap: 16px;
+}
+
+.sp-booking-details__gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sp-booking-details__gallery img {
+  width: min(160px, 42vw);
+  height: 160px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--sp-border);
+}

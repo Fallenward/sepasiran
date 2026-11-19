@@ -22,10 +22,9 @@
     $modeKey = $booking->fulfillment_mode ?? 'direct';
     $modeLabel = $modeLabels[$modeKey] ?? $modeKey;
     $cityName = is_object($booking->city ?? null) ? ($booking->city->name ?? null) : null;
-    $breedName = $booking->dog?->breedName()
-        ?? (is_object($booking->breed ?? null) ? ($booking->breed->name ?? null) : null);
+
     $preferredJalali = null;
-    if (!empty($booking->preferred_date)) {
+    if (! empty($booking->preferred_date)) {
         try {
             $preferredJalali = Jalalian::fromDateTime($booking->preferred_date)->format('Y/m/d');
         } catch (\Throwable) {
@@ -33,63 +32,84 @@
         }
     }
     $appointmentJalali = null;
-    if (!empty($booking->appointment_date)) {
+    if (! empty($booking->appointment_date)) {
         try {
             $appointmentJalali = Jalalian::fromCarbon(\Carbon\Carbon::parse($booking->appointment_date))->format('Y/m/d H:i');
         } catch (\Throwable) {
             $appointmentJalali = (string) $booking->appointment_date;
         }
     }
-    $showContact = $showContact ?? (auth()->check() && (
-        (int) ($booking->user_id ?? 0) === (int) auth()->id()
-        || (int) ($booking->provider_id ?? 0) === (int) auth()->id()
-        || (auth()->user() && method_exists(auth()->user(), 'hasRole') && (
-            auth()->user()->hasRole('admin')
-            || auth()->user()->hasRole(BookingCatalog::roleFor((string) $booking->service_type))
-        ))
-    ));
-    $rows = [
+
+    $customerName = null;
+    if ($booking->user && empty($hideCustomer)) {
+        $customerName = trim(($booking->user->name ?? '').' '.($booking->user->family ?? ''));
+        $customerName = $customerName !== '' ? $customerName : ($booking->user->name ?? null);
+    }
+    $providerName = null;
+    if ($booking->provider) {
+        $providerName = trim(($booking->provider->name ?? '').' '.($booking->provider->family ?? ''));
+        $providerName = $providerName !== '' ? $providerName : ($booking->provider->name ?? null);
+    }
+
+    $bookingRows = [
         ['کد رزرو', $booking->booking_code, true],
         ['وضعیت', $statusLabels[$statusKey] ?? $booking->status, false],
         ['نوع خدمت', $serviceLabel, false],
         ['نحوه انجام', $modeLabel, false],
         ['نوع آموزش', $trainingLabel, false],
         ['شهر', $cityName, false],
-        ['سگ', $booking->dog->title ?? null, false],
-        ['نژاد', $breedName, false],
         ['تاریخ ترجیحی', $preferredJalali, true],
         ['ساعت ترجیحی', $booking->preferred_slot ?? null, true],
         ['زمان قرار', $appointmentJalali, true],
         ['بازه', $booking->slot ?? null, true],
-        ['قیمت پایه', isset($booking->price) ? number_format((float) $booking->price).' ت' : null, true],
-        ['مالیات', isset($booking->tax) ? number_format((float) $booking->tax).' ت' : null, true],
-        ['تخفیف', isset($booking->discount) ? number_format((float) $booking->discount).' ت' : null, true],
-        ['جمع', number_format((float) ($booking->total ?? $booking->price ?? 0)).' ت', true],
-        ['روش پرداخت', $booking->payment_method ?? null, false],
-        ['وضعیت پرداخت', $booking->payment_status ?? null, false],
+        ['مبلغ', number_format((float) ($booking->total ?? $booking->price ?? 0)).' ت', true],
+        ['مشتری', $customerName, false],
+        ['ارائه‌دهنده', $providerName, false],
     ];
-    if ($showContact) {
-        $rows[] = ['نام تماس', $booking->contact_name ?? null, false];
-        $rows[] = ['تلفن تماس', $booking->contact_phone ?? null, true];
+
+    $dog = $booking->dog;
+    $dogBirthJalali = null;
+    if ($dog && ! empty($dog->birth_date)) {
+        try {
+            $dogBirthJalali = Jalalian::fromDateTime($dog->birth_date)->format('Y/m/d');
+        } catch (\Throwable) {
+            $dogBirthJalali = (string) $dog->birth_date;
+        }
     }
-    if ($booking->provider) {
-        $providerName = trim(($booking->provider->name ?? '').' '.($booking->provider->family ?? ''));
-        $rows[] = ['ارائه‌دهنده', $providerName !== '' ? $providerName : ($booking->provider->name ?? null), false];
+    $dogRows = [];
+    if ($dog) {
+        $dogRows = [
+            ['نام', $dog->title, false],
+            ['نژاد', $dog->breedName(), false],
+            ['سن (ماه)', $dog->age !== null ? (string) $dog->age : null, true],
+            ['تاریخ تولد', $dogBirthJalali, true],
+            ['رنگ', $dog->color, false],
+            ['رنگ چشم', $dog->eye_color, false],
+            ['نوع پوشش', $dog->cover_type, false],
+            ['وضعیت', $dog->status, false],
+        ];
     }
-    if ($booking->user && empty($hideCustomer)) {
-        $customerName = trim(($booking->user->name ?? '').' '.($booking->user->family ?? ''));
-        $rows[] = ['مشتری', $customerName !== '' ? $customerName : ($booking->user->name ?? null), false];
+
+    $dogImages = [];
+    if ($dog) {
+        if ($dog->relationLoaded('media') && $dog->media->isNotEmpty()) {
+            foreach ($dog->media as $media) {
+                $dogImages[] = method_exists($media, 'publicUrl') ? $media->publicUrl() : ($media->path ?? null);
+            }
+        }
+        if ($dogImages === [] && ! empty($dog->image)) {
+            $dogImages[] = $dog->image;
+        }
     }
-    $rows[] = ['یادداشت', $booking->notes ?? null, false];
 @endphp
 
 <section class="sp-dash__panel sp-booking-details">
     <header class="sp-dash__panel-head">
-        <h2>جزئیات کامل رزرو</h2>
+        <h2>جزئیات رزرو</h2>
         <span class="sp-dash__chip">{{ $statusLabels[$statusKey] ?? $statusKey }}</span>
     </header>
     <div class="sp-booking-details__grid">
-        @foreach($rows as [$label, $value, $isNum])
+        @foreach($bookingRows as [$label, $value, $isNum])
             @continue($value === null || $value === '')
             <div class="sp-booking-details__item">
                 <span class="sp-booking-details__label">{{ $label }}</span>
@@ -97,9 +117,31 @@
             </div>
         @endforeach
     </div>
-    @if($booking->dog && $booking->dog->image)
-        <div class="sp-booking-details__media">
-            <img src="{{ asset($booking->dog->image) }}" alt="{{ $booking->dog->title }}">
-        </div>
-    @endif
 </section>
+
+@if($dog)
+    <section class="sp-dash__panel sp-booking-details">
+        <header class="sp-dash__panel-head">
+            <h2>جزئیات سگ</h2>
+        </header>
+        <div class="sp-booking-details__dog">
+            @if($dogImages !== [])
+                <div class="sp-booking-details__gallery">
+                    @foreach($dogImages as $img)
+                        @continue(! $img)
+                        <img src="{{ str_starts_with($img, 'http') || str_starts_with($img, '/') ? $img : asset($img) }}" alt="{{ $dog->title }}">
+                    @endforeach
+                </div>
+            @endif
+            <div class="sp-booking-details__grid">
+                @foreach($dogRows as [$label, $value, $isNum])
+                    @continue($value === null || $value === '')
+                    <div class="sp-booking-details__item">
+                        <span class="sp-booking-details__label">{{ $label }}</span>
+                        <strong class="{{ $isNum ? 'num' : '' }}">{{ $value }}</strong>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+@endif
