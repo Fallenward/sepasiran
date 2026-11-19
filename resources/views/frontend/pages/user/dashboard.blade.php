@@ -47,17 +47,18 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'رزرو خدمت', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
+                ['label' => 'رزروهای من', 'hint' => 'پیگیری درخواست‌های رزرو', 'url' => route('account.bookings.index'), 'icon' => 'far fa-calendar-alt'],
+                ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
+                ['label' => 'رزرو جدید', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
-                ['label' => 'مرور سگ‌ها', 'hint' => 'بازار و عرضه', 'url' => route('frontend.dog.supply.index'), 'icon' => 'fas fa-dog'],
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
-                ['label' => 'خانه', 'hint' => 'بازگشت به صفحه اصلی', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
             ],
         ])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
-                <h2>رزروهای پیشِ رو</h2>
+                <h2>درخواست‌های رزرو من</h2>
+                <a href="{{ route('account.bookings.index') }}">مشاهده همه</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($upcomingBookings as $booking)

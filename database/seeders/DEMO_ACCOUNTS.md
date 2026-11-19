@@ -34,3 +34,12 @@ Then sign in and open:
 - `/user/dashboard`, `/coach/dashboard`, `/clinic/dashboard`, `/breeder/dashboard`
 - `/wallet`, `/account/profile`, `/account/notifications`
 - `/booking`, `/breeder/dogs-listing`, `/breeder/dashboard-create`
+
+## Role dashboard QA routes
+
+| Role | Dashboard | Special sections |
+|------|-----------|------------------|
+| Customer | `/user/dashboard` | `/account/bookings`, `/account/dogs`, `/account/dogs/create` |
+| Coach | `/coach/dashboard` | `/coach/reservations`, `/coach/listing` |
+| Clinic | `/clinic/dashboard` | `/clinic/reservations` |
+| Breeder | `/breeder/dashboard` | `/breeder/reservations`, `/breeder/dogs-listing`, `/breeder/dashboard-create` |

@@ -55,7 +55,7 @@ class DashboardController extends Controller
     {
         $providerBookings = Booking::query()
             ->where('provider_id', $user->id)
-            ->where('service_type', 'CLINIC');
+            ->whereRaw('LOWER(service_type) = ?', ['clinic']);
 
         $activeVisits = (clone $providerBookings)->where('status', 'CONFIRMED')->count();
         $pendingVisits = (clone $providerBookings)->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])->count();
@@ -132,13 +132,13 @@ class DashboardController extends Controller
         $waitingDogs = (clone $dogsQuery)->where('status', 'waiting')->count();
 
         $pendingBookings = Booking::query()
-            ->where('service_type', 'BREEDER')
+            ->whereRaw('LOWER(service_type) = ?', ['breeder'])
             ->where('provider_id', $user->id)
             ->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])
             ->count();
 
         $openBookings = Booking::query()
-            ->where('service_type', 'BREEDER')
+            ->whereRaw('LOWER(service_type) = ?', ['breeder'])
             ->where('provider_id', $user->id)
             ->where('status', 'CONFIRMED')
             ->count();

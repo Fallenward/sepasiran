@@ -1,93 +1,85 @@
-@extends('admin.layout')
+@extends('frontend.layouts.app')
 
-@section('template_title', 'مدیریت محصولات مربی')
+@section('title', 'فضای مربی‌گری — سپاسیران')
 
 @section('content')
-<div class="container-fluid">
+<div class="sp-dash sp-dash--coach">
+    <div class="sp-dash__inner">
+        @include('frontend.partials.dashboard-nav')
 
-    <!-- Success message -->
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success" id="success-alert">{{ $message }}</div>
-    @endif
-
-    <!-- Card -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between flex-wrap align-items-center">
-            <h5 class="mb-0">محصولات {{ $coach->name }}</h5>
-
-
-
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle text-center mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>عنوان محصول</th>
-                            <th>قیمت</th>
-                            <th>قیمت با تخفیف</th>
-                            <th>موجودی</th>
-                            <th>وضعیت</th>
-                            <th>تاریخ ایجاد</th>
-                            <th width="110">عملیات</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse ($products as $product)
-                            <tr>
-                                <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
-
-                                <td class="text-truncate" style="max-width:200px;">
-                                    <a href="{{ route('products.show', $product) }}">
-                                        {{ $product->title }}
-                                    </a>
-                                </td>
-
-                                <td>{{ number_format($product->price) }} تومان</td>
-                                <td>
-                                    {{ $product->discount_price ? number_format($product->discount_price) . ' تومان' : '—' }}
-                                </td>
-                                <td>{{ $product->stock }}</td>
-
-                                <td>
-                                    <span class="badge bg-{{ $product->is_active ? 'success' : 'secondary' }}">
-                                        {{ $product->is_active ? 'فعال' : 'غیرفعال' }}
-                                    </span>
-                                </td>
-
-                                <td>{{ $product->created_at->format('Y-m-d') }}</td>
-
-                                <td>
-                                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-info" title="نمایش">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-
-                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-primary" title="ویرایش">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline-block" onsubmit="return confirm('آیا مطمئن هستید؟');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger" title="حذف">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="8" class="text-muted">هیچ محصولی یافت نشد.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <section class="sp-dash__hero">
+            <div class="sp-dash__hero-main">
+                <div class="sp-dash__avatar" aria-hidden="true"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div>
+                    <p class="sp-dash__eyebrow">مربی</p>
+                    <h1 class="sp-dash__title">فضای مربی‌گری {{ $coach->name }}</h1>
+                    <p class="sp-dash__lede">دوره‌ها، محصولات و میانبر به درخواست‌های رزرو شما.</p>
+                </div>
             </div>
-        </div>
+            <aside class="sp-dash__hero-cta">
+                <div>
+                    <strong>درخواست‌های باز</strong>
+                    <p>{{ number_format($pendingRequests ?? 0) }} مورد در صف پاسخ.</p>
+                </div>
+                <a class="sp-btn sp-btn--primary" href="{{ route('coaches.reservations') }}">مشاهده درخواست‌ها</a>
+            </aside>
+        </section>
 
-        <!-- Pagination -->
-        <div class="card-footer py-2">
-            {{ $products->withQueryString()->links() }}
-        </div>
+        @include('frontend.partials.dashboard-metrics', [
+            'metrics' => [
+                ['label' => 'دوره‌ها', 'value' => number_format($courses->count()), 'hint' => 'منتشرشده در حساب', 'icon' => 'fas fa-graduation-cap'],
+                ['label' => 'محصولات', 'value' => number_format($products->total()), 'hint' => 'مرتبط با مربی', 'icon' => 'fas fa-box'],
+                ['label' => 'درخواست باز', 'value' => number_format($pendingRequests ?? 0), 'hint' => 'نیاز به پیگیری', 'icon' => 'fas fa-inbox'],
+            ],
+        ])
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>دوره‌های من</h2>
+                <a href="{{ route('coaches.dashboard') }}">داشبورد</a>
+            </header>
+            <div class="sp-dash__list">
+                @forelse($courses as $course)
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-book"></i></span>
+                        <div>
+                            <strong>{{ $course->title }}</strong>
+                            <p class="sp-dash__muted">{{ $course->status }} · {{ number_format((float) ($course->price ?? 0)) }} ت</p>
+                        </div>
+                        <span class="sp-dash__chip {{ ($course->is_active ?? false) ? 'is-active' : 'is-done' }}">
+                            {{ ($course->is_active ?? false) ? 'فعال' : 'غیرفعال' }}
+                        </span>
+                    </article>
+                @empty
+                    <p class="sp-dash__empty-inline">هنوز دوره‌ای ثبت نشده است.</p>
+                @endforelse
+            </div>
+        </section>
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>محصولات مرتبط</h2>
+            </header>
+            <div class="sp-dash__list">
+                @forelse($products as $product)
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-tag"></i></span>
+                        <div>
+                            <strong>{{ $product->title }}</strong>
+                            <p class="sp-dash__muted latin">{{ number_format((float) $product->price) }} ت</p>
+                        </div>
+                        <span class="sp-dash__chip {{ $product->is_active ? 'is-active' : 'is-done' }}">
+                            {{ $product->is_active ? 'فعال' : 'غیرفعال' }}
+                        </span>
+                    </article>
+                @empty
+                    <p class="sp-dash__empty-inline">محصولی ثبت نشده است.</p>
+                @endforelse
+            </div>
+            @if(method_exists($products, 'links') && $products->hasPages())
+                <div class="sp-dash__pager">{{ $products->links() }}</div>
+            @endif
+        </section>
     </div>
 </div>
 @endsection

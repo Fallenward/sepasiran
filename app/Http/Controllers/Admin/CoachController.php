@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Booking;
+use App\Models\Course;
+
 
 use App\Http\Controllers\Controller;
 use App\Models\Breed;
@@ -229,23 +232,33 @@ public function listing(Request $request, $coachId = null)
         $q->where('name', 'coach');
     })->findOrFail($coachId);
 
-    $query = Product::where('user_id', $coach->id);
+    abort_unless((int) auth()->id() === (int) $coach->id || auth()->user()?->is_admin, 403);
 
-    if ($request->filled('city')) {
-        $query->whereHas('user', function ($q) use ($request) {
-            $q->where('city_id', $request->city);
-        });
-    }
+    $courses = Course::query()
+        ->where('user_id', $coach->id)
+        ->latest()
+        ->get();
 
-    $products = $query->with('user.city')->paginate(15);
-    $cities = City::all();
+    $products = Product::query()
+        ->where('user_id', $coach->id)
+        ->latest()
+        ->paginate(15);
 
-    return view('coaches.listing', compact('products', 'cities', 'coach'));
+    $pendingRequests = Booking::query()
+        ->where('provider_id', $coach->id)
+        ->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])
+        ->count();
+
+    return view('coaches.listing', [
+        'coach' => $coach,
+        'courses' => $courses,
+        'products' => $products,
+        'pendingRequests' => $pendingRequests,
+        'user' => $coach,
+        'roleLabel' => 'مربی',
+    ]);
 }
 
-
-
-    // Show form to create a new coach
     public function createList()
     {
         $breeds = Breed::all();

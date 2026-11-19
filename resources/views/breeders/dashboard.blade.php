@@ -37,9 +37,10 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'افزودن سگ', 'hint' => 'ثبت آگهی جدید', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
-                ['label' => 'لیست سگ‌های من', 'hint' => 'مدیریت آگهی‌ها', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
-                ['label' => 'پروفایل', 'hint' => 'اطلاعات پرورش‌دهنده', 'url' => route('account.profile.edit'), 'icon' => 'far fa-id-badge'],
+                ['label' => 'درخواست‌های رزرو', 'hint' => 'درخواست خرید/رزرو مشتریان', 'url' => route('breeder.reservations'), 'icon' => 'fas fa-inbox'],
+                ['label' => 'افزودن آگهی سگ', 'hint' => 'ثبت سگ برای فروش', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
+                ['label' => 'لیست آگهی‌ها', 'hint' => 'مدیریت سگ‌های عرضه‌شده', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
+                ['label' => 'سگ‌های حساب', 'hint' => 'سگ‌های شخصی حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
             ],
         ])

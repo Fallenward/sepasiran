@@ -47,16 +47,17 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
+                ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('clinic.reservations'), 'icon' => 'fas fa-inbox'],
                 ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
-                ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
-                ['label' => 'رزرو عمومی', 'hint' => 'مشاهده مسیر رزرو', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar'],
+                ['label' => 'پروفایل', 'hint' => 'ویرایش اطلاعات', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],
         ])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
-                <h2>آخرین نوبت‌ها</h2>
+                <h2>درخواست‌ها و نوبت‌ها</h2>
+                <a href="{{ route('clinic.reservations') }}">مشاهده همه</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($recentBookings as $booking)

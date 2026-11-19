@@ -47,10 +47,10 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
-                ['label' => 'کیف پول مربی', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
-                ['label' => 'لیست مربی‌گری', 'hint' => 'نمایش عمومی', 'url' => route('coaches.listing'), 'icon' => 'fas fa-list'],
+                ['label' => 'درخواست‌های رزرو', 'hint' => 'صندوق درخواست مشتریان', 'url' => route('coaches.reservations'), 'icon' => 'fas fa-inbox'],
+                ['label' => 'فضای مربی‌گری', 'hint' => 'دوره‌ها و محصولات', 'url' => route('coaches.listing'), 'icon' => 'fas fa-chalkboard-teacher'],
+                ['label' => 'کیف پول', 'hint' => 'دریافت‌ها و موجودی', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
-                ['label' => 'خانه', 'hint' => 'بازگشت به فروشگاه', 'url' => route('frontend.home'), 'icon' => 'fas fa-home'],
             ],
         ])
 
@@ -83,7 +83,8 @@
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">
-                <h2>درخواست‌های پیشِ رو</h2>
+                <h2>درخواست‌های رزرو</h2>
+                <a href="{{ route('coaches.reservations') }}">مشاهده همه</a>
             </header>
             <div class="sp-dash__list">
                 @forelse($upcoming as $booking)
