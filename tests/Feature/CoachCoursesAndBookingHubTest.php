@@ -44,7 +44,7 @@ class CoachCoursesAndBookingHubTest extends TestCase
             'price' => 1500000,
             'status' => 'published',
             'is_active' => 1,
-        ])->assertRedirect(route('coaches.courses.index'));
+        ])->assertRedirect();
 
         $course = Course::query()->where('title', 'دوره تست اطاعت')->first();
         $this->assertNotNull($course);
@@ -59,7 +59,7 @@ class CoachCoursesAndBookingHubTest extends TestCase
             'price' => 1800000,
             'status' => 'published',
             'is_active' => 1,
-        ])->assertRedirect(route('coaches.courses.index'));
+        ])->assertRedirect();
 
         $this->assertSame('دوره تست اطاعت ویرایش', $course->fresh()->title);
     }

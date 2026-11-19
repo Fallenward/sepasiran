@@ -13,13 +13,13 @@
                 <div>
                     <p class="sp-dash__eyebrow">{{ $roleLabel }}</p>
                     <h1 class="sp-dash__title">دوره‌های من</h1>
-                    <p class="sp-dash__lede">ایجاد، ویرایش و مدیریت دوره‌های آموزشی مربی.</p>
+                    <p class="sp-dash__lede">ایجاد، ویرایش و مدیریت دوره‌ها با بخش‌ها و ویدیوهای درسی.</p>
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">
                 <div>
                     <strong>دوره جدید</strong>
-                    <p>عنوان، قیمت و توضیحات را ثبت کنید.</p>
+                    <p>عنوان، بخش‌ها و ویدیوها را ثبت کنید.</p>
                 </div>
                 <a class="sp-btn sp-btn--primary" href="{{ route('coaches.courses.create') }}">افزودن دوره</a>
             </aside>
@@ -43,6 +43,8 @@
                             <p class="sp-dash__muted">
                                 <span class="num">{{ number_format((float) ($course->price ?? 0)) }}</span> ت
                                 · {{ $course->status }}
+                                · <span class="num">{{ $course->parts_count ?? 0 }}</span> بخش
+                                · <span class="num">{{ $course->lessons_count ?? 0 }}</span> درس
                             </p>
                         </div>
                         <div class="sp-dash__row-meta">

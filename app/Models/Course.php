@@ -59,6 +59,16 @@ namespace App\Models;
         return $this->belongsTo(User::class,'user_id');
     }
 
+    public function parts()
+    {
+        return $this->hasMany(CoursePart::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function lessons()
+    {
+        return $this->hasMany(CourseLesson::class)->orderBy('sort_order')->orderBy('id');
+    }
+
 
     public function level()
 {
