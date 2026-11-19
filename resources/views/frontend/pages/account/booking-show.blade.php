@@ -27,7 +27,7 @@
                 <div>
                     <p class="sp-dash__eyebrow">{{ $roleLabel }}</p>
                     <h1 class="sp-dash__title">گفتگو و تصمیم رزرو</h1>
-                    <p class="sp-dash__lede">کد <span class="num">{{ $code }}</span> · می‌توانید گفتگو کنید سپس بپذیرید یا رد کنید.</p>
+                    <p class="sp-dash__lede">کد <span class="num">{{ $code }}</span> · گفتگو کنید، سپس فقط بپذیرید یا رد کنید.</p>
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">

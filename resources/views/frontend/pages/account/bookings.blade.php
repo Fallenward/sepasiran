@@ -13,7 +13,7 @@
         'COMPLETED' => ['انجام شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
     ];
-    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED'];
+    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 @endphp
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
@@ -25,7 +25,7 @@
                 <div>
                     <p class="sp-dash__eyebrow">{{ $roleLabel }}</p>
                     <h1 class="sp-dash__title">رزروها و درخواست‌ها</h1>
-                    <p class="sp-dash__lede">هم درخواست‌هایی که فرستاده‌اید و هم درخواست‌هایی که دریافت کرده‌اید. وضعیت درخواست‌های پذیرفته‌شده قابل تغییر نیست.</p>
+                    <p class="sp-dash__lede">برای هر درخواست فقط می‌توانید بپذیرید یا رد کنید؛ وضعیت‌های دیگر از اینجا انتخاب نمی‌شوند.</p>
                 </div>
             </div>
             <aside class="sp-dash__hero-cta">
@@ -69,9 +69,9 @@
                         $statusKey = strtoupper((string) $booking->status);
                         [$stLabel, $stClass] = $statusMap[$statusKey] ?? [$booking->status, 'is-pending'];
                         $isLocked = in_array($statusKey, $lockedStatuses, true);
-                        $ownerOptions = ['PENDING' => 'در انتظار', 'OPEN' => 'باز', 'CANCELLED' => 'لغو شده'];
-                        $providerOptions = ['PENDING' => 'در انتظار', 'OPEN' => 'باز', 'QUOTED' => 'پیشنهاد شده', 'ACCEPTED' => 'پذیرفته', 'CANCELLED' => 'لغو شده'];
-                        $options = $tab === 'inbox' ? $providerOptions : $ownerOptions;
+                        $isOpenFlow = ($booking->fulfillment_mode ?? 'direct') === 'open';
+                        $providerCanDecide = $tab === 'inbox' && ! $isLocked && ! $isOpenFlow;
+                        $ownerCanCancel = $tab === 'mine' && ! $isLocked;
                     @endphp
                     <article class="sp-dash__row">
                         <span class="sp-dash__row-icon"><i class="fas fa-ticket-alt"></i></span>
@@ -86,26 +86,43 @@
                                     @endif
                                 @endif
                             </strong>
-                            <p class="sp-dash__muted"><span class="num">{{ $booking->booking_code }}</span></p>
+                            <p class="sp-dash__muted"><span class="num">{{ $booking->booking_code }}</span>
+                                · {{ $isOpenFlow ? 'درخواست باز' : 'مستقیم' }}
+                            </p>
                             <p class="sp-dash__muted">
                                 {{ optional($booking->appointment_date ?? $booking->preferred_date)->format('Y/m/d H:i') ?? 'زمان اعلام نشده' }}
                                 @if($booking->dog) · {{ $booking->dog->title }} @endif
                             </p>
-                            @if($isLocked)
-                                <p class="sp-dash__muted">وضعیت قفل شده — پس از پذیرش قابل تغییر نیست.</p>
-                            @else
+
+                            @if($providerCanDecide)
+                                <div class="sp-dash__inline-form">
+                                    <form method="POST" action="{{ route('account.bookings.status', $booking) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="tab" value="inbox">
+                                        <input type="hidden" name="status" value="ACCEPTED">
+                                        <button type="submit" class="sp-btn sp-btn--primary" style="min-height:34px;padding:6px 14px">پذیرش</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('account.bookings.status', $booking) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="tab" value="inbox">
+                                        <input type="hidden" name="status" value="CANCELLED">
+                                        <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 14px;color:var(--sp-danger)">رد</button>
+                                    </form>
+                                </div>
+                            @elseif($tab === 'inbox' && $isOpenFlow && ! $isLocked)
+                                <p class="sp-dash__muted">درخواست باز است — پیشنهاد و گفتگو را از صفحه جزئیات مدیریت کنید.</p>
+                            @elseif($ownerCanCancel)
                                 <form class="sp-dash__inline-form" method="POST" action="{{ route('account.bookings.status', $booking) }}">
                                     @csrf
                                     @method('PATCH')
-                                    <input type="hidden" name="tab" value="{{ $tab }}">
-                                    <label class="sp-dash__sr" for="status-{{ $booking->id }}">وضعیت</label>
-                                    <select id="status-{{ $booking->id }}" name="status">
-                                        @foreach($options as $value => $label)
-                                            <option value="{{ $value }}" @selected($statusKey === $value)>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                    <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 12px">ذخیره وضعیت</button>
+                                    <input type="hidden" name="tab" value="mine">
+                                    <input type="hidden" name="status" value="CANCELLED">
+                                    <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 14px;color:var(--sp-danger)">لغو درخواست</button>
                                 </form>
+                            @elseif($isLocked)
+                                <p class="sp-dash__muted">تصمیم نهایی ثبت شده است.</p>
                             @endif
                         </div>
                         <div class="sp-dash__row-meta">

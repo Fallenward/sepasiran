@@ -123,7 +123,7 @@ class AccountDogsWalletBookingStatusTest extends TestCase
         $this->assertNull(Dog::query()->find($dog->id));
     }
 
-    public function test_booking_status_can_change_until_accepted(): void
+    public function test_booking_hub_only_allows_accept_or_reject(): void
     {
         $customer = $this->userWithRole('user');
         $coach = $this->userWithRole('coach');
@@ -133,10 +133,27 @@ class AccountDogsWalletBookingStatusTest extends TestCase
             'provider_id' => $coach->id,
             'booking_code' => 'BK-TEST-1',
             'service_type' => 'coach',
+            'fulfillment_mode' => 'direct',
             'status' => 'PENDING',
             'price' => 100000,
             'total' => 100000,
         ]);
+
+        $this->actingAs($coach)
+            ->get(route('account.bookings.index', ['tab' => 'inbox']))
+            ->assertOk()
+            ->assertSee('پذیرش', false)
+            ->assertSee('رد', false)
+            ->assertDontSee('<select', false)
+            ->assertDontSee('>باز</option>', false)
+            ->assertDontSee('>پیشنهاد شده</option>', false);
+
+        $this->actingAs($coach)
+            ->patch(route('account.bookings.status', $booking), [
+                'status' => 'OPEN',
+                'tab' => 'inbox',
+            ])
+            ->assertSessionHasErrors('status');
 
         $this->actingAs($coach)
             ->patch(route('account.bookings.status', $booking), [

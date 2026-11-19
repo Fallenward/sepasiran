@@ -13,7 +13,11 @@ use Illuminate\View\View;
 
 class BookingHubController extends Controller
 {
-    private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED'];
+    /** Once decided, status can no longer be changed from the hub. */
+    private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+
+    /** Hub only allows accept or reject — never free-form status picks. */
+    private const DECISIONS = ['ACCEPTED', 'CANCELLED'];
 
     public function index(Request $request): View
     {
@@ -105,6 +109,9 @@ class BookingHubController extends Controller
         ]);
     }
 
+    /**
+     * Accept or reject only — no free-form status menu.
+     */
     public function updateStatus(Request $request, Booking $booking): RedirectResponse
     {
         $user = Auth::user();
@@ -116,29 +123,44 @@ class BookingHubController extends Controller
 
         if (in_array(strtoupper((string) $booking->status), self::LOCKED, true)) {
             throw ValidationException::withMessages([
-                'status' => 'وضعیت این درخواست پس از پذیرش قابل تغییر نیست.',
+                'status' => 'این درخواست قبلاً تصمیم‌گیری شده و قابل تغییر نیست.',
             ]);
         }
 
-        $allowed = $isProvider
-            ? ['PENDING', 'OPEN', 'QUOTED', 'ACCEPTED', 'CANCELLED']
-            : ['PENDING', 'OPEN', 'CANCELLED'];
-
         $data = $request->validate([
-            'status' => ['required', 'string', Rule::in($allowed)],
+            'status' => ['required', 'string', Rule::in(self::DECISIONS)],
             'tab' => ['nullable', 'string', Rule::in(['mine', 'inbox'])],
         ]);
 
-        $booking->forceFill(['status' => strtoupper($data['status'])])->save();
-        if (strtoupper($data['status']) === 'ACCEPTED' && $isProvider) {
-            $booking->forceFill(['provider_id' => $user->id])->save();
+        $decision = strtoupper($data['status']);
+
+        // Owner may only withdraw/cancel their own open/pending request.
+        if ($isOwner && ! $isProvider && $decision !== 'CANCELLED') {
+            throw ValidationException::withMessages([
+                'status' => 'مشتری فقط می‌تواند درخواست را لغو کند؛ پذیرش از طریق پیشنهاد/ارائه‌دهنده است.',
+            ]);
+        }
+
+        // Provider may accept or reject a direct pending request.
+        if ($isProvider && $decision === 'ACCEPTED') {
+            if ($booking->fulfillment_mode === 'open' && strtoupper((string) $booking->status) === 'OPEN') {
+                throw ValidationException::withMessages([
+                    'status' => 'برای درخواست باز، مشتری باید یکی از پیشنهادها را بپذیرد.',
+                ]);
+            }
+            $booking->forceFill([
+                'status' => 'ACCEPTED',
+                'provider_id' => $user->id,
+            ])->save();
+        } else {
+            $booking->forceFill(['status' => 'CANCELLED'])->save();
         }
 
         $tab = $data['tab'] ?? ($isProvider && ! $isOwner ? 'inbox' : 'mine');
 
         return redirect()
             ->route('account.bookings.index', ['tab' => $tab])
-            ->with('success', 'وضعیت درخواست به‌روز شد.');
+            ->with('success', $decision === 'ACCEPTED' ? 'درخواست پذیرفته شد.' : 'درخواست رد / لغو شد.');
     }
 
     public function mine(Request $request): View
