@@ -2804,6 +2804,58 @@ body.sp-body {
   font-size: 0.85rem;
 }
 
+.sp-booking__selected-city {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(79, 191, 120, 0.35);
+  border-radius: 12px;
+  background: rgba(79, 191, 120, 0.08);
+  color: var(--sp-text);
+}
+
+.sp-booking__selected-city strong {
+  color: var(--sp-green);
+}
+
+.sp-booking__city-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 2px;
+}
+
+.sp-booking__city {
+  display: block;
+  width: 100%;
+  text-align: right;
+  border: 1px solid var(--sp-border);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.sp-booking__city:hover,
+.sp-booking__city:focus-visible {
+  border-color: rgba(79, 191, 120, 0.45);
+  outline: none;
+}
+
+.sp-booking__city.is-active {
+  border-color: rgba(79, 191, 120, 0.55);
+  background: rgba(79, 191, 120, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(79, 191, 120, 0.18);
+}
+
 .sp-booking__slot.is-disabled,
 .sp-booking__slot:disabled {
   opacity: 0.35;
@@ -4171,8 +4223,9 @@ body.sp-body {
   }
 
   .sp-booking__dog-grid,
-  .sp-booking__service-grid {
-    grid-template-columns: 1fr;
+  .sp-booking__service-grid,
+  .sp-booking__city-list {
+    grid-template-columns: 1fr 1fr;
   }
 
   .sp-booking__offer {

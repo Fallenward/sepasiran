@@ -87,18 +87,31 @@
 
             <section class="panel sp-booking__panel" data-panel="2" hidden>
                 <h2>انتخاب شهر</h2>
-                <div class="field">
+                <p class="sp-booking__hint">نام شهر را جستجو کنید یا از لیست زیر یکی را انتخاب کنید.</p>
+                <div class="field sp-typeahead" id="cityTypeahead">
                     <label for="ui_city_q">جستجوی شهر</label>
-                    <input type="search" id="ui_city_q" placeholder="نام شهر…" autocomplete="off">
+                    <input type="search" id="ui_city_q" class="sp-typeahead__input" placeholder="مثلاً تهران…" autocomplete="off" aria-autocomplete="list" aria-controls="citySuggest">
+                    <div class="sp-suggest" id="citySuggest" role="listbox" hidden></div>
                 </div>
-                <div class="field">
-                    <label for="ui_city_id">شهر خدمت</label>
-                    <select id="ui_city_id" required>
-                        <option value="">انتخاب کنید…</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}" @selected((int)($prefill['city_id'] ?? 0) === (int)$city->id)>{{ $city->name }}</option>
-                        @endforeach
-                    </select>
+                <div class="sp-booking__selected-city" id="citySelectedChip" @if(empty($prefill['city_id'])) hidden @endif>
+                    <span>شهر انتخاب‌شده:</span>
+                    <strong id="citySelectedName">{{ $selectedCityName ?? '—' }}</strong>
+                    <button type="button" class="btn btn-ghost" id="cityClearBtn" style="min-height:32px;padding:4px 10px">حذف</button>
+                </div>
+                <input type="hidden" id="ui_city_id" value="{{ $prefill['city_id'] ?? '' }}" required>
+                <div class="sp-booking__city-list" id="cityList" role="listbox" aria-label="فهرست شهرها">
+                    @forelse($cities as $city)
+                        <button type="button"
+                                class="sp-booking__city {{ (int)($prefill['city_id'] ?? 0) === (int)$city->id ? 'is-active' : '' }}"
+                                data-city-id="{{ $city->id }}"
+                                data-city-name="{{ $city->name }}"
+                                role="option"
+                                aria-selected="{{ (int)($prefill['city_id'] ?? 0) === (int)$city->id ? 'true' : 'false' }}">
+                            <strong>{{ $city->name }}</strong>
+                        </button>
+                    @empty
+                        <p class="sp-booking__empty">شهری در سیستم ثبت نشده است.</p>
+                    @endforelse
                 </div>
                 <div class="sp-booking__actions">
                     <button type="button" class="btn btn-ghost" data-prev="1">بازگشت</button>
@@ -228,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let quote = null;
     let labels = { service: {}, mode: {}, training: {} };
     let jalaliHint = '';
+    const allCities = @json($cities->map(function ($c) { return ['id' => $c->id, 'name' => $c->name]; })->values());
 
     async function api(path, options) {
         const res = await fetch(apiBase + path, Object.assign({
@@ -314,10 +328,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateSummary() {
         syncHidden();
         const dog = dogs.find(function (d) { return String(d.id) === String(selectedDogId()); });
-        const citySel = document.getElementById('ui_city_id');
-        const cityOpt = citySel.options[citySel.selectedIndex];
+        const cityId = document.getElementById('ui_city_id').value;
+        const cityName = document.getElementById('citySelectedName')
+            ? document.getElementById('citySelectedName').textContent
+            : '';
         document.getElementById('sumDog').textContent = dog ? (dog.title + (dog.breed_name ? ' — ' + dog.breed_name : '')) : '—';
-        document.getElementById('sumCity').textContent = (cityOpt && cityOpt.value) ? cityOpt.textContent : '—';
+        document.getElementById('sumCity').textContent = cityId ? (cityName && cityName !== '—' ? cityName : ('#' + cityId)) : '—';
         document.getElementById('sumService').textContent = labels.service[selectedService()] || '—';
         document.getElementById('sumMode').textContent = labels.mode[selectedMode()] || '—';
         if (selectedMode() === 'open') {
@@ -573,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    document.getElementById('ui_city_id').addEventListener('change', function () { updateSummary(); reloadProviders(); });
     document.getElementById('ui_date').addEventListener('change', function () { updateSummary(); reloadSlots(); });
     document.getElementById('ui_open_date').addEventListener('change', updateSummary);
     let providerTimer = null;
@@ -581,6 +596,87 @@ document.addEventListener('DOMContentLoaded', function () {
         clearTimeout(providerTimer);
         providerTimer = setTimeout(reloadProviders, 280);
     });
+
+    function setCity(id, name) {
+        const input = document.getElementById('ui_city_id');
+        input.value = id ? String(id) : '';
+        const chip = document.getElementById('citySelectedChip');
+        const nameEl = document.getElementById('citySelectedName');
+        if (nameEl) nameEl.textContent = name || '—';
+        if (chip) chip.hidden = !id;
+        document.querySelectorAll('#cityList .sp-booking__city').forEach(function (btn) {
+            const on = String(btn.dataset.cityId) === String(id);
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        const suggest = document.getElementById('citySuggest');
+        if (suggest) {
+            suggest.hidden = true;
+            suggest.innerHTML = '';
+        }
+        updateSummary();
+        reloadProviders();
+    }
+
+    function renderCityList(rows) {
+        const list = document.getElementById('cityList');
+        if (!list) return;
+        const current = document.getElementById('ui_city_id').value;
+        if (!rows.length) {
+            list.innerHTML = '<p class="sp-booking__empty">شهری با این جستجو پیدا نشد.</p>';
+            return;
+        }
+        list.innerHTML = rows.map(function (row) {
+            const on = String(row.id) === String(current);
+            return '<button type="button" class="sp-booking__city' + (on ? ' is-active' : '') + '"'
+                + ' data-city-id="' + row.id + '" data-city-name="' + String(row.name).replace(/"/g, '&quot;') + '"'
+                + ' role="option" aria-selected="' + (on ? 'true' : 'false') + '">'
+                + '<strong>' + row.name + '</strong></button>';
+        }).join('');
+    }
+
+    function renderCitySuggest(rows) {
+        const box = document.getElementById('citySuggest');
+        if (!box) return;
+        if (!rows.length) {
+            box.hidden = true;
+            box.innerHTML = '';
+            return;
+        }
+        box.hidden = false;
+        box.innerHTML = rows.slice(0, 12).map(function (row) {
+            return '<button type="button" class="sp-suggest__item" data-city-id="' + row.id
+                + '" data-city-name="' + String(row.name).replace(/"/g, '&quot;') + '">'
+                + '<strong>' + row.name + '</strong></button>';
+        }).join('');
+    }
+
+    document.getElementById('cityList').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-city-id]');
+        if (!btn) return;
+        setCity(btn.dataset.cityId, btn.dataset.cityName);
+    });
+
+    const citySuggest = document.getElementById('citySuggest');
+    if (citySuggest) {
+        citySuggest.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-city-id]');
+            if (!btn) return;
+            setCity(btn.dataset.cityId, btn.dataset.cityName);
+            const q = document.getElementById('ui_city_q');
+            if (q) q.value = btn.dataset.cityName || '';
+        });
+    }
+
+    const cityClearBtn = document.getElementById('cityClearBtn');
+    if (cityClearBtn) {
+        cityClearBtn.addEventListener('click', function () {
+            setCity('', '');
+            const q = document.getElementById('ui_city_q');
+            if (q) q.value = '';
+            renderCityList(allCities);
+        });
+    }
 
     let cityTimer = null;
     const citySearch = document.getElementById('ui_city_q');
@@ -590,19 +686,27 @@ document.addEventListener('DOMContentLoaded', function () {
             cityTimer = setTimeout(async function () {
                 const q = citySearch.value.trim();
                 const data = await api('/cities?q=' + encodeURIComponent(q));
-                const sel = document.getElementById('ui_city_id');
-                const current = sel.value;
-                sel.innerHTML = '<option value="">انتخاب کنید…</option>';
-                (data.results || []).forEach(function (row) {
-                    const opt = document.createElement('option');
-                    opt.value = row.id;
-                    opt.textContent = row.name;
-                    if (String(row.id) === String(current)) opt.selected = true;
-                    sel.appendChild(opt);
-                });
-            }, 280);
+                const rows = data.results || [];
+                renderCityList(rows);
+                renderCitySuggest(q ? rows : []);
+            }, 220);
+        });
+        citySearch.addEventListener('focus', async function () {
+            if (citySearch.value.trim() === '') {
+                const data = await api('/cities');
+                renderCitySuggest((data.results || []).slice(0, 12));
+            }
         });
     }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#cityTypeahead')) {
+            const box = document.getElementById('citySuggest');
+            if (box) {
+                box.hidden = true;
+            }
+        }
+    });
 
     async function loadBreedsForQuick() {
         const sel = document.getElementById('quick_dog_breed');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\City;
+use App\Models\User;
 use App\Support\BookingCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,13 +16,24 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         $cities = City::query()->orderBy('name')->get(['id', 'name']);
+        $providerId = (int) $request->get('provider', 0);
+        $cityId = (int) $request->get('city_id', 0);
+
+        if ($cityId < 1 && $providerId > 0) {
+            $cityId = (int) (User::query()->whereKey($providerId)->value('city_id') ?: 0);
+        }
+
+        $selectedCityName = $cityId > 0
+            ? optional($cities->firstWhere('id', $cityId))->name
+            : null;
 
         return view('frontend.pages.booking.index', [
             'cities' => $cities,
+            'selectedCityName' => $selectedCityName,
             'prefill' => [
                 'service_type' => $request->get('type', 'coach'),
-                'provider_id' => (int) $request->get('provider', 0),
-                'city_id' => (int) $request->get('city_id', 0),
+                'provider_id' => $providerId,
+                'city_id' => $cityId,
                 'date' => $request->get('date', now()->addDay()->format('Y-m-d')),
             ],
             'authUser' => Auth::user(),
