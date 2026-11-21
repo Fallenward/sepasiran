@@ -1,7 +1,9 @@
 @if(!empty($metrics) && count($metrics))
 <section class="sp-dash__metrics" aria-label="شاخص‌ها">
     @foreach($metrics as $metric)
-        <article class="sp-dash__metric">
+        @php $tag = !empty($metric['url']) ? 'a' : 'article'; @endphp
+        <{{ $tag }} class="sp-dash__metric {{ !empty($metric['url']) ? 'sp-dash__metric--link' : '' }}"
+           @if(!empty($metric['url'])) href="{{ $metric['url'] }}" @endif>
             <div class="sp-dash__metric-top">
                 <p class="sp-dash__metric-label">{{ $metric['label'] }}</p>
                 @if(!empty($metric['icon']))
@@ -12,7 +14,7 @@
             @if(!empty($metric['hint']))
                 <p class="sp-dash__metric-hint">{{ $metric['hint'] }}</p>
             @endif
-        </article>
+        </{{ $tag }}>
     @endforeach
 </section>
 @endif

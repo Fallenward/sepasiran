@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Dog;
 use App\Models\Notification;
 use App\Support\DashboardFinance;
 use Illuminate\Support\Facades\Auth;
@@ -22,15 +23,23 @@ class UserDashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $myDogs = Dog::query()
+            ->where('user_id', $user->id)
+            ->with(['breed', 'media'])
+            ->latest()
+            ->limit(6)
+            ->get();
+
         $stats = [
             'wallet' => (int) ($user->wallet ?? 0),
             'upcoming' => $upcomingBookings->count(),
-            'dogs' => $user->Dogs()->count(),
+            'dogs' => Dog::query()->where('user_id', $user->id)->count(),
         ];
 
         return view('frontend.pages.user.dashboard', [
             'user' => $user,
             'stats' => $stats,
+            'myDogs' => $myDogs,
             'upcomingBookings' => $upcomingBookings,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'dashNotifications' => Notification::query()->where('user_id', $user->id)->latest()->limit(5)->get(),

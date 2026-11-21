@@ -17,9 +17,9 @@
 
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
-                ['label' => 'کل سگ‌ها', 'value' => number_format($totalDogs), 'hint' => 'متعلق به شما', 'icon' => 'fas fa-paw'],
-                ['label' => 'آماده عرضه', 'value' => number_format($readyDogs), 'hint' => 'قابل نمایش', 'icon' => 'fas fa-check-circle'],
-                ['label' => 'درخواست باز', 'value' => number_format($pendingBookings), 'hint' => 'نیاز به پیگیری', 'icon' => 'fas fa-bell'],
+                ['label' => 'کل سگ‌ها', 'value' => number_format($totalDogs), 'hint' => 'متعلق به شما', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'آماده عرضه', 'value' => number_format($readyDogs), 'hint' => 'قابل نمایش', 'icon' => 'fas fa-check-circle', 'url' => route('breeder.dogs.listing')],
+                ['label' => 'درخواست باز', 'value' => number_format($pendingBookings), 'hint' => 'نیاز به پیگیری', 'icon' => 'fas fa-bell', 'url' => route('account.bookings.index', ['tab' => 'inbox'])],
             ],
         ])
 
@@ -44,6 +44,8 @@
                 ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
             ],
         ])
+
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? $recentDogs ?? collect()])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">

@@ -68,6 +68,13 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $myDogs = Dog::query()
+            ->where('user_id', $user->id)
+            ->with(['breed', 'media'])
+            ->latest()
+            ->limit(6)
+            ->get();
+
         return view('admin.clinics.dashboard', [
             'title' => 'داشبورد کلینیک',
             'user' => $user,
@@ -76,6 +83,7 @@ class DashboardController extends Controller
             'pendingVisits' => $pendingVisits,
             'clinicIncome' => (int) $clinicIncome,
             'recentBookings' => $recentBookings,
+            'myDogs' => $myDogs,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'roleLabel' => $user->primaryRoleLabel(),
         ]);
@@ -106,6 +114,13 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $myDogs = Dog::query()
+            ->where('user_id', $user->id)
+            ->with(['breed', 'media'])
+            ->latest()
+            ->limit(6)
+            ->get();
+
         return view('coaches.dashboard', [
             'title' => 'داشبورد مربی',
             'user' => $user,
@@ -116,6 +131,7 @@ class DashboardController extends Controller
             'coachId' => $user->id,
             'pendingBookings' => $pendingBookings,
             'upcoming' => $upcoming,
+            'myDogs' => $myDogs,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'roleLabel' => $user->primaryRoleLabel(),
         ]);
@@ -158,6 +174,7 @@ class DashboardController extends Controller
             'pendingBookings' => $pendingBookings,
             'openBookings' => $openBookings,
             'recentDogs' => $recentDogs,
+            'myDogs' => $recentDogs,
             'walletBalance' => $walletBalance,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'roleLabel' => $user->primaryRoleLabel(),

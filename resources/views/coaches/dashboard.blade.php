@@ -28,8 +28,9 @@
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
                 ['label' => 'جلسات امروز', 'value' => number_format($todaysAppointments->count()), 'hint' => 'برنامه روزانه', 'icon' => 'fas fa-sun'],
-                ['label' => 'درخواست‌های باز', 'value' => number_format($pendingBookings ?? 0), 'hint' => 'نیاز به پاسخ', 'icon' => 'fas fa-inbox'],
-                ['label' => 'دوره‌ها', 'value' => number_format($teacherCourses->count()), 'hint' => 'منتشرشده', 'icon' => 'fas fa-graduation-cap'],
+                ['label' => 'درخواست‌های باز', 'value' => number_format($pendingBookings ?? 0), 'hint' => 'نیاز به پاسخ', 'icon' => 'fas fa-inbox', 'url' => route('account.bookings.index', ['tab' => 'inbox'])],
+                ['label' => 'سگ‌های من', 'value' => number_format(($myDogs ?? collect())->count()), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'دوره‌ها', 'value' => number_format($teacherCourses->count()), 'hint' => 'منتشرشده', 'icon' => 'fas fa-graduation-cap', 'url' => route('coaches.courses.index')],
             ],
         ])
 
@@ -47,6 +48,7 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
+                ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ‌های حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'درخواست‌های رزرو', 'hint' => 'صندوق درخواست مشتریان', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
                 ['label' => 'دوره‌های من', 'hint' => 'افزودن و ویرایش دوره', 'url' => route('coaches.courses.index'), 'icon' => 'fas fa-graduation-cap'],
                 ['label' => 'فضای مربی‌گری', 'hint' => 'نمای کلی دوره‌ها', 'url' => route('coaches.listing'), 'icon' => 'fas fa-chalkboard-teacher'],
@@ -54,6 +56,8 @@
                 ['label' => 'پروفایل', 'hint' => 'نام، تخصص، شهر', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],
         ])
+
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">

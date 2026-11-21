@@ -28,9 +28,9 @@
 
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
-                ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو', 'icon' => 'fas fa-wallet'],
-                ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check'],
-                ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw'],
+                ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو', 'icon' => 'fas fa-wallet', 'url' => route('wallet.index')],
+                ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check', 'url' => route('account.bookings.index')],
+                ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
             ],
         ])
 
@@ -54,6 +54,8 @@
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],
         ])
+
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">

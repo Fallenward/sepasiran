@@ -28,8 +28,9 @@
         @include('frontend.partials.dashboard-metrics', [
             'metrics' => [
                 ['label' => 'نوبت‌های تأییدشده', 'value' => number_format($activeVisits), 'hint' => 'در حال انجام', 'icon' => 'fas fa-stethoscope'],
-                ['label' => 'در صف', 'value' => number_format($pendingVisits ?? 0), 'hint' => 'منتظر تأیید', 'icon' => 'fas fa-hourglass-half'],
-                ['label' => 'درآمد تکمیل‌شده', 'value' => number_format($clinicIncome) . ' ت', 'hint' => 'جمع سرویس‌های انجام‌شده', 'icon' => 'fas fa-coins'],
+                ['label' => 'در صف', 'value' => number_format($pendingVisits ?? 0), 'hint' => 'منتظر تأیید', 'icon' => 'fas fa-hourglass-half', 'url' => route('account.bookings.index', ['tab' => 'inbox'])],
+                ['label' => 'سگ‌های من', 'value' => number_format(($myDogs ?? collect())->count()), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'درآمد تکمیل‌شده', 'value' => number_format($clinicIncome) . ' ت', 'hint' => 'جمع سرویس‌های انجام‌شده', 'icon' => 'fas fa-coins', 'url' => route('wallet.index')],
             ],
         ])
 
@@ -47,12 +48,15 @@
 
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
+                ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ‌های حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
                 ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'پروفایل', 'hint' => 'ویرایش اطلاعات', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],
         ])
+
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
         <section class="sp-dash__panel">
             <header class="sp-dash__panel-head">

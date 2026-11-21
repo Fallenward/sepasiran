@@ -4817,6 +4817,36 @@ body.sp-body {
   height: 84px;
 }
 
+.sp-dash__metric--link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.sp-dash__metric--link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(126, 200, 160, 0.45);
+}
+
+.sp-dash__row--dog {
+  align-items: center;
+}
+
+.sp-dash__dog-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--sp-border);
+  flex-shrink: 0;
+}
+
+.sp-dash__my-dogs .sp-dash__row-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .sp-dog-show {
   padding-bottom: 56px;
 }
