@@ -3,6 +3,8 @@
     'action' => request()->url(),
     'suggestUrl' => null,
     'searchable' => true,
+    'searchPlaceholder' => 'نام، نژاد یا شهر را بنویسید…',
+    'searchIcon' => 'dogs',
 ])
 
 @php
@@ -96,13 +98,13 @@
             </div>
             <label class="sp-search">
                 <span class="sp-search__icon" aria-hidden="true">
-                    <x-sp-icon name="dogs" />
+                    <x-sp-icon :name="$searchIcon" />
                 </span>
                 <input
                     type="search"
                     name="q"
                     value="{{ $q }}"
-                    placeholder="نام، نژاد یا شهر را بنویسید…"
+                    placeholder="{{ $searchPlaceholder }}"
                     autocomplete="off"
                     @if($suggestUrl) data-suggest-type="dog" @endif
                     class="sp-search__input"
