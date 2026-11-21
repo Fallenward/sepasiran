@@ -22,9 +22,11 @@ public function index(Request $request)
     $title = 'دوره‌ها';
 
     $query = Course::query()
-        ->with(['category:id,name', 'user:id,name,family'])
-        ->where('status', 'published')
-        ->where('is_active', 1);
+        ->with(['category:id,name'])
+        ->where(function ($builder) {
+            $builder->where('status', 'published')
+                ->orWhere('is_active', 1);
+        });
 
     if ($request->filled('q')) {
         $term = '%'.trim((string) $request->q).'%';
