@@ -29,7 +29,9 @@ public function index(Request $request)
         ->join('role_user', 'users.id', '=', 'role_user.user_id')
         ->join('roles', 'roles.id', '=', 'role_user.role_id')
         ->where('roles.name', 'breeder')
-        ->with(['city', 'speciality']);
+        ->with(['city', 'speciality'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings');
 
     if ($request->filled('q')) {
         $term = '%' . trim((string) $request->q) . '%';
@@ -133,13 +135,10 @@ public function show($id)
     $trainer = \App\Models\User::query()
         ->where('users.id', $id)
         ->whereHas('roles', fn ($q) => $q->where('name', 'breeder'))
-        ->with(['speciality'])
+        ->with(['city', 'speciality', 'ratings'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings')
         ->firstOrFail();
-
-    $cityName = null;
-    if (! empty($trainer->city_id)) {
-        $cityName = optional(\App\Models\City::query()->find($trainer->city_id))->name;
-    }
 
     $dogsQuery = \App\Models\Dog::query()->where('user_id', $id);
     $dogsCount = (clone $dogsQuery)->count();
@@ -148,12 +147,14 @@ public function show($id)
     $specialties = $trainer->speciality ?? collect();
     $address = trim((string) ($trainer->address ?? ''));
     $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
+    $profile = \App\Support\ProviderPublicProfile::summarize($trainer, $sessionResume['total']);
+    $cityName = $profile['city_name'];
 
     $facts = array_values(array_filter([
         $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'امتیاز', 'value' => $profile['rating_count'] > 0 ? number_format($profile['rating_avg'], 1) : '—', 'num' => true],
         ['label' => 'آگهی سگ', 'value' => (string) $dogsCount, 'num' => true],
         ['label' => 'جلسات تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
-        ['label' => 'تخصص‌ها', 'value' => (string) $specialties->count(), 'num' => true],
         $address !== '' ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
     ]));
 
@@ -171,6 +172,7 @@ public function show($id)
         'facts' => $facts,
         'bookUrl' => $bookUrl,
         'sessionResume' => $sessionResume,
+        'profile' => $profile,
     ]);
 }
 

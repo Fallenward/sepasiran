@@ -121,7 +121,9 @@ public function indexFront(Request $request)
         ->join('role_user', 'users.id', '=', 'role_user.user_id')
         ->join('roles', 'roles.id', '=', 'role_user.role_id')
         ->where('roles.name', 'coach')
-        ->with(['city', 'speciality']);
+        ->with(['city', 'speciality'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings');
 
     if ($request->filled('q')) {
         $term = '%' . trim((string) $request->q) . '%';
@@ -162,13 +164,10 @@ public function showById($id)
     $trainer = \App\Models\User::query()
         ->where('users.id', $id)
         ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
-        ->with(['speciality'])
+        ->with(['city', 'speciality', 'ratings'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings')
         ->firstOrFail();
-
-    $cityName = null;
-    if (! empty($trainer->city_id)) {
-        $cityName = optional(\App\Models\City::query()->find($trainer->city_id))->name;
-    }
 
     $coursesQuery = \App\Models\Course::query()->where('user_id', $id);
     $coursesCount = (clone $coursesQuery)->count();
@@ -176,12 +175,14 @@ public function showById($id)
 
     $specialties = $trainer->speciality ?? collect();
     $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
+    $profile = \App\Support\ProviderPublicProfile::summarize($trainer, $sessionResume['total']);
+    $cityName = $profile['city_name'];
 
     $facts = array_values(array_filter([
         $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'امتیاز', 'value' => $profile['rating_count'] > 0 ? number_format($profile['rating_avg'], 1) : '—', 'num' => true],
         ['label' => 'دوره‌ها', 'value' => (string) $coursesCount, 'num' => true],
         ['label' => 'جلسات تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
-        ['label' => 'تخصص‌ها', 'value' => (string) max($specialties->count(), 0), 'num' => true],
     ]));
 
     $bookUrl = route('frontend.booking.index', array_filter([
@@ -198,6 +199,7 @@ public function showById($id)
         'facts' => $facts,
         'bookUrl' => $bookUrl,
         'sessionResume' => $sessionResume,
+        'profile' => $profile,
     ]);
 }
 

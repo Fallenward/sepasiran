@@ -36,8 +36,14 @@ namespace App\Models;
             'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet', 'address', 'bio', 'profile_picture', 'photo',
         ];
 
-        public function city(){
-            return $this->hasOne(City::class);
+        public function city()
+        {
+            return $this->belongsTo(City::class, 'city_id');
+        }
+
+        public function ratings()
+        {
+            return $this->morphMany(Rating::class, 'rateable');
         }
 
 

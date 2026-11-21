@@ -25,6 +25,7 @@
     :specialties="$specialties"
     :facts="$facts"
     :session-resume="$sessionResume ?? null"
+    :profile="$profile ?? null"
     hero-image="images/demo/dogs/dog-05.jpg"
 >
     <section class="sp-provider__panel">

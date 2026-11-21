@@ -25,6 +25,7 @@
     :specialties="$specialties"
     :facts="$facts"
     :session-resume="$sessionResume ?? null"
+    :profile="$profile ?? null"
     hero-image="images/demo/hero/hero-01.jpg"
 >
     @if($specialties->isNotEmpty())
