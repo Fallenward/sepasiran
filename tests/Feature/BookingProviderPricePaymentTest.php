@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Booking;
 use App\Models\Breed;
 use App\Models\City;
 use App\Models\Dog;
@@ -159,6 +160,47 @@ class BookingProviderPricePaymentTest extends TestCase
             'user_id' => $coach->id,
             'service_type' => 'coach',
             'base_price' => 1100000,
+        ]);
+    }
+
+    public function test_gateway_callback_accepts_post_and_marks_paid(): void
+    {
+        $customer = User::factory()->create(['wallet' => 0]);
+        $coach = $this->makeCoach();
+        $city = $this->makeCity();
+        $dog = $this->makeDog($customer);
+
+        $booking = Booking::query()->create([
+            'user_id' => $customer->id,
+            'provider_id' => $coach->id,
+            'dog_id' => $dog->id,
+            'city_id' => $city->id,
+            'service_type' => 'coach',
+            'fulfillment_mode' => 'direct',
+            'booking_code' => 'SP-POSTCB1',
+            'status' => 'PENDING',
+            'payment_status' => 'pending',
+            'payment_method' => 'online',
+            'gateway_driver' => 'local',
+            'gateway_transaction_id' => 'local-tx-1',
+            'settlement_status' => 'unpaid',
+            'price' => 100000,
+            'total' => 100000,
+            'booking_date' => now()->toDateString(),
+            'contact_name' => 'Saeed',
+            'contact_phone' => '09120000000',
+        ]);
+
+        $this->actingAs($customer)
+            ->post(route('frontend.booking.pay.callback', $booking->booking_code), [
+                'transactionId' => 'local-tx-1',
+            ])
+            ->assertRedirect(route('frontend.booking.success', $booking->booking_code));
+
+        $this->assertDatabaseHas('bookings', [
+            'booking_code' => $booking->booking_code,
+            'payment_status' => 'paid',
+            'settlement_status' => 'held',
         ]);
     }
 }

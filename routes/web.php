@@ -308,7 +308,9 @@ Route::name('frontend.')->group(function () {
     Route::post('/booking/pay/{code}', [FrontendBookingController::class, 'processPay'])
         ->middleware('auth')
         ->name('booking.pay.process');
-    Route::get('/booking/pay/{code}/callback', [FrontendBookingController::class, 'payCallback'])
+    // Gateways (and the local driver) may return via GET redirect or POST form.
+    Route::match(['get', 'post'], '/booking/pay/{code}/callback', [FrontendBookingController::class, 'payCallback'])
+        ->middleware('throttle:payment')
         ->name('booking.pay.callback');
     Route::get('/booking/providers', [FrontendBookingController::class, 'providersShim'])->name('booking.providers');
 

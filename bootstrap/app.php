@@ -22,6 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle.mutations' => \App\Http\Middleware\ThrottleMutations::class,
         ]);
 
+        // Payment gateways POST back without a CSRF token.
+        $middleware->validateCsrfTokens(except: [
+            'booking/pay/*/callback',
+            'dog-order/*/callback',
+        ]);
+
         // Optionally add middleware to groups
         // $middleware->appendToGroup('web', \App\Http\Middleware\RoleMiddleware::class);
     })
