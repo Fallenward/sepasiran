@@ -8,7 +8,7 @@ test.describe('Booking public surfaces', () => {
   test('booking wizard loads', async ({ page }) => {
     const res = await page.goto('/booking');
     expect(res?.ok() || res?.status() === 200).toBeTruthy();
-    await expect(page.locator('#bookingForm, .sp-booking')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('#bookingForm')).toBeVisible({ timeout: 15000 });
   });
 
   test('locked booking URL keeps provider query', async ({ page }) => {
