@@ -109,12 +109,59 @@ class BookingCatalog
 
     public static function priceForProvider(int $providerId, string $serviceType): int
     {
+        $svc = \App\Models\ProviderService::query()
+            ->where('user_id', $providerId)
+            ->where('service_type', $serviceType)
+            ->where('is_active', true)
+            ->orderByDesc('base_price')
+            ->first();
+        if ($svc && (int) $svc->base_price > 0) {
+            return (int) $svc->base_price;
+        }
+
         $row = static::providerPriceRow($providerId, $serviceType);
         if ($row && (int) $row->base_price > 0) {
             return (int) $row->base_price;
         }
 
         return static::priceFor($serviceType);
+    }
+
+    public static function quoteForService(
+        \App\Models\ProviderService $service,
+        string $fulfillmentMode,
+        ?string $trainingType = null,
+        int $discount = 0
+    ): array {
+        $base = (int) $service->base_price;
+        $surcharge = $service->service_type === 'coach' ? $service->trainingSurcharge($trainingType) : 0;
+        $modeFee = static::modeFee($fulfillmentMode);
+        $subtotal = $base + $surcharge;
+        $tax = (int) round($subtotal * static::taxRate());
+        $total = max(0, $subtotal + $tax + $modeFee - $discount);
+        $breakdown = [
+            ['label' => 'قیمت خدمت', 'amount' => $base],
+        ];
+        if ($surcharge > 0) {
+            $breakdown[] = ['label' => 'نوع آموزش', 'amount' => $surcharge];
+        }
+        if ($modeFee > 0) {
+            $breakdown[] = ['label' => 'کارمزد درخواست باز', 'amount' => $modeFee];
+        }
+
+        return [
+            'currency' => $service->currency ?: 'IRT',
+            'price' => $subtotal,
+            'surcharge' => $surcharge,
+            'mode_fee' => $modeFee,
+            'tax' => $tax,
+            'discount' => $discount,
+            'total' => $total,
+            'provider_id' => (int) $service->user_id,
+            'provider_service_id' => (int) $service->id,
+            'price_source' => 'provider_service',
+            'breakdown' => $breakdown,
+        ];
     }
 
     public static function trainingSurchargeForProvider(int $providerId, string $serviceType, ?string $trainingType): int

@@ -16,6 +16,8 @@ class Booking extends Model
         'fulfillment_mode',
         'provider_id',
         'provider_service_id',
+        'open_session_id',
+        'open_session_application_id',
         'city_id',
         'breed_id',
         'training_type',

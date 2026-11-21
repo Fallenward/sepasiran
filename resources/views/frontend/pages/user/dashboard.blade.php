@@ -50,6 +50,7 @@
                 ['label' => 'رزروهای من', 'hint' => 'پیگیری درخواست‌های رزرو', 'url' => route('account.bookings.index'), 'icon' => 'far fa-calendar-alt'],
                 ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'رزرو جدید', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
+                ['label' => 'جلسات باز', 'hint' => 'بازار جلسات ارائه‌دهندگان', 'url' => route('frontend.open-sessions.index'), 'icon' => 'fas fa-door-open'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],

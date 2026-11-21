@@ -26,6 +26,7 @@ use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\BookingController as FrontendBookingController;
 use App\Http\Controllers\Frontend\BookingApiController as FrontendBookingApiController;
+use App\Http\Controllers\Frontend\OpenSessionController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
@@ -46,6 +47,8 @@ use App\Http\Controllers\Account\BookingHubController;
 use App\Http\Controllers\Account\OwnedDogController;
 use App\Http\Controllers\Account\CoachCourseController;
 use App\Http\Controllers\Account\ProviderServicePriceController;
+use App\Http\Controllers\Account\ProviderServiceController;
+use App\Http\Controllers\Account\ProviderAvailabilityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -179,6 +182,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/dogs/{dog}', [OwnedDogController::class, 'destroy'])->name('dogs.destroy');
         Route::get('/service-prices', [ProviderServicePriceController::class, 'edit'])->name('service-prices.edit');
         Route::post('/service-prices', [ProviderServicePriceController::class, 'update'])->name('service-prices.update');
+        Route::get('/services', [ProviderServiceController::class, 'index'])->name('services.index');
+        Route::post('/services', [ProviderServiceController::class, 'store'])->name('services.store');
+        Route::put('/services/{service}', [ProviderServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ProviderServiceController::class, 'destroy'])->name('services.destroy');
+        Route::get('/availability', [ProviderAvailabilityController::class, 'edit'])->name('availability.edit');
+        Route::post('/availability/settings', [ProviderAvailabilityController::class, 'updateSettings'])->name('availability.settings');
+        Route::post('/availability/rules', [ProviderAvailabilityController::class, 'storeRule'])->name('availability.rules.store');
+        Route::delete('/availability/rules/{rule}', [ProviderAvailabilityController::class, 'destroyRule'])->name('availability.rules.destroy');
+        Route::post('/availability/exceptions', [ProviderAvailabilityController::class, 'storeException'])->name('availability.exceptions.store');
+        Route::delete('/availability/exceptions/{exception}', [ProviderAvailabilityController::class, 'destroyException'])->name('availability.exceptions.destroy');
     });
 
     // User / customer account hub (any authenticated user)
@@ -270,6 +283,19 @@ Route::name('frontend.')->group(function () {
 
     // Public reservation / booking
     Route::get('/booking', [FrontendBookingController::class, 'index'])->name('booking.index');
+
+    // Provider-created open sessions (Flow B)
+    Route::get('/open-sessions', [OpenSessionController::class, 'index'])->name('open-sessions.index');
+    Route::get('/open-sessions/mine', [OpenSessionController::class, 'mine'])->middleware('auth')->name('open-sessions.mine');
+    Route::get('/open-sessions/create', [OpenSessionController::class, 'create'])->middleware('auth')->name('open-sessions.create');
+    Route::post('/open-sessions', [OpenSessionController::class, 'store'])->middleware('auth')->name('open-sessions.store');
+    Route::get('/open-sessions/{openSession}', [OpenSessionController::class, 'show'])->name('open-sessions.show');
+    Route::post('/open-sessions/{openSession}/publish', [OpenSessionController::class, 'publish'])->middleware('auth')->name('open-sessions.publish');
+    Route::post('/open-sessions/{openSession}/pause', [OpenSessionController::class, 'pause'])->middleware('auth')->name('open-sessions.pause');
+    Route::post('/open-sessions/{openSession}/apply', [OpenSessionController::class, 'apply'])->middleware('auth')->name('open-sessions.apply');
+    Route::get('/open-session-applications/{application}', [OpenSessionController::class, 'application'])->middleware('auth')->name('open-sessions.application');
+    Route::post('/open-session-applications/{application}/propose', [OpenSessionController::class, 'propose'])->middleware('auth')->name('open-sessions.propose');
+    Route::post('/open-session-applications/{application}/offers/{offer}/accept', [OpenSessionController::class, 'acceptOffer'])->middleware('auth')->name('open-sessions.accept-offer');
     Route::post('/booking', [FrontendBookingController::class, 'store'])
         ->middleware('auth')
         ->name('booking.store');
@@ -291,6 +317,7 @@ Route::name('frontend.')->group(function () {
         Route::get('/cities', [FrontendBookingApiController::class, 'cities'])->name('cities');
         Route::get('/breeds', [FrontendBookingApiController::class, 'breeds'])->name('breeds');
         Route::get('/providers', [FrontendBookingApiController::class, 'providers'])->name('providers');
+        Route::get('/provider-services', [FrontendBookingApiController::class, 'providerServices'])->name('provider-services');
         Route::get('/slots', [FrontendBookingApiController::class, 'slots'])->name('slots');
 
         Route::middleware('auth')->group(function () {

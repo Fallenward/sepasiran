@@ -228,12 +228,31 @@ class BookingApiController extends Controller
             'training_type' => ['nullable', Rule::in(BookingCatalog::trainingKeys())],
             'discount' => ['nullable', 'integer', 'min:0'],
             'provider_id' => ['nullable', 'integer', 'exists:users,id'],
+            'provider_service_id' => ['nullable', 'integer', 'exists:provider_services,id'],
         ]);
 
         if ($validated['service_type'] === 'coach' && empty($validated['training_type'])) {
             throw ValidationException::withMessages([
                 'training_type' => 'برای رزرو مربی، نوع آموزش الزامی است.',
             ]);
+        }
+
+        if (! empty($validated['provider_service_id'])) {
+            $svc = \App\Models\ProviderService::query()->findOrFail($validated['provider_service_id']);
+            if (! empty($validated['provider_id']) && (int) $svc->user_id !== (int) $validated['provider_id']) {
+                throw ValidationException::withMessages([
+                    'provider_service_id' => 'خدمت متعلق به این ارائه‌دهنده نیست.',
+                ]);
+            }
+
+            return response()->json(
+                BookingCatalog::quoteForService(
+                    $svc,
+                    $validated['fulfillment_mode'],
+                    $validated['training_type'] ?? null,
+                    (int) ($validated['discount'] ?? 0),
+                )
+            );
         }
 
         return response()->json(
@@ -245,6 +264,36 @@ class BookingApiController extends Controller
                 isset($validated['provider_id']) ? (int) $validated['provider_id'] : null,
             )
         );
+    }
+
+    public function providerServices(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'provider_id' => ['required', 'integer', 'exists:users,id'],
+            'service_type' => ['nullable', Rule::in(BookingCatalog::keys())],
+        ]);
+
+        $q = \App\Models\ProviderService::query()
+            ->with('specialty:id,name')
+            ->where('user_id', $validated['provider_id'])
+            ->where('is_active', true)
+            ->orderBy('name');
+
+        if (! empty($validated['service_type'])) {
+            $q->where('service_type', $validated['service_type']);
+        }
+
+        return response()->json([
+            'results' => $q->get()->map(fn ($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+                'description' => $s->description,
+                'service_type' => $s->service_type,
+                'base_price' => (int) $s->base_price,
+                'duration_minutes' => (int) $s->duration_minutes,
+                'specialty' => $s->specialty?->name,
+            ]),
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -277,10 +326,11 @@ class BookingApiController extends Controller
             'provider_ids' => ['nullable', 'array'],
             'provider_ids.*' => ['integer', 'exists:users,id'],
             'provider_id' => ['nullable', 'integer', 'exists:users,id'],
+            'provider_service_id' => ['nullable', 'integer', 'exists:provider_services,id'],
             'preferred_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.$today],
-            'preferred_slot' => ['nullable', Rule::in(BookingCatalog::slotTemplate())],
+            'preferred_slot' => ['nullable', 'string', 'max:8'],
             'date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.$today],
-            'slot' => ['nullable', Rule::in(BookingCatalog::slotTemplate())],
+            'slot' => ['nullable', 'string', 'max:8'],
             'contact_name' => ['required', 'string', 'max:120'],
             'contact_phone' => ['required', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:1000'],
@@ -347,13 +397,45 @@ class BookingApiController extends Controller
         }
 
         $primaryProviderId = $mode === 'direct' ? ($providerIds[0] ?? null) : null;
-        $quote = BookingCatalog::quote(
-            $validated['service_type'],
-            $mode,
-            $validated['training_type'] ?? null,
-            0,
-            $primaryProviderId,
-        );
+        $providerService = null;
+        if (! empty($validated['provider_service_id'])) {
+            $providerService = \App\Models\ProviderService::query()->findOrFail($validated['provider_service_id']);
+            if ($primaryProviderId && (int) $providerService->user_id !== (int) $primaryProviderId) {
+                throw ValidationException::withMessages([
+                    'provider_service_id' => 'خدمت متعلق به ارائه‌دهنده انتخاب‌شده نیست.',
+                ]);
+            }
+            if (! $providerService->is_active) {
+                throw ValidationException::withMessages([
+                    'provider_service_id' => 'این خدمت فعال نیست.',
+                ]);
+            }
+        }
+
+        if ($mode === 'direct' && $primaryProviderId && $preferredDate && $preferredSlot) {
+            $svcForSlot = $providerService;
+            $ok = app(\App\Support\BookingAvailabilityService::class)->assertSlotAvailable(
+                (int) $primaryProviderId,
+                Carbon::createFromFormat('Y-m-d', $preferredDate, config('app.timezone', 'Asia/Tehran')),
+                substr((string) $preferredSlot, 0, 5),
+                $svcForSlot
+            );
+            if (! $ok) {
+                throw ValidationException::withMessages([
+                    'preferred_slot' => 'این بازه زمانی در دسترس نیست.',
+                ]);
+            }
+        }
+
+        $quote = $providerService
+            ? BookingCatalog::quoteForService($providerService, $mode, $validated['training_type'] ?? null)
+            : BookingCatalog::quote(
+                $validated['service_type'],
+                $mode,
+                $validated['training_type'] ?? null,
+                0,
+                $primaryProviderId,
+            );
 
         $requestedPay = $validated['payment_method'] ?? 'gateway';
         if ($requestedPay === 'online') {
@@ -367,13 +449,14 @@ class BookingApiController extends Controller
             default => null,
         };
 
-        $booking = DB::transaction(function () use ($validated, $dog, $mode, $providerIds, $preferredDate, $preferredSlot, $appointment, $slot, $quote, $primaryProviderId, $paymentMethod, $gatewayDriver) {
+        $booking = DB::transaction(function () use ($validated, $dog, $mode, $providerIds, $preferredDate, $preferredSlot, $appointment, $slot, $quote, $primaryProviderId, $paymentMethod, $gatewayDriver, $providerService) {
             $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'dog_id' => $dog->id,
                 'service_type' => $validated['service_type'],
                 'fulfillment_mode' => $mode,
                 'provider_id' => $primaryProviderId,
+                'provider_service_id' => $providerService?->id,
                 'city_id' => $validated['city_id'],
                 'breed_id' => $dog->breed_id,
                 'training_type' => $validated['training_type'] ?? null,
