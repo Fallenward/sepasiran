@@ -65,8 +65,8 @@ class BookingController extends Controller
             'lockedProvider' => $lockedProvider,
             'prefill' => [
                 'service_type' => $serviceType,
-                'provider_id' => $providerId,
-                'city_id' => $cityId,
+                'provider_id' => $providerId > 0 ? $providerId : null,
+                'city_id' => $cityId > 0 ? $cityId : null,
                 'date' => $request->get(
                     'date',
                     now(config('app.timezone', 'Asia/Tehran'))->addDay()->format('Y-m-d')

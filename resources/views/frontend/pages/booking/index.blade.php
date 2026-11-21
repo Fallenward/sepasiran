@@ -112,7 +112,7 @@
                     <strong id="citySelectedName">{{ $selectedCityName ?? '—' }}</strong>
                     <button type="button" class="btn btn-ghost" id="cityClearBtn" style="min-height:32px;padding:4px 10px">حذف</button>
                 </div>
-                <input type="hidden" id="ui_city_id" value="{{ $prefill['city_id'] ?? '' }}" required>
+                <input type="hidden" id="ui_city_id" value="{{ !empty($prefill['city_id']) ? (int) $prefill['city_id'] : '' }}" required>
                 <div class="sp-booking__city-list" id="cityList" role="listbox" aria-label="فهرست شهرها">
                     @forelse($cities as $city)
                         <button type="button"
@@ -164,7 +164,7 @@
                 </div>
             </section>
 
-            <section class="panel sp-booking__panel" data-panel="4" @if($isLockedBooking) hidden @endif>
+            <section class="panel sp-booking__panel" data-panel="4" hidden>
                 <h2>نحوه انجام رزرو</h2>
                 <div class="sp-booking__service-grid" id="modeGrid"></div>
                 <p class="sp-booking__hint" id="modeHint"></p>
@@ -606,7 +606,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         const type = selectedService();
-        const cityId = document.getElementById('ui_city_id').value;
+        const cityRaw = document.getElementById('ui_city_id').value;
+        const cityId = cityRaw && Number(cityRaw) > 0 ? Number(cityRaw) : null;
         const qEl = document.getElementById('ui_provider_q');
         const q = qEl ? (qEl.value || '') : '';
         let path = '/providers?service_type=' + encodeURIComponent(type);
@@ -644,6 +645,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const providerId = selectedProviders[0];
         const date = document.getElementById('ui_date').value;
         const grid = document.getElementById('slotGrid');
+        if (!grid) return;
         grid.innerHTML = '';
         jalaliHint = '';
         if (!providerId || !date || selectedMode() !== 'direct') return;
@@ -946,38 +948,53 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     (async function boot() {
-        meta = await api('/meta');
-        if (meta.add_dog_url) {
-            const link = document.getElementById('addDogLink');
-            if (link) link.href = meta.add_dog_url;
-            root.dataset.addDog = meta.add_dog_url;
-        }
-        if (locked) {
-            document.getElementById('field_service_type').value = lockedServiceType;
-            document.getElementById('field_fulfillment_mode').value = 'direct';
-            selectedProviders = lockedProviderId ? [lockedProviderId] : [];
-        }
-        renderServices();
-        renderModes();
-        renderTraining();
-        toggleModeExtras();
-        if (isAuth) {
-            await loadBreedsForQuick();
-            const mine = await api('/my-dogs');
-            dogs = mine.results || [];
-            if (mine.add_dog_url) {
+        try {
+            meta = await api('/meta');
+            if (meta.add_dog_url) {
                 const link = document.getElementById('addDogLink');
-                if (link) link.href = mine.add_dog_url;
+                if (link) link.href = meta.add_dog_url;
+                root.dataset.addDog = meta.add_dog_url;
             }
-            renderDogs();
-            await reloadProviders();
+            if (locked) {
+                document.getElementById('field_service_type').value = lockedServiceType;
+                document.getElementById('field_fulfillment_mode').value = 'direct';
+                selectedProviders = lockedProviderId ? [lockedProviderId] : [];
+            }
+            renderServices();
+            renderModes();
+            renderTraining();
+            toggleModeExtras();
+            if (isAuth) {
+                try {
+                    await loadBreedsForQuick();
+                } catch (e) {
+                    console.warn(e);
+                }
+                try {
+                    const mine = await api('/my-dogs');
+                    dogs = mine.results || [];
+                    if (mine.add_dog_url) {
+                        const link = document.getElementById('addDogLink');
+                        if (link) link.href = mine.add_dog_url;
+                    }
+                    renderDogs();
+                } catch (e) {
+                    console.warn(e);
+                }
+                try {
+                    await reloadProviders();
+                } catch (e) {
+                    console.warn(e);
+                }
+            }
+            updateSummary();
+        } catch (e) {
+            console.error(e);
+            // Soft fail: still show step 1 so the page is usable.
+        } finally {
+            showStep(1);
         }
-        updateSummary();
-        showStep(1);
-    })().catch(function (e) {
-        console.error(e);
-        alert('بارگذاری اطلاعات رزرو ناموفق بود.');
-    });
+    })();
 });
 </script>
 @endpush

@@ -136,6 +136,11 @@ class BookingApiController extends Controller
 
     public function providers(Request $request): JsonResponse
     {
+        // Treat 0 / "" as "no city filter" so the wizard can boot before city is chosen.
+        if ($request->exists('city_id') && (int) $request->input('city_id') < 1) {
+            $request->merge(['city_id' => null]);
+        }
+
         $validated = $request->validate([
             'service_type' => ['required', Rule::in(BookingCatalog::keys())],
             'city_id' => ['nullable', 'integer', 'exists:cities,id'],
@@ -154,7 +159,7 @@ class BookingApiController extends Controller
             ->with('city:id,name')
             ->orderBy('users.name');
 
-        if (!empty($validated['city_id'])) {
+        if (! empty($validated['city_id'])) {
             $query->where('users.city_id', $validated['city_id']);
         }
 
