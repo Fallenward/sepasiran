@@ -2733,9 +2733,31 @@ body.sp-body {
 
 .sp-booking__actions {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 14px;
   flex-wrap: wrap;
   margin-top: 22px;
+}
+
+/* One primary action button per step; back is a text control, not a second button */
+.sp-booking__actions .btn-primary {
+  min-width: 160px;
+}
+
+.sp-booking__back {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--sp-text-muted);
+  padding: 8px 4px;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sp-booking__back:hover {
+  color: var(--sp-text);
 }
 
 .sp-booking .field {

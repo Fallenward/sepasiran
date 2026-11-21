@@ -128,7 +128,7 @@
                     @endforelse
                 </div>
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="1">بازگشت</button>
+                    <button type="button" class="sp-booking__back" data-prev="1">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="3">ادامه</button>
                 </div>
             </section>
@@ -159,7 +159,7 @@
                     @endif
                 </div>
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="2">بازگشت</button>
+                    <button type="button" class="sp-booking__back" data-prev="2">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="{{ $isLockedBooking ? 5 : 4 }}">ادامه</button>
                 </div>
             </section>
@@ -169,7 +169,7 @@
                 <div class="sp-booking__service-grid" id="modeGrid"></div>
                 <p class="sp-booking__hint" id="modeHint"></p>
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="3">بازگشت</button>
+                    <button type="button" class="sp-booking__back" data-prev="3">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="5">ادامه</button>
                 </div>
             </section>
@@ -237,7 +237,7 @@
                 </div>
 
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="{{ $isLockedBooking ? 3 : 4 }}">بازگشت</button>
+                    <button type="button" class="sp-booking__back" data-prev="{{ $isLockedBooking ? 3 : 4 }}">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="6">ادامه</button>
                 </div>
             </section>
@@ -249,7 +249,7 @@
                     <p class="sp-booking__hint">برای ثبت نهایی باید وارد حساب شوید.</p>
                 @endunless
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="5">بازگشت</button>
+                    <button type="button" class="sp-booking__back" data-prev="5">بازگشت</button>
                     @if($isAuthenticated)
                         <button type="button" class="btn btn-primary" id="submitBooking">ثبت رزرو</button>
                     @else
