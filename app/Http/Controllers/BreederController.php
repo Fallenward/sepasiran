@@ -130,38 +130,45 @@ public function store(Request $request)
 
 public function show($id)
 {
-    $trainer = \App\Models\User::select('users.*')
-        ->join('role_user', 'users.id', '=', 'role_user.user_id')
-        ->join('roles', 'roles.id', '=', 'role_user.role_id')
-        ->where('roles.name', 'breeder')
+    $trainer = \App\Models\User::query()
         ->where('users.id', $id)
-        ->with(['city', 'speciality', 'dogs']) // assuming 'dogs' relationship exists
+        ->whereHas('roles', fn ($q) => $q->where('name', 'breeder'))
+        ->with(['speciality'])
         ->firstOrFail();
 
-    $dogsPending = $trainer->dogs()->where('status', 'pending')->get();
-    $dogsReady = $trainer->dogs()->where('status', 'ready')->get();
+    $cityName = null;
+    if (! empty($trainer->city_id)) {
+        $cityName = optional(\App\Models\City::query()->find($trainer->city_id))->name;
+    }
 
-    // Example statistics (you can modify this dynamically)
-    $statistics = [
-        ['title' => 'سگ‌های آماده', 'counter' => $dogsReady->count()],
-        ['title' => 'سگ‌های در انتظار', 'counter' => $dogsPending->count()],
-        ['title' => 'تجربه (سال)', 'counter' => $trainer->experience_years ?? 0],
-        ['title' => 'مشتریان راضی', 'counter' => 120], // Example static number
-    ];
+    $dogsQuery = \App\Models\Dog::query()->where('user_id', $id);
+    $dogsCount = (clone $dogsQuery)->count();
+    $dogs = $dogsQuery->with('breed')->latest()->take(12)->get();
 
-    $medals = [
-        ['title' => 'مدال طلا', 'description' => 'بهترین مربی سال 2024', 'progress' => 80],
-        ['title' => 'مدال نقره', 'description' => 'پرورش‌دهنده برتر منطقه', 'progress' => 60],
-        ['title' => 'مدال برنز', 'description' => 'تلاش مداوم در آموزش سگ‌ها', 'progress' => 25],
-        ['title' => 'مدال پلاتین', 'description' => 'رضایت مشتریان بالا', 'progress' => 90],
-        ['title' => 'مدال الماس', 'description' => 'نوآوری در تربیت سگ‌ها', 'progress' => 95],
-        ['title' => 'مدال یاقوت', 'description' => 'خدمات برجسته به جامعه', 'progress' => 50],
-    ];
+    $specialties = $trainer->speciality ?? collect();
+    $address = trim((string) ($trainer->address ?? ''));
 
+    $facts = array_values(array_filter([
+        $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'آگهی سگ', 'value' => (string) $dogsCount, 'num' => true],
+        ['label' => 'تخصص‌ها', 'value' => (string) $specialties->count(), 'num' => true],
+        $address !== '' ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
+    ]));
 
-    $comments = [];
+    $bookUrl = route('frontend.booking.index', array_filter([
+        'type' => 'breeder',
+        'provider' => (int) $trainer->id,
+        'city_id' => $trainer->city_id ?: null,
+    ]));
 
-    return view('breeders.show', compact('trainer', 'dogsPending', 'dogsReady', 'medals', 'comments', 'statistics'));
+    return view('breeders.show', [
+        'trainer' => $trainer,
+        'dogs' => $dogs,
+        'specialties' => $specialties,
+        'cityName' => $cityName,
+        'facts' => $facts,
+        'bookUrl' => $bookUrl,
+    ]);
 }
 
     public function edit()

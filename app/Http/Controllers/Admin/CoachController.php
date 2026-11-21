@@ -159,28 +159,48 @@ public function indexFront(Request $request)
     // New showById method
 public function showById($id)
 {
-    $trainer = \App\Models\User::select('users.*')
-        ->join('role_user', 'users.id', '=', 'role_user.user_id')
-        ->join('roles', 'roles.id', '=', 'role_user.role_id')
-        ->where('roles.name', 'coach')
-        ->where('users.id', $id) // ✅ Filter by ID
-        ->with(['city', 'speciality']) // ✅ Fix typo (speciality → specialty if that's your model name)
-        ->firstOrFail(); // ✅ Get the actual model, not a query builder
+    $trainer = \App\Models\User::query()
+        ->where('users.id', $id)
+        ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+        ->with(['speciality'])
+        ->firstOrFail();
 
-    $dogs = \App\Models\Dog::where('user_id', $id)->get();
+    $cityName = null;
+    if (! empty($trainer->city_id)) {
+        $cityName = optional(\App\Models\City::query()->find($trainer->city_id))->name;
+    }
 
-    $medals = [
-        ['title' => 'رتبه اول آموزش', 'icon' => 'medal1.png'],
-        ['title' => 'بیشترین فروش', 'icon' => 'medal2.png'],
-        ['title' => 'مربی برتر سال', 'icon' => 'medal3.png'],
-        ['title' => 'مربی خلاق', 'icon' => 'medal4.png'],
-        ['title' => 'پیشنهاد کاربران', 'icon' => 'medal5.png'],
-    ];
+    $coursesQuery = \App\Models\Course::query()->where('user_id', $id);
+    $coursesCount = (clone $coursesQuery)->count();
+    $courses = $coursesQuery->latest()->take(8)->get();
 
-    $comments=['comment1' => 'inyekk comment ast',
-                'comment2' => 'inyekk comment ast'];
+    $specialties = $trainer->speciality ?? collect();
+    $completed = \App\Models\Booking::query()
+        ->where('provider_id', $id)
+        ->whereIn('status', ['COMPLETED', 'CONFIRMED', 'ACCEPTED'])
+        ->count();
 
-    return view('coaches.show', compact('trainer', 'dogs', 'medals', 'comments'));
+    $facts = array_values(array_filter([
+        $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'دوره‌ها', 'value' => (string) $coursesCount, 'num' => true],
+        ['label' => 'جلسات ثبت‌شده', 'value' => (string) $completed, 'num' => true],
+        ['label' => 'تخصص‌ها', 'value' => (string) max($specialties->count(), 0), 'num' => true],
+    ]));
+
+    $bookUrl = route('frontend.booking.index', array_filter([
+        'type' => 'coach',
+        'provider' => (int) $trainer->id,
+        'city_id' => $trainer->city_id ?: null,
+    ]));
+
+    return view('coaches.show', [
+        'trainer' => $trainer,
+        'courses' => $courses,
+        'specialties' => $specialties,
+        'cityName' => $cityName,
+        'facts' => $facts,
+        'bookUrl' => $bookUrl,
+    ]);
 }
 
 

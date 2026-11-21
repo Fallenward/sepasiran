@@ -68,31 +68,53 @@ public function index(Request $request)
 
     public function showClinicById($id)
 {
-    $clinic = \App\Models\User::select('users.*')
-        ->join('role_user', 'users.id', '=', 'role_user.user_id')
-        ->join('roles', 'roles.id', '=', 'role_user.role_id')
-        ->where('roles.name', 'clinic') // 👈 Filter by clinic role
+    $clinic = \App\Models\User::query()
         ->where('users.id', $id)
-        ->with(['city', 'speciality', 'roles']) // include roles for blade logic
+        ->whereHas('roles', fn ($q) => $q->where('name', 'clinic'))
+        ->with(['speciality', 'roles'])
         ->firstOrFail();
 
-    // Optional: rename if needed
-    $services = [];
+    $cityName = null;
+    if (! empty($clinic->city_id)) {
+        $cityName = optional(\App\Models\City::query()->find($clinic->city_id))->name;
+    } elseif (is_string($clinic->getAttribute('city')) && $clinic->getAttribute('city') !== '') {
+        $cityName = $clinic->getAttribute('city');
+    }
 
-    $medals = [
-        ['title' => 'کلینیک برتر منطقه', 'icon' => 'medal1.png'],
-        ['title' => 'تجهیزات مدرن', 'icon' => 'medal2.png'],
-        ['title' => 'بیشترین بازدید', 'icon' => 'medal3.png'],
-        ['title' => 'پیشنهاد کاربران', 'icon' => 'medal4.png'],
-    ];
+    $specialties = $clinic->speciality ?? collect();
+    $completed = \App\Models\Booking::query()
+        ->where('provider_id', $id)
+        ->whereIn('status', ['COMPLETED', 'CONFIRMED', 'ACCEPTED'])
+        ->count();
 
-    $comments = \App\Models\Comment::where('user_id', $id)->with('user')->get(); // assuming real comments
+    $workingHours = $clinic->getAttribute('working_hours');
+    $animals = $clinic->getAttribute('animals');
+    $address = trim((string) ($clinic->address ?? ''));
+    $address = $address !== '' ? $address : null;
+
+    $facts = array_values(array_filter([
+        $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        $address ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
+        $workingHours ? ['label' => 'ساعت کاری', 'value' => (string) $workingHours] : null,
+        ['label' => 'نوبت‌های ثبت‌شده', 'value' => (string) $completed, 'num' => true],
+        ['label' => 'تخصص‌ها', 'value' => (string) $specialties->count(), 'num' => true],
+    ]));
+
+    $bookUrl = route('frontend.booking.index', array_filter([
+        'type' => 'clinic',
+        'provider' => (int) $clinic->id,
+        'city_id' => $clinic->city_id ?: null,
+    ]));
 
     return view('clinics.show', [
         'trainer' => $clinic,
-        'dogs' => [], // or pets if applicable
-        'medals' => $medals,
-        'comments' => $comments,
+        'specialties' => $specialties,
+        'cityName' => $cityName,
+        'facts' => $facts,
+        'bookUrl' => $bookUrl,
+        'workingHours' => $workingHours,
+        'animals' => $animals,
+        'address' => $address,
     ]);
 }
  public function edit()
