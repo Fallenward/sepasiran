@@ -209,8 +209,11 @@ Route::name('frontend.')->group(function () {
         ->middleware('auth')
         ->name('dog.order.store');
     Route::post('/dog/{id}/order/{order}/pay', [DogOrderController::class, 'pay'])
-        ->middleware('auth')
+        ->middleware(['auth', 'throttle:payment'])
         ->name('dog.order.pay');
+    Route::match(['get', 'post'], '/dog-order/{order}/callback', [DogOrderController::class, 'callback'])
+        ->middleware('throttle:payment')
+        ->name('dog.order.callback');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');

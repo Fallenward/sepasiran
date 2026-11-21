@@ -18,6 +18,8 @@ class DogOrder extends Model
         'price',
         'status',
         'payment_method',
+        'gateway_driver',
+        'gateway_transaction_id',
         'transaction_ref',
         'paid_at',
     ];

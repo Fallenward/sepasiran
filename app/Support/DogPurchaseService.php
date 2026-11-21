@@ -9,12 +9,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Shetabit\Multipay\Exceptions\InvalidPaymentException;
+use Shetabit\Multipay\Invoice;
+use Shetabit\Payment\Facade\Payment;
 
 class DogPurchaseService
 {
     /**
-     * Statuses that mean the dog is listed for sale.
-     *
      * @return list<string>
      */
     public static function forSaleStatuses(): array
@@ -26,6 +27,14 @@ class DogPurchaseService
     {
         return in_array((string) $dog->status, self::forSaleStatuses(), true)
             && (int) ($dog->price ?? 0) > 0;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function paymentMethods(): array
+    {
+        return ['wallet', 'gateway'];
     }
 
     public function createOrder(User $buyer, Dog $dog): DogOrder
@@ -56,7 +65,6 @@ class DogPurchaseService
                 return $existing;
             }
 
-            // One active pending order per dog (lock listing).
             $open = DogOrder::query()
                 ->where('dog_id', $dog->id)
                 ->where('status', DogOrder::STATUS_PENDING)
@@ -82,9 +90,99 @@ class DogPurchaseService
         });
     }
 
-    public function completePayment(User $buyer, DogOrder $order, string $method = 'wallet'): DogOrder
+    /**
+     * Start bank gateway checkout and return the gateway redirection form/response payload.
+     *
+     * @return \Shetabit\Multipay\RedirectionForm
+     */
+    public function startGatewayPayment(User $buyer, DogOrder $order, ?string $driver = null)
     {
-        return DB::transaction(function () use ($buyer, $order, $method) {
+        if ((int) $order->buyer_id !== (int) $buyer->id) {
+            throw ValidationException::withMessages([
+                'order' => 'این سفارش متعلق به شما نیست.',
+            ]);
+        }
+
+        if (! $order->isPending()) {
+            throw ValidationException::withMessages([
+                'order' => 'این سفارش قابل پرداخت نیست.',
+            ]);
+        }
+
+        $driver = $driver ?: (string) config('payment.default', 'local');
+        $callback = route('frontend.dog.order.callback', $order->id);
+
+        $invoice = (new Invoice)->amount((int) $order->price);
+        $invoice->detail('dog_order_id', $order->id);
+        $invoice->detail('dog_id', $order->dog_id);
+        $invoice->detail('orderId', $order->id);
+
+        return Payment::via($driver)
+            ->callbackUrl($callback)
+            ->purchase($invoice, function ($gatewayDriver, $transactionId) use ($order, $driver) {
+                $order->update([
+                    'payment_method' => 'gateway',
+                    'gateway_driver' => $driver,
+                    'gateway_transaction_id' => (string) $transactionId,
+                    'transaction_ref' => (string) $transactionId,
+                ]);
+            })
+            ->pay();
+    }
+
+    /**
+     * Verify gateway callback and finalize ownership transfer.
+     */
+    public function completeGatewayPayment(DogOrder $order, ?string $transactionId = null): DogOrder
+    {
+        if ($order->isPaid()) {
+            return $order->fresh(['dog', 'buyer', 'seller']);
+        }
+
+        if (! $order->isPending()) {
+            throw ValidationException::withMessages([
+                'order' => 'این سفارش قابل پرداخت نیست.',
+            ]);
+        }
+
+        $txId = $transactionId ?: $order->gateway_transaction_id;
+        if (! $txId) {
+            throw ValidationException::withMessages([
+                'order' => 'شناسه تراکنش درگاه یافت نشد.',
+            ]);
+        }
+
+        $driver = $order->gateway_driver ?: (string) config('payment.default', 'local');
+
+        try {
+            Payment::via($driver)
+                ->amount((int) $order->price)
+                ->transactionId($txId)
+                ->verify();
+        } catch (InvalidPaymentException $e) {
+            throw ValidationException::withMessages([
+                'payment' => $e->getMessage() ?: 'پرداخت درگاه تأیید نشد.',
+            ]);
+        }
+
+        $buyer = User::query()->findOrFail($order->buyer_id);
+
+        return $this->completePayment($buyer, $order->fresh(), 'gateway', $txId);
+    }
+
+    public function completePayment(
+        User $buyer,
+        DogOrder $order,
+        string $method = 'wallet',
+        ?string $externalRef = null
+    ): DogOrder {
+        if (! in_array($method, self::paymentMethods(), true)) {
+            throw ValidationException::withMessages([
+                'payment_method' => 'روش پرداخت نامعتبر است.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($buyer, $order, $method, $externalRef) {
             /** @var DogOrder $order */
             $order = DogOrder::query()->lockForUpdate()->findOrFail($order->id);
 
@@ -126,22 +224,21 @@ class DogPurchaseService
                     ]);
                 }
                 $buyerLocked->decrement('wallet', $price);
-                $seller->increment('wallet', $price);
             }
 
-            $ref = 'DOG-'.Str::upper(Str::random(10));
+            // Seller settlement lands in wallet for both wallet and gateway payments.
+            $seller->increment('wallet', $price);
 
-            // transactions.payment_method is enum('online','offline')
-            $txMethod = $method === 'wallet' ? 'online' : 'online';
+            $ref = $externalRef ?: ('DOG-'.Str::upper(Str::random(10)));
 
             Transaction::query()->create([
                 'user_id' => $buyerLocked->id,
-                'transaction_id' => $ref,
-                'description' => 'خرید سگ #'.$dog->id.' — '.$dog->title,
+                'transaction_id' => $ref.'-B',
+                'description' => ($method === 'gateway' ? 'پرداخت درگاه — ' : 'پرداخت کیف پول — ').'خرید سگ #'.$dog->id.' — '.$dog->title,
                 'status' => 'completed',
-                'amount' => -$price,
+                'amount' => $method === 'wallet' ? -$price : 0,
                 'cart_price' => $price,
-                'payment_method' => $txMethod,
+                'payment_method' => 'online',
             ]);
 
             Transaction::query()->create([
@@ -151,7 +248,7 @@ class DogPurchaseService
                 'status' => 'completed',
                 'amount' => $price,
                 'cart_price' => $price,
-                'payment_method' => $txMethod,
+                'payment_method' => 'online',
             ]);
 
             $dog->update([
@@ -166,7 +263,6 @@ class DogPurchaseService
                 'paid_at' => now(),
             ]);
 
-            // Cancel other pending orders for this dog (if any).
             DogOrder::query()
                 ->where('dog_id', $dog->id)
                 ->where('id', '!=', $order->id)

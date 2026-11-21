@@ -142,14 +142,23 @@
                     @if($isOwner)
                         <p class="sp-provider__cta-note">این سگ متعلق به شماست.</p>
                     @elseif($pendingOrder)
-                        <p class="sp-provider__cta-note">سفارش شما ثبت شده. با پرداخت از کیف پول، مالکیت منتقل می‌شود.</p>
-                        <form method="post" action="{{ route('frontend.dog.order.pay', [$dog->id, $pendingOrder->id]) }}">
-                            @csrf
-                            <input type="hidden" name="payment_method" value="wallet">
-                            <button type="submit" class="sp-btn sp-btn--primary" style="width:100%">
-                                <i class="fas fa-wallet"></i> پرداخت و انتقال مالکیت
-                            </button>
-                        </form>
+                        <p class="sp-provider__cta-note">سفارش شما ثبت شده. پرداخت را با کیف پول یا درگاه بانکی کامل کنید.</p>
+                        <div style="display:grid;gap:8px;width:100%">
+                            <form method="post" action="{{ route('frontend.dog.order.pay', [$dog->id, $pendingOrder->id]) }}">
+                                @csrf
+                                <input type="hidden" name="payment_method" value="wallet">
+                                <button type="submit" class="sp-btn sp-btn--primary" style="width:100%">
+                                    <i class="fas fa-wallet"></i> پرداخت از کیف پول
+                                </button>
+                            </form>
+                            <form method="post" action="{{ route('frontend.dog.order.pay', [$dog->id, $pendingOrder->id]) }}">
+                                @csrf
+                                <input type="hidden" name="payment_method" value="gateway">
+                                <button type="submit" class="sp-btn sp-btn--ghost" style="width:100%">
+                                    <i class="fas fa-credit-card"></i> پرداخت از درگاه بانکی
+                                </button>
+                            </form>
+                        </div>
                     @elseif($dog->isForSale())
                         <p class="sp-provider__cta-note">این سگ برای فروش است. ابتدا سفارش ثبت کنید، سپس پرداخت را کامل کنید.</p>
                         <form method="post" action="{{ route('frontend.dog.order.store', $dog->id) }}">
