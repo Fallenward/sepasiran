@@ -141,6 +141,7 @@
                         @if(!empty($lockedProvider['name']))
                             <small>ارائه‌دهنده: {{ $lockedProvider['name'] }}</small>
                         @endif
+                        <small class="num" id="lockedServicePrice">قیمت پس از محاسبه نمایش داده می‌شود</small>
                     </div>
                     <div class="sp-booking__service-grid" id="serviceGrid" hidden></div>
                 @else
@@ -224,9 +225,11 @@
                 <div class="field">
                     <label for="payment_method">روش پرداخت</label>
                     <select name="payment_method" id="payment_method">
-                        <option value="online">آنلاین</option>
+                        <option value="gateway">درگاه بانکی</option>
+                        <option value="wallet">کیف پول</option>
                         <option value="offline">حضوری / آفلاین</option>
                     </select>
+                    <p class="sp-booking__hint">پس از ثبت رزرو، برای کیف پول یا درگاه به صفحه پرداخت هدایت می‌شوید.</p>
                 </div>
 
                 <div class="sp-booking__actions">
@@ -317,11 +320,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
     }
 
-    function showStep(n) {
+        function showStep(n) {
         step = n;
         document.querySelectorAll('[data-panel]').forEach(function (panel) {
             panel.hidden = Number(panel.dataset.panel) !== n;
         });
+        if (n === 3 && locked) refreshQuote();
         document.querySelectorAll('.sp-booking__step').forEach(function (el) {
             const s = Number(el.dataset.step);
             el.classList.toggle('is-current', s === n);
@@ -556,7 +560,9 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.className = 'sp-booking__provider' + (selectedProviders.indexOf(row.id) >= 0 ? ' is-active' : '');
             btn.dataset.id = row.id;
             btn.innerHTML = '<strong>' + (row.display_name || row.name) + '</strong>' +
-                '<span>' + (row.city ? row.city.name : '—') + '</span>';
+                '<span>' + (row.city ? row.city.name : '—')
+                + (row.price ? (' · ' + Number(row.price).toLocaleString('fa-IR') + ' ت') : '')
+                + '</span>';
             btn.addEventListener('click', function () {
                 const id = Number(row.id);
                 const idx = selectedProviders.indexOf(id);
@@ -603,12 +609,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const box = document.getElementById('quoteBreakdown');
         box.innerHTML = '<p class="sp-booking__hint">در حال محاسبه…</p>';
         try {
+            const providerId = selectedProviders[0] || lockedProviderId || null;
             quote = await api('/quote', {
                 method: 'POST',
                 body: JSON.stringify({
                     service_type: selectedService(),
                     fulfillment_mode: selectedMode(),
-                    training_type: document.getElementById('ui_training_type').value || null
+                    training_type: document.getElementById('ui_training_type').value || null,
+                    provider_id: providerId || null
                 })
             });
             box.innerHTML = '';
@@ -625,6 +633,11 @@ document.addEventListener('DOMContentLoaded', function () {
             total.innerHTML = '<span>جمع</span><strong class="tile__price num">' +
                 Number(quote.total).toLocaleString('fa-IR') + ' تومان</strong>';
             box.appendChild(total);
+            const lockedPrice = document.getElementById('lockedServicePrice');
+            if (lockedPrice && quote && quote.total) {
+                lockedPrice.textContent = Number(quote.total).toLocaleString('fa-IR') + ' تومان'
+                    + (quote.price_source === 'provider' ? ' (قیمت ارائه‌دهنده)' : '');
+            }
             updateSummary();
         } catch (e) {
             box.innerHTML = '<p class="sp-booking__hint">' + e.message + '</p>';

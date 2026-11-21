@@ -166,8 +166,10 @@ class BookingApiController extends Controller
             });
         }
 
-        $results = $query->limit(40)->get()->map(function (User $user) use ($role) {
+        $serviceType = $validated['service_type'];
+        $results = $query->limit(40)->get()->map(function (User $user) use ($role, $serviceType) {
             $display = trim(($user->name ?? '').' '.($user->family ?? ''));
+            $priceRow = BookingCatalog::providerPriceRow((int) $user->id, $serviceType);
 
             return [
                 'id' => $user->id,
@@ -177,6 +179,8 @@ class BookingApiController extends Controller
                 'city' => $user->city ? ['id' => $user->city->id, 'name' => $user->city->name] : null,
                 'photo' => $user->profile_picture ?? null,
                 'role' => $role,
+                'price' => BookingCatalog::priceForProvider((int) $user->id, $serviceType),
+                'price_source' => ($priceRow && (int) $priceRow->base_price > 0) ? 'provider' : 'catalog',
             ];
         });
 
@@ -227,6 +231,7 @@ class BookingApiController extends Controller
             'fulfillment_mode' => ['required', Rule::in(BookingCatalog::fulfillmentKeys())],
             'training_type' => ['nullable', Rule::in(BookingCatalog::trainingKeys())],
             'discount' => ['nullable', 'integer', 'min:0'],
+            'provider_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
         if ($validated['service_type'] === 'coach' && empty($validated['training_type'])) {
@@ -241,6 +246,7 @@ class BookingApiController extends Controller
                 $validated['fulfillment_mode'],
                 $validated['training_type'] ?? null,
                 (int) ($validated['discount'] ?? 0),
+                isset($validated['provider_id']) ? (int) $validated['provider_id'] : null,
             )
         );
     }
@@ -267,7 +273,7 @@ class BookingApiController extends Controller
             'contact_name' => ['required', 'string', 'max:120'],
             'contact_phone' => ['required', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'payment_method' => ['nullable', Rule::in(['online', 'offline'])],
+            'payment_method' => ['nullable', Rule::in(['wallet', 'gateway', 'offline', 'online'])],
         ]);
 
         $dog = Dog::query()->findOrFail($validated['dog_id']);
@@ -320,19 +326,34 @@ class BookingApiController extends Controller
             }
         }
 
+        $primaryProviderId = $mode === 'direct' ? ($providerIds[0] ?? null) : null;
         $quote = BookingCatalog::quote(
             $validated['service_type'],
             $mode,
             $validated['training_type'] ?? null,
+            0,
+            $primaryProviderId,
         );
 
-        $booking = DB::transaction(function () use ($validated, $dog, $mode, $providerIds, $preferredDate, $preferredSlot, $appointment, $slot, $quote) {
+        $requestedPay = $validated['payment_method'] ?? 'gateway';
+        if ($requestedPay === 'online') {
+            $requestedPay = 'gateway';
+        }
+        // DB enum is online|offline; wallet/gateway preference stored in gateway_driver.
+        $paymentMethod = $requestedPay === 'offline' ? 'offline' : 'online';
+        $gatewayDriver = match ($requestedPay) {
+            'wallet' => 'wallet',
+            'gateway' => (string) config('payment.default', 'local'),
+            default => null,
+        };
+
+        $booking = DB::transaction(function () use ($validated, $dog, $mode, $providerIds, $preferredDate, $preferredSlot, $appointment, $slot, $quote, $primaryProviderId, $paymentMethod, $gatewayDriver) {
             $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'dog_id' => $dog->id,
                 'service_type' => $validated['service_type'],
                 'fulfillment_mode' => $mode,
-                'provider_id' => $mode === 'direct' ? ($providerIds[0] ?? null) : null,
+                'provider_id' => $primaryProviderId,
                 'city_id' => $validated['city_id'],
                 'breed_id' => $dog->breed_id,
                 'training_type' => $validated['training_type'] ?? null,
@@ -345,7 +366,8 @@ class BookingApiController extends Controller
                 'tax' => $quote['tax'],
                 'discount' => $quote['discount'],
                 'total' => $quote['total'],
-                'payment_method' => $validated['payment_method'] ?? 'online',
+                'payment_method' => $paymentMethod,
+                'gateway_driver' => $gatewayDriver,
                 'payment_status' => 'pending',
                 'status' => $mode === 'open' ? 'OPEN' : 'PENDING',
                 'notes' => $validated['notes'] ?? null,
@@ -362,9 +384,15 @@ class BookingApiController extends Controller
 
         $booking->load(['provider', 'breed', 'city', 'dog.breed', 'offers.provider', 'invitedProviders']);
 
+        $pay = app(\App\Support\BookingPaymentService::class);
+        $successUrl = $pay->needsOnlinePayment($booking)
+            ? route('frontend.booking.pay', $booking->booking_code, false)
+            : route('frontend.booking.success', $booking->booking_code, false);
+
         return response()->json([
             'booking' => $this->serialize($booking),
-            'success_url' => route('frontend.booking.success', $booking->booking_code, false),
+            'success_url' => $successUrl,
+            'payment_required' => $pay->needsOnlinePayment($booking),
         ], 201);
     }
 

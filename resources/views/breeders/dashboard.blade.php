@@ -41,6 +41,7 @@
                 ['label' => 'افزودن آگهی سگ', 'hint' => 'ثبت سگ برای فروش', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
                 ['label' => 'لیست آگهی‌ها', 'hint' => 'مدیریت سگ‌های عرضه‌شده', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
                 ['label' => 'سگ‌های حساب', 'hint' => 'سگ‌های شخصی حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
+                ['label' => 'قیمت خدمات', 'hint' => 'مبلغ رزرو پرورش‌دهنده', 'url' => route('account.service-prices.edit'), 'icon' => 'fas fa-tags'],
                 ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
             ],
         ])

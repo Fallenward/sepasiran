@@ -7,7 +7,9 @@ use App\Models\Booking;
 use App\Models\City;
 use App\Models\User;
 use App\Support\BookingCatalog;
+use App\Support\BookingPaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -114,12 +116,91 @@ class BookingController extends Controller
         }
 
         $api = app(BookingApiController::class);
+        $pay = app(BookingPaymentService::class);
 
         return view('frontend.pages.booking.success', [
             'booking' => $api->serialize($booking),
             'serviceLabels' => collect(BookingCatalog::serviceTypes())->pluck('label', 'key'),
             'modeLabels' => collect(BookingCatalog::fulfillmentModes())->pluck('label', 'key'),
+            'paymentRequired' => $pay->needsOnlinePayment($booking)
+                && (int) $booking->user_id === (int) optional($user)->id,
         ]);
+    }
+
+    public function pay(string $code)
+    {
+        $booking = Booking::with(['provider', 'breed', 'city', 'dog.breed'])
+            ->where('booking_code', $code)
+            ->firstOrFail();
+        $user = Auth::user();
+        abort_unless($user && (int) $booking->user_id === (int) $user->id, 403);
+
+        $pay = app(BookingPaymentService::class);
+        if (! $pay->needsOnlinePayment($booking)) {
+            return redirect()->route('frontend.booking.success', $booking->booking_code);
+        }
+
+        $api = app(BookingApiController::class);
+
+        return view('frontend.pages.booking.pay', [
+            'booking' => $api->serialize($booking),
+            'bookingModel' => $booking,
+            'walletBalance' => (int) ($user->wallet ?? 0),
+            'serviceLabels' => collect(BookingCatalog::serviceTypes())->pluck('label', 'key'),
+        ]);
+    }
+
+    public function processPay(Request $request, string $code, BookingPaymentService $pay)
+    {
+        $booking = Booking::query()->where('booking_code', $code)->firstOrFail();
+        $user = Auth::user();
+        abort_unless($user && (int) $booking->user_id === (int) $user->id, 403);
+
+        $data = $request->validate([
+            'payment_method' => ['required', 'in:wallet,gateway'],
+        ]);
+
+        try {
+            if ($data['payment_method'] === 'gateway') {
+                $form = $pay->startGatewayPayment($user, $booking);
+
+                return $form instanceof \Shetabit\Multipay\RedirectionForm
+                    ? new Response($form->render())
+                    : $form;
+            }
+
+            $pay->completePayment($user, $booking, 'wallet');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+
+        return redirect()
+            ->route('frontend.booking.success', $booking->booking_code)
+            ->with('success', 'پرداخت با موفقیت انجام شد.');
+    }
+
+    public function payCallback(Request $request, string $code, BookingPaymentService $pay)
+    {
+        $booking = Booking::query()->where('booking_code', $code)->firstOrFail();
+        $user = Auth::user();
+        if ($user && (int) $user->id !== (int) $booking->user_id) {
+            abort(403);
+        }
+
+        try {
+            $pay->completeGatewayPayment(
+                $booking,
+                $request->input('transactionId') ?: $request->input('Authority')
+            );
+        } catch (ValidationException $e) {
+            return redirect()
+                ->route('frontend.booking.pay', $booking->booking_code)
+                ->withErrors($e->errors());
+        }
+
+        return redirect()
+            ->route('frontend.booking.success', $booking->booking_code)
+            ->with('success', 'پرداخت درگاه تأیید شد.');
     }
 
     public function providersShim(Request $request)

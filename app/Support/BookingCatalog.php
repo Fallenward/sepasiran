@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\ProviderServicePrice;
+
 class BookingCatalog
 {
     public static function serviceTypes(): array
@@ -93,20 +95,76 @@ class BookingCatalog
         return $fulfillmentMode === 'open' ? static::openListingFee() : 0;
     }
 
-    /**
-     * @return array{currency:string,price:int,surcharge:int,mode_fee:int,tax:int,discount:int,total:int,breakdown:array<int,array{label:string,amount:int}>}
-     */
-    public static function quote(string $serviceType, string $fulfillmentMode, ?string $trainingType = null, int $discount = 0): array
+    public static function providerPriceRow(int $providerId, string $serviceType): ?ProviderServicePrice
     {
-        $base = static::priceFor($serviceType);
-        $surcharge = $serviceType === 'coach' ? static::trainingSurcharge($trainingType) : 0;
+        if ($providerId < 1) {
+            return null;
+        }
+
+        return ProviderServicePrice::query()
+            ->where('user_id', $providerId)
+            ->where('service_type', $serviceType)
+            ->first();
+    }
+
+    public static function priceForProvider(int $providerId, string $serviceType): int
+    {
+        $row = static::providerPriceRow($providerId, $serviceType);
+        if ($row && (int) $row->base_price > 0) {
+            return (int) $row->base_price;
+        }
+
+        return static::priceFor($serviceType);
+    }
+
+    public static function trainingSurchargeForProvider(int $providerId, string $serviceType, ?string $trainingType): int
+    {
+        if ($serviceType !== 'coach') {
+            return 0;
+        }
+
+        $row = static::providerPriceRow($providerId, $serviceType);
+        if ($row) {
+            $custom = $row->trainingSurcharge($trainingType);
+            // Explicit zero is allowed; missing key falls back to catalog.
+            $map = $row->training_surcharges ?? [];
+            if ($trainingType && array_key_exists($trainingType, $map)) {
+                return $custom;
+            }
+        }
+
+        return static::trainingSurcharge($trainingType);
+    }
+
+    /**
+     * @return array{currency:string,price:int,surcharge:int,mode_fee:int,tax:int,discount:int,total:int,provider_id:?int,price_source:string,breakdown:array<int,array{label:string,amount:int}>}
+     */
+    public static function quote(
+        string $serviceType,
+        string $fulfillmentMode,
+        ?string $trainingType = null,
+        int $discount = 0,
+        ?int $providerId = null
+    ): array {
+        $usingProvider = $providerId && $providerId > 0;
+        $base = $usingProvider
+            ? static::priceForProvider($providerId, $serviceType)
+            : static::priceFor($serviceType);
+        $surcharge = $usingProvider
+            ? static::trainingSurchargeForProvider($providerId, $serviceType, $trainingType)
+            : ($serviceType === 'coach' ? static::trainingSurcharge($trainingType) : 0);
         $modeFee = static::modeFee($fulfillmentMode);
         $subtotal = $base + $surcharge;
         $tax = (int) round($subtotal * static::taxRate());
         $total = max(0, $subtotal + $tax + $modeFee - $discount);
+        $priceSource = 'catalog';
+        if ($usingProvider) {
+            $row = static::providerPriceRow($providerId, $serviceType);
+            $priceSource = ($row && (int) $row->base_price > 0) ? 'provider' : 'catalog';
+        }
 
         $breakdown = [
-            ['label' => 'پایه خدمت', 'amount' => $base],
+            ['label' => $priceSource === 'provider' ? 'قیمت ارائه‌دهنده' : 'پایه خدمت', 'amount' => $base],
         ];
         if ($surcharge > 0) {
             $breakdown[] = ['label' => 'نوع آموزش', 'amount' => $surcharge];
@@ -129,8 +187,23 @@ class BookingCatalog
             'tax' => $tax,
             'discount' => $discount,
             'total' => $total,
+            'provider_id' => $usingProvider ? $providerId : null,
+            'price_source' => $priceSource,
             'breakdown' => $breakdown,
         ];
+    }
+
+    /**
+     * Service types a provider role may price.
+     *
+     * @return list<array{key:string,label:string,default_price:int}>
+     */
+    public static function priceableServicesForRole(string $role): array
+    {
+        return array_values(array_filter(
+            static::serviceTypes(),
+            fn (array $row) => ($row['role'] ?? '') === $role
+        ));
     }
 
     public static function roleFor(string $serviceType): string

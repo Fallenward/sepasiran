@@ -51,6 +51,7 @@
                 ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ‌های حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
                 ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
+                ['label' => 'قیمت خدمات', 'hint' => 'مبلغ رزرو کلینیک/بیمه', 'url' => route('account.service-prices.edit'), 'icon' => 'fas fa-tags'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'پروفایل', 'hint' => 'ویرایش اطلاعات', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],

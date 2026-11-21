@@ -45,6 +45,7 @@ use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\BookingHubController;
 use App\Http\Controllers\Account\OwnedDogController;
 use App\Http\Controllers\Account\CoachCourseController;
+use App\Http\Controllers\Account\ProviderServicePriceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -176,6 +177,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dogs/{dog}/edit', [OwnedDogController::class, 'edit'])->name('dogs.edit');
         Route::put('/dogs/{dog}', [OwnedDogController::class, 'update'])->name('dogs.update');
         Route::delete('/dogs/{dog}', [OwnedDogController::class, 'destroy'])->name('dogs.destroy');
+        Route::get('/service-prices', [ProviderServicePriceController::class, 'edit'])->name('service-prices.edit');
+        Route::post('/service-prices', [ProviderServicePriceController::class, 'update'])->name('service-prices.update');
     });
 
     // User / customer account hub (any authenticated user)
@@ -273,6 +276,14 @@ Route::name('frontend.')->group(function () {
     Route::get('/booking/open', [FrontendBookingController::class, 'openBoard'])->name('booking.open');
     Route::get('/booking/open/{code}', [FrontendBookingController::class, 'openShow'])->name('booking.open.show');
     Route::get('/booking/success/{code}', [FrontendBookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/pay/{code}', [FrontendBookingController::class, 'pay'])
+        ->middleware('auth')
+        ->name('booking.pay');
+    Route::post('/booking/pay/{code}', [FrontendBookingController::class, 'processPay'])
+        ->middleware('auth')
+        ->name('booking.pay.process');
+    Route::get('/booking/pay/{code}/callback', [FrontendBookingController::class, 'payCallback'])
+        ->name('booking.pay.callback');
     Route::get('/booking/providers', [FrontendBookingController::class, 'providersShim'])->name('booking.providers');
 
     Route::prefix('booking/api')->name('booking.api.')->group(function () {

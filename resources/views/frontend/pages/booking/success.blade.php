@@ -45,7 +45,17 @@
             <div class="list-row"><span>تاریخ</span><strong class="num">{{ $booking['appointment_jalali'] ?? $booking['preferred_jalali'] ?? '—' }}</strong></div>
             <div class="list-row"><span>ساعت</span><strong class="num">{{ $booking['slot'] ?? $booking['preferred_slot'] ?? '—' }}</strong></div>
             <div class="list-row" style="border:0"><span>مبلغ</span><strong class="num" id="successTotal">{{ number_format((float) ($booking['total'] ?? 0)) }} تومان</strong></div>
+            <div class="list-row" style="border:0"><span>وضعیت پرداخت</span><strong>{{ ($booking['payment_status'] ?? '') === 'paid' ? 'پرداخت‌شده' : 'در انتظار پرداخت' }}</strong></div>
         </div>
+
+        @if(!empty($paymentRequired))
+            <div class="sp-booking__locked-card" style="text-align:right;margin-top:18px">
+                <span>پرداخت باقی مانده</span>
+                <strong class="num">{{ number_format((float) ($booking['total'] ?? 0)) }} تومان</strong>
+                <p class="sp-booking__hint" style="margin:8px 0 0">برای تأیید نهایی رزرو، کیف پول یا درگاه بانکی را انتخاب کنید.</p>
+                <a class="btn btn-primary" style="margin-top:12px;display:inline-flex" href="{{ route('frontend.booking.pay', $booking['booking_code']) }}">رفتن به پرداخت</a>
+            </div>
+        @endif
 
         @if(($booking['fulfillment_mode'] ?? '') === 'open')
             <p style="margin:18px 0 0;text-align:right">

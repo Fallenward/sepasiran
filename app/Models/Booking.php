@@ -30,6 +30,8 @@ class Booking extends Model
         'payment_method',
         'payment_status',
         'transaction_id',
+        'gateway_driver',
+        'gateway_transaction_id',
         'status',
         'notes',
         'contact_name',
