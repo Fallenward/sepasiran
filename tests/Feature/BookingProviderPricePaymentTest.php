@@ -123,6 +123,10 @@ class BookingProviderPricePaymentTest extends TestCase
             'settlement_status' => 'held',
             'status' => 'PENDING',
         ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $customer->id,
+            'title' => 'پرداخت رزرو موفق',
+        ]);
 
         $this->actingAs($coach)
             ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'accept'])
@@ -135,6 +139,10 @@ class BookingProviderPricePaymentTest extends TestCase
             'booking_code' => $code,
             'settlement_status' => 'settled',
             'status' => 'CONFIRMED',
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $customer->id,
+            'title' => 'رزرو تأیید شد',
         ]);
     }
 
@@ -201,6 +209,15 @@ class BookingProviderPricePaymentTest extends TestCase
             'booking_code' => $booking->booking_code,
             'payment_status' => 'paid',
             'settlement_status' => 'held',
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $customer->id,
+            'title' => 'پرداخت رزرو موفق',
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $coach->id,
+            'title' => 'رزرو جدید پرداخت‌شده',
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Booking;
+use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -162,6 +163,8 @@ class BookingPaymentService
             ]);
 
             $fresh = $booking->fresh(['provider', 'user', 'dog', 'city']);
+            $this->notifyPaymentCompleted($fresh, $method, $amount);
+
             if ((string) $fresh->status === 'ACCEPTED' && $fresh->isHeld()) {
                 return $this->settleHeld($fresh);
             }
@@ -217,7 +220,10 @@ class BookingPaymentService
                 'status' => 'CONFIRMED',
             ]);
 
-            return $booking->fresh(['provider', 'user', 'dog', 'city']);
+            $fresh = $booking->fresh(['provider', 'user', 'dog', 'city']);
+            $this->notifyBookingConfirmed($fresh, $amount);
+
+            return $fresh;
         });
     }
 
@@ -274,6 +280,43 @@ class BookingPaymentService
 
             return $booking->fresh(['provider', 'user', 'dog', 'city']);
         });
+    }
+
+    private function notifyPaymentCompleted(Booking $booking, string $method, int $amount): void
+    {
+        $amountLabel = number_format($amount).' تومان';
+        $methodLabel = $method === 'wallet' ? 'کیف پول' : 'درگاه بانکی';
+        $code = (string) $booking->booking_code;
+
+        if ($booking->user_id) {
+            Notification::query()->create([
+                'user_id' => $booking->user_id,
+                'title' => 'پرداخت رزرو موفق',
+                'message' => 'پرداخت رزرو '.$code.' به مبلغ '.$amountLabel.' از طریق '.$methodLabel.' با موفقیت انجام شد و مبلغ به‌صورت امانی نگه‌داری می‌شود تا ارائه‌دهنده تأیید کند.',
+            ]);
+        }
+
+        if ($booking->provider_id && (int) $booking->provider_id !== (int) $booking->user_id) {
+            Notification::query()->create([
+                'user_id' => $booking->provider_id,
+                'title' => 'رزرو جدید پرداخت‌شده',
+                'message' => 'رزرو '.$code.' پرداخت شد و در انتظار تأیید شماست. مبلغ '.$amountLabel.' تا پذیرش شما امانی می‌ماند.',
+            ]);
+        }
+    }
+
+    private function notifyBookingConfirmed(Booking $booking, int $amount): void
+    {
+        if (! $booking->user_id) {
+            return;
+        }
+
+        Notification::query()->create([
+            'user_id' => $booking->user_id,
+            'title' => 'رزرو تأیید شد',
+            'message' => 'رزرو '.$booking->booking_code.' توسط ارائه‌دهنده تأیید و مبلغ '
+                .number_format($amount).' تومان تسویه شد.',
+        ]);
     }
 
     private function assertPayable(User $customer, Booking $booking, bool $requirePendingPay = true): void
