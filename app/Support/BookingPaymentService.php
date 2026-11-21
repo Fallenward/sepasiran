@@ -258,12 +258,12 @@ class BookingPaymentService
                 Transaction::query()->create([
                     'user_id' => $customer->id,
                     'transaction_id' => $ref.'-R',
-                    'description' => 'بازپرداخت رزرو '.$booking->booking_code.($reason ? ' ('.$reason.')' : ''),
-                    'status' => 'completed',
-                    'amount' => $amount,
-                    'cart_price' => $amount,
-                    'payment_method' => 'online',
-                ]);
+                'description' => 'بازپرداخت به کیف پول سپاسیران — رزرو '.$booking->booking_code.($reason ? ' ('.$reason.')' : ''),
+                'status' => 'completed',
+                'amount' => $amount,
+                'cart_price' => $amount,
+                'payment_method' => 'online',
+            ]);
             }
 
             $booking->update([
@@ -290,9 +290,9 @@ class BookingPaymentService
             ]);
         }
 
-        if (in_array((string) $booking->status, ['CANCELLED'], true)) {
+        if (in_array((string) $booking->status, ['CANCELLED', 'REJECTED', 'COMPLETED'], true)) {
             throw ValidationException::withMessages([
-                'booking' => 'رزرو لغو شده قابل پرداخت نیست.',
+                'booking' => 'این رزرو قابل پرداخت نیست.',
             ]);
         }
 

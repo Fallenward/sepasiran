@@ -12,6 +12,8 @@
         'COMPLETED' => ['انجام شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
         'CANCELED' => ['لغو شده', 'is-danger'],
+        'REJECTED' => ['رد شده', 'is-danger'],
+        'ACCEPTED' => ['پذیرفته', 'is-active'],
     ];
 @endphp
 <div class="sp-dash sp-dash--customer">
@@ -48,9 +50,11 @@
 @include('frontend.partials.dashboard-actions', [
             'actions' => [
                 ['label' => 'رزروهای من', 'hint' => 'پیگیری درخواست‌های رزرو', 'url' => route('account.bookings.index'), 'icon' => 'far fa-calendar-alt'],
+                ['label' => 'درخواست‌های باز', 'hint' => 'تابلوی درخواست مشتری', 'url' => route('frontend.booking.open'), 'icon' => 'fas fa-bullhorn'],
                 ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
                 ['label' => 'رزرو جدید', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
                 ['label' => 'جلسات باز', 'hint' => 'بازار جلسات ارائه‌دهندگان', 'url' => route('frontend.open-sessions.index'), 'icon' => 'fas fa-door-open'],
+                ['label' => 'جلسات باز من', 'hint' => 'ایجاد / اپلای‌ها', 'url' => route('frontend.open-sessions.mine'), 'icon' => 'fas fa-comments'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
             ],

@@ -134,7 +134,7 @@ class BookingFlowFeatureTest extends TestCase
         $this->actingAs($coach)
             ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'reject'])
             ->assertOk()
-            ->assertJsonPath('booking.status', 'CANCELLED');
+            ->assertJsonPath('booking.status', 'REJECTED');
     }
 
     public function test_open_bookings_live_on_public_board_not_dashboard(): void

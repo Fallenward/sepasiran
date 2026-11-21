@@ -5,15 +5,16 @@
 @section('content')
 @php
     $statusMap = [
-        'PENDING' => ['در انتظار', 'is-pending'],
-        'OPEN' => ['باز', 'is-pending'],
+        'PENDING' => ['در انتظار تأیید', 'is-pending'],
+        'OPEN' => ['درخواست باز', 'is-pending'],
         'QUOTED' => ['پیشنهاد شده', 'is-pending'],
-        'ACCEPTED' => ['پذیرفته', 'is-active'],
-        'CONFIRMED' => ['تأیید شده', 'is-active'],
-        'COMPLETED' => ['انجام شده', 'is-done'],
+        'ACCEPTED' => ['پذیرفته / در انتظار پرداخت', 'is-active'],
+        'CONFIRMED' => ['تأیید نهایی', 'is-active'],
+        'COMPLETED' => ['تکمیل‌شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
+        'REJECTED' => ['رد شده', 'is-danger'],
     ];
-    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED'];
     $statusKey = strtoupper((string) $booking->status);
     [$stLabel, $stClass] = $statusMap[$statusKey] ?? [$booking->status, 'is-pending'];
     $code = $booking->booking_code;
@@ -59,6 +60,7 @@
                         <input type="hidden" name="tab" value="mine">
                         <input type="hidden" name="status" value="CANCELLED">
                         <button type="submit" class="sp-btn sp-btn--ghost" style="color:var(--sp-danger)">لغو درخواست</button>
+                        {{-- Provider reject uses API respond → REJECTED; owner cancel stays CANCELLED --}}
                     </form>
                 @else
                     <div>

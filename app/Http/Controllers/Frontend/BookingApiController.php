@@ -237,18 +237,20 @@ class BookingApiController extends Controller
             ]);
         }
 
-        if (! empty($validated['provider_service_id'])) {
-            $svc = \App\Models\ProviderService::query()->findOrFail($validated['provider_service_id']);
-            if (! empty($validated['provider_id']) && (int) $svc->user_id !== (int) $validated['provider_id']) {
-                throw ValidationException::withMessages([
-                    'provider_service_id' => 'خدمت متعلق به این ارائه‌دهنده نیست.',
-                ]);
-            }
+        $providerId = isset($validated['provider_id']) ? (int) $validated['provider_id'] : null;
+        $mode = $validated['fulfillment_mode'];
+        $svc = $this->resolveProviderServiceForBooking(
+            $validated['provider_service_id'] ?? null,
+            $providerId,
+            $validated['service_type'],
+            $mode === 'direct' && $providerId > 0
+        );
 
+        if ($svc) {
             return response()->json(
                 BookingCatalog::quoteForService(
                     $svc,
-                    $validated['fulfillment_mode'],
+                    $mode,
                     $validated['training_type'] ?? null,
                     (int) ($validated['discount'] ?? 0),
                 )
@@ -258,10 +260,10 @@ class BookingApiController extends Controller
         return response()->json(
             BookingCatalog::quote(
                 $validated['service_type'],
-                $validated['fulfillment_mode'],
+                $mode,
                 $validated['training_type'] ?? null,
                 (int) ($validated['discount'] ?? 0),
-                isset($validated['provider_id']) ? (int) $validated['provider_id'] : null,
+                $providerId,
             )
         );
     }
@@ -397,20 +399,12 @@ class BookingApiController extends Controller
         }
 
         $primaryProviderId = $mode === 'direct' ? ($providerIds[0] ?? null) : null;
-        $providerService = null;
-        if (! empty($validated['provider_service_id'])) {
-            $providerService = \App\Models\ProviderService::query()->findOrFail($validated['provider_service_id']);
-            if ($primaryProviderId && (int) $providerService->user_id !== (int) $primaryProviderId) {
-                throw ValidationException::withMessages([
-                    'provider_service_id' => 'خدمت متعلق به ارائه‌دهنده انتخاب‌شده نیست.',
-                ]);
-            }
-            if (! $providerService->is_active) {
-                throw ValidationException::withMessages([
-                    'provider_service_id' => 'این خدمت فعال نیست.',
-                ]);
-            }
-        }
+        $providerService = $this->resolveProviderServiceForBooking(
+            $validated['provider_service_id'] ?? null,
+            $primaryProviderId,
+            $validated['service_type'],
+            $mode === 'direct'
+        );
 
         if ($mode === 'direct' && $primaryProviderId && $preferredDate && $preferredSlot) {
             $svcForSlot = $providerService;
@@ -677,13 +671,8 @@ class BookingApiController extends Controller
             abort(403);
         }
 
-        if (!in_array($booking->status, ['PENDING', 'OPEN', 'ACCEPTED'], true)) {
-            throw ValidationException::withMessages([
-                'status' => 'این رزرو قابل لغو نیست.',
-            ]);
-        }
-
-        $booking->update(['status' => 'CANCELLED']);
+        $booking = app(\App\Support\BookingLifecycleService::class)
+            ->cancel($booking, 'cancel');
 
         return response()->json(['booking' => $this->serialize($booking->fresh([
             'provider', 'breed', 'city', 'dog.breed', 'offers.provider', 'invitedProviders',
@@ -719,7 +708,7 @@ class BookingApiController extends Controller
         abort_unless($canRespond, 403);
 
         $status = strtoupper((string) $booking->status);
-        if (in_array($status, ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'], true)) {
+        if (in_array($status, ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED'], true)) {
             throw ValidationException::withMessages([
                 'booking' => 'این درخواست قبلاً تصمیم‌گیری شده است.',
             ]);
@@ -733,6 +722,7 @@ class BookingApiController extends Controller
         }
 
         $pay = app(\App\Support\BookingPaymentService::class);
+        $life = app(\App\Support\BookingLifecycleService::class);
 
         if ($data['action'] === 'accept') {
             $booking->update([
@@ -744,10 +734,12 @@ class BookingApiController extends Controller
                 $booking = $pay->settleHeld($booking);
             }
         } else {
-            if ($booking->isHeld() || ((string) $booking->payment_status === 'paid' && (string) $booking->settlement_status === 'held')) {
-                $pay->refundHeld($booking, 'reject');
-            }
-            $booking->update(['status' => 'CANCELLED']);
+            $rejectionReason = $request->input('reason');
+            $booking = $life->reject(
+                $booking,
+                'reject',
+                is_string($rejectionReason) ? $rejectionReason : null
+            );
         }
 
         return response()->json([
@@ -912,7 +904,7 @@ class BookingApiController extends Controller
 
         abort_unless($this->canChat($booking, (int) Auth::id()), 403);
 
-        if (in_array(strtoupper((string) $booking->status), ['CANCELLED', 'COMPLETED'], true)) {
+        if (in_array(strtoupper((string) $booking->status), ['CANCELLED', 'REJECTED', 'COMPLETED'], true)) {
             throw ValidationException::withMessages([
                 'booking' => 'گفتگو برای این رزرو بسته است.',
             ]);
@@ -990,6 +982,9 @@ class BookingApiController extends Controller
             'status' => $booking->status,
             'payment_status' => $booking->payment_status,
             'payment_method' => $booking->payment_method,
+            'settlement_status' => $booking->settlement_status ?? 'none',
+            'held_amount' => (int) ($booking->held_amount ?? 0),
+            'provider_service_id' => $booking->provider_service_id ? (int) $booking->provider_service_id : null,
             'service_type' => $booking->service_type,
             'fulfillment_mode' => $booking->fulfillment_mode ?? 'direct',
             'training_type' => $booking->training_type,
@@ -1123,7 +1118,7 @@ class BookingApiController extends Controller
     {
         return Booking::query()
             ->where('provider_id', $providerId)
-            ->where('status', '!=', 'CANCELLED')
+            ->whereNotIn('status', BookingCatalog::closedStatuses())
             ->where(function ($q) use ($appointment, $slot) {
                 $q->where(function ($inner) use ($appointment, $slot) {
                     $inner->whereDate('appointment_date', $appointment->toDateString())
@@ -1131,6 +1126,57 @@ class BookingApiController extends Controller
                 })->orWhere('appointment_date', $appointment);
             })
             ->exists();
+    }
+
+    /**
+     * Resolve and validate a provider service for quote/store.
+     * Direct bookings require an active matching service when the provider has any.
+     */
+    private function resolveProviderServiceForBooking(
+        mixed $serviceId,
+        ?int $primaryProviderId,
+        string $serviceType,
+        bool $requireWhenProviderHasServices
+    ): ?\App\Models\ProviderService {
+        $hasActive = $primaryProviderId
+            ? \App\Models\ProviderService::query()
+                ->where('user_id', $primaryProviderId)
+                ->where('service_type', $serviceType)
+                ->active()
+                ->exists()
+            : false;
+
+        if ($requireWhenProviderHasServices && $primaryProviderId && $hasActive && empty($serviceId)) {
+            throw ValidationException::withMessages([
+                'provider_service_id' => 'انتخاب خدمت ارائه‌دهنده الزامی است.',
+            ]);
+        }
+
+        if (empty($serviceId)) {
+            return null;
+        }
+
+        $providerService = \App\Models\ProviderService::query()->findOrFail((int) $serviceId);
+
+        if ($primaryProviderId && (int) $providerService->user_id !== (int) $primaryProviderId) {
+            throw ValidationException::withMessages([
+                'provider_service_id' => 'خدمت متعلق به ارائه‌دهنده انتخاب‌شده نیست.',
+            ]);
+        }
+
+        if (! $providerService->is_active) {
+            throw ValidationException::withMessages([
+                'provider_service_id' => 'این خدمت فعال نیست.',
+            ]);
+        }
+
+        if ((string) $providerService->service_type !== $serviceType) {
+            throw ValidationException::withMessages([
+                'provider_service_id' => 'نوع خدمت با نقش/خدمت رزرو هم‌خوان نیست.',
+            ]);
+        }
+
+        return $providerService;
     }
 
     private function canView(Booking $booking): bool

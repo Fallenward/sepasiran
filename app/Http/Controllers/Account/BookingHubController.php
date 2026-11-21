@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Support\BookingLifecycleService;
+use App\Support\BookingPaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +16,10 @@ use Illuminate\View\View;
 class BookingHubController extends Controller
 {
     /** Once decided, status can no longer be changed from the hub. */
-    private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+    private const LOCKED = ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED'];
 
-    /** Hub only allows accept or reject — never free-form status picks. */
-    private const DECISIONS = ['ACCEPTED', 'CANCELLED'];
+    /** Hub decisions: accept, provider reject, or customer cancel. */
+    private const DECISIONS = ['ACCEPTED', 'CANCELLED', 'REJECTED'];
 
     public function index(Request $request): View
     {
@@ -47,7 +49,6 @@ class BookingHubController extends Controller
         $inbox = collect();
         $inboxPaginator = null;
         if ($isProvider) {
-            // Direct pending (and other direct statuses) only — open requests are on /booking/open.
             $inboxPaginator = Booking::query()
                 ->where(function ($q) {
                     $q->where('fulfillment_mode', 'direct')
@@ -83,7 +84,6 @@ class BookingHubController extends Controller
 
     public function show(Booking $booking): View|\Illuminate\Http\RedirectResponse
     {
-        // Open marketplace lives on the public site, not the account dashboard.
         if (($booking->fulfillment_mode ?? 'direct') === 'open') {
             return redirect()->route('frontend.booking.open.show', $booking->booking_code);
         }
@@ -120,7 +120,7 @@ class BookingHubController extends Controller
     }
 
     /**
-     * Accept or reject only — no free-form status menu.
+     * Accept, reject (provider), or cancel (customer) — no free-form status menu.
      */
     public function updateStatus(Request $request, Booking $booking): RedirectResponse
     {
@@ -128,8 +128,9 @@ class BookingHubController extends Controller
         $isOwner = (int) $booking->user_id === (int) $user->id;
         $isProvider = (int) $booking->provider_id === (int) $user->id
             || $booking->invitedProviders()->where('provider_id', $user->id)->exists();
+        $isAdmin = $user->hasRole('admin');
 
-        abort_unless($isOwner || $isProvider, 403);
+        abort_unless($isOwner || $isProvider || $isAdmin, 403);
 
         if (in_array(strtoupper((string) $booking->status), self::LOCKED, true)) {
             throw ValidationException::withMessages([
@@ -140,41 +141,51 @@ class BookingHubController extends Controller
         $data = $request->validate([
             'status' => ['required', 'string', Rule::in(self::DECISIONS)],
             'tab' => ['nullable', 'string', Rule::in(['mine', 'inbox'])],
+            'reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         $decision = strtoupper($data['status']);
+        $life = app(BookingLifecycleService::class);
+        $pay = app(BookingPaymentService::class);
 
-        // Owner may only withdraw/cancel their own open/pending request.
-        if ($isOwner && ! $isProvider && $decision !== 'CANCELLED') {
+        // Owner may only cancel.
+        if ($isOwner && ! $isProvider && ! $isAdmin && $decision !== 'CANCELLED') {
             throw ValidationException::withMessages([
                 'status' => 'مشتری فقط می‌تواند درخواست را لغو کند؛ پذیرش از طریق پیشنهاد/ارائه‌دهنده است.',
             ]);
         }
 
-        $pay = app(\App\Support\BookingPaymentService::class);
+        // Provider may accept or reject (not customer-style cancel label).
+        if ($isProvider && ! $isOwner && ! $isAdmin && $decision === 'CANCELLED') {
+            $decision = 'REJECTED';
+        }
 
-        // Provider may accept or reject any undecided request (direct or open).
-        if ($isProvider && $decision === 'ACCEPTED') {
+        if ($decision === 'ACCEPTED') {
+            abort_unless($isProvider || $isAdmin, 403);
             $booking->forceFill([
                 'status' => 'ACCEPTED',
-                'provider_id' => $user->id,
+                'provider_id' => $isProvider ? $user->id : $booking->provider_id,
             ])->save();
             if ($booking->fresh()->isHeld()) {
                 $pay->settleHeld($booking->fresh());
             }
+            $flash = 'درخواست پذیرفته شد.';
+        } elseif ($decision === 'REJECTED') {
+            abort_unless($isProvider || $isAdmin, 403);
+            $life->reject($booking, 'reject', $data['reason'] ?? null);
+            $flash = 'درخواست رد شد.';
         } else {
-            $fresh = $booking->fresh();
-            if ($fresh->isHeld() || ((string) $fresh->payment_status === 'paid' && (string) $fresh->settlement_status === 'held')) {
-                $pay->refundHeld($fresh, $isOwner ? 'cancel' : 'reject');
-            }
-            $booking->forceFill(['status' => 'CANCELLED'])->save();
+            // CANCELLED — customer or admin withdrawal.
+            abort_unless($isOwner || $isAdmin, 403);
+            $life->cancel($booking, 'cancel');
+            $flash = 'درخواست لغو شد.';
         }
 
         $tab = $data['tab'] ?? ($isProvider && ! $isOwner ? 'inbox' : 'mine');
 
         return redirect()
             ->route('account.bookings.index', ['tab' => $tab])
-            ->with('success', $decision === 'ACCEPTED' ? 'درخواست پذیرفته شد.' : 'درخواست رد / لغو شد.');
+            ->with('success', $flash);
     }
 
     public function mine(Request $request): View

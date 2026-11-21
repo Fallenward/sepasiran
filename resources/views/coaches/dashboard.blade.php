@@ -11,6 +11,8 @@
         'CONFIRMED' => ['تأیید شده', 'is-active'],
         'COMPLETED' => ['انجام شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
+        'REJECTED' => ['رد شده', 'is-danger'],
+        'ACCEPTED' => ['پذیرفته', 'is-active'],
     ];
 @endphp
 <div class="sp-dash sp-dash--coach">

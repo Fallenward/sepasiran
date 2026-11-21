@@ -11,7 +11,7 @@
 <div class="wrap" style="padding:40px 0 64px;max-width:640px">
     <div class="panel">
         <h1 style="margin:0 0 8px;font-size:1.5rem">پرداخت رزرو</h1>
-        <p class="sp-booking__hint" style="margin:0 0 18px">رزرو ثبت شد. برای نهایی شدن، با کیف پول یا درگاه بانکی پرداخت کنید.</p>
+        <p class="sp-booking__hint" style="margin:0 0 18px">رزرو ثبت شد. مبلغ تا تأیید ارائه‌دهنده به‌صورت امانی نگه داشته می‌شود. در صورت رد یا لغو، بازپرداخت به <strong>کیف پول سپاسیران</strong> واریز می‌شود (نه بازگشت بانکی).</p>
 
         @if($errors->any())
             <ul style="margin:0 0 14px;padding-right:18px;color:#f2b4b4">

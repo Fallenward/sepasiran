@@ -11,7 +11,7 @@
 <x-listing-hero
     title="رزرو خدمت"
     :lede="$isLockedBooking
-        ? ('رزرو مستقیم با '.$lockedProvider['name'].' — فقط سگ، شهر و زمان را مشخص کنید.')
+        ? ('رزرو مستقیم با '.$lockedProvider['name'].' — سگ، خدمت، تاریخ و بازه زمانی را مشخص کنید.')
         : 'سگ خود را انتخاب کنید، شهر و خدمت را مشخص کنید، سپس مستقیم یا به‌صورت درخواست باز رزرو کنید.'"
     icon="cta"
     image="images/demo/hero/hero-03.jpg"
@@ -60,6 +60,7 @@
         <input type="hidden" name="training_type" id="field_training_type" value="{{ $prefill['training_type'] ?? '' }}">
         <input type="hidden" name="fulfillment_mode" id="field_fulfillment_mode" value="{{ $prefill['fulfillment_mode'] ?? 'direct' }}">
         <input type="hidden" name="provider_ids[]" id="field_provider_ids" value="{{ $prefill['provider_id'] ?? '' }}">
+        <input type="hidden" name="provider_service_id" id="field_provider_service_id" value="">
         <input type="hidden" name="preferred_date" id="field_preferred_date" value="{{ $prefill['date'] ?? '' }}">
         <input type="hidden" name="preferred_slot" id="field_preferred_slot" value="">
 
@@ -133,19 +134,22 @@
             </section>
 
             <section class="panel sp-booking__panel" data-panel="3" hidden>
-                <h2>{{ $isLockedBooking ? 'جزئیات خدمت' : 'انتخاب خدمت' }}</h2>
+                <h2>{{ $isLockedBooking ? 'انتخاب خدمت ارائه‌دهنده' : 'انتخاب خدمت' }}</h2>
                 @if($isLockedBooking)
                     <div class="sp-booking__locked-card" id="lockedServiceCard">
-                        <span>خدمت قفل‌شده</span>
+                        <span>نقش قفل‌شده</span>
                         <strong>{{ $lockedServiceLabel }}</strong>
                         @if(!empty($lockedProvider['name']))
                             <small>ارائه‌دهنده: {{ $lockedProvider['name'] }}</small>
                         @endif
-                        <small class="num" id="lockedServicePrice">قیمت پس از محاسبه نمایش داده می‌شود</small>
+                        <small class="num" id="lockedServicePrice">پس از انتخاب خدمت، قیمت محاسبه می‌شود</small>
                     </div>
+                    <p class="sp-booking__hint">یکی از خدمات فعال این ارائه‌دهنده را انتخاب کنید.</p>
+                    <div class="sp-booking__service-grid" id="providerServiceGrid"></div>
                     <div class="sp-booking__service-grid" id="serviceGrid" hidden></div>
                 @else
                     <div class="sp-booking__service-grid" id="serviceGrid"></div>
+                    <div class="sp-booking__service-grid" id="providerServiceGrid" hidden></div>
                 @endif
                 <div class="field" id="coachExtras" hidden>
                     <label for="ui_training_type">نوع آموزش</label>
@@ -295,6 +299,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let quote = null;
     let labels = { service: {}, mode: {}, training: {} };
     let jalaliHint = '';
+    let providerServices = [];
+    let selectedProviderServiceId = null;
     const allCities = @json($cities->map(function ($c) { return ['id' => $c->id, 'name' => $c->name]; })->values());
 
     function resolveStep(n) {
@@ -327,20 +333,70 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
     }
 
-        function showStep(n) {
+    function showStep(n) {
         step = n;
         document.querySelectorAll('[data-panel]').forEach(function (panel) {
             panel.hidden = Number(panel.dataset.panel) !== n;
         });
-        if (n === 3 && locked) refreshQuote();
+        if (n === 3 && locked) {
+            loadProviderServices().then(function () { refreshQuote(); });
+        }
         document.querySelectorAll('.sp-booking__step').forEach(function (el) {
             const s = Number(el.dataset.step);
             el.classList.toggle('is-current', s === n);
             el.classList.toggle('is-done', s < n);
         });
-        if (n === 5) toggleModeExtras();
+        if (n === 5) {
+            toggleModeExtras();
+            if (locked) loadProviderServices();
+        }
         if (n === 6) refreshQuote();
         updateSummary();
+    }
+
+    async function loadProviderServices() {
+        const grid = document.getElementById('providerServiceGrid');
+        if (!grid || !locked || !lockedProviderId) return;
+        try {
+            const data = await api('/provider-services?provider_id=' + lockedProviderId + '&service_type=' + encodeURIComponent(selectedService()));
+            providerServices = data.results || [];
+            grid.innerHTML = '';
+            if (!providerServices.length) {
+                grid.innerHTML = '<p class="sp-booking__hint">این ارائه‌دهنده هنوز خدمت فعالی ثبت نکرده است.</p>';
+                selectedProviderServiceId = null;
+                document.getElementById('field_provider_service_id').value = '';
+                return;
+            }
+            providerServices.forEach(function (svc) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'sp-booking__service' + (selectedProviderServiceId === svc.id ? ' is-active' : '');
+                btn.dataset.serviceId = String(svc.id);
+                btn.innerHTML = '<strong>' + (svc.name || 'خدمت') + '</strong>'
+                    + (svc.description ? '<small>' + svc.description + '</small>' : '')
+                    + '<small class="num">' + Number(svc.base_price || 0).toLocaleString('fa-IR') + ' تومان · '
+                    + (svc.duration_minutes || 60) + ' دقیقه'
+                    + (svc.specialty ? ' · ' + svc.specialty : '') + '</small>';
+                btn.addEventListener('click', function () {
+                    selectedProviderServiceId = svc.id;
+                    document.getElementById('field_provider_service_id').value = String(svc.id);
+                    grid.querySelectorAll('.sp-booking__service').forEach(function (el) {
+                        el.classList.toggle('is-active', el.dataset.serviceId === String(svc.id));
+                    });
+                    refreshQuote();
+                    reloadSlots();
+                    updateSummary();
+                });
+                grid.appendChild(btn);
+            });
+            if (!selectedProviderServiceId && providerServices[0]) {
+                selectedProviderServiceId = providerServices[0].id;
+                document.getElementById('field_provider_service_id').value = String(providerServices[0].id);
+                grid.querySelector('.sp-booking__service')?.classList.add('is-active');
+            }
+        } catch (e) {
+            grid.innerHTML = '<p class="sp-booking__hint">' + e.message + '</p>';
+        }
     }
 
     function selectedService() {
@@ -591,7 +647,12 @@ document.addEventListener('DOMContentLoaded', function () {
         grid.innerHTML = '';
         jalaliHint = '';
         if (!providerId || !date || selectedMode() !== 'direct') return;
-        const data = await api('/slots?provider_id=' + encodeURIComponent(providerId) + '&date=' + encodeURIComponent(date));
+        let slotUrl = '/slots?provider_id=' + encodeURIComponent(providerId) + '&date=' + encodeURIComponent(date)
+            + '&service_type=' + encodeURIComponent(selectedService());
+        if (selectedProviderServiceId) {
+            slotUrl += '&provider_service_id=' + encodeURIComponent(selectedProviderServiceId);
+        }
+        const data = await api(slotUrl);
         jalaliHint = data.date_jalali || '';
         (data.slots || []).forEach(function (slot) {
             const label = document.createElement('label');
@@ -617,14 +678,18 @@ document.addEventListener('DOMContentLoaded', function () {
         box.innerHTML = '<p class="sp-booking__hint">در حال محاسبه…</p>';
         try {
             const providerId = selectedProviders[0] || lockedProviderId || null;
+            const body = {
+                service_type: selectedService(),
+                fulfillment_mode: selectedMode(),
+                training_type: document.getElementById('ui_training_type').value || null,
+                provider_id: providerId || null
+            };
+            if (selectedProviderServiceId) {
+                body.provider_service_id = Number(selectedProviderServiceId);
+            }
             quote = await api('/quote', {
                 method: 'POST',
-                body: JSON.stringify({
-                    service_type: selectedService(),
-                    fulfillment_mode: selectedMode(),
-                    training_type: document.getElementById('ui_training_type').value || null,
-                    provider_id: providerId || null
-                })
+                body: JSON.stringify(body)
             });
             box.innerHTML = '';
             (quote.breakdown || []).forEach(function (line) {
@@ -643,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const lockedPrice = document.getElementById('lockedServicePrice');
             if (lockedPrice && quote && quote.total) {
                 lockedPrice.textContent = Number(quote.total).toLocaleString('fa-IR') + ' تومان'
-                    + (quote.price_source === 'provider' ? ' (قیمت ارائه‌دهنده)' : '');
+                    + (quote.price_source === 'provider_service' || quote.price_source === 'provider' ? ' (قیمت ارائه‌دهنده)' : '');
             }
             updateSummary();
         } catch (e) {
@@ -659,6 +724,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (next === 3 && !document.getElementById('field_city_id').value) { alert('شهر را انتخاب کنید.'); return; }
             if ((next === 4 || (locked && next === 5)) && selectedService() === 'coach' && !document.getElementById('field_training_type').value) {
                 alert('نوع آموزش را انتخاب کنید.'); return;
+            }
+            if (locked && (next === 5 || next === 6) && providerServices.length && !selectedProviderServiceId) {
+                alert('یکی از خدمات ارائه‌دهنده را انتخاب کنید.'); return;
             }
             if (next === 6 && selectedMode() === 'direct' && !selectedProviders.length) {
                 alert('حداقل یک ارائه‌دهنده را انتخاب کنید.'); return;
@@ -695,6 +763,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     notes: form.notes.value || null,
                     payment_method: form.payment_method.value
                 };
+                if (selectedProviderServiceId) {
+                    payload.provider_service_id = Number(selectedProviderServiceId);
+                }
                 const data = await api('', { method: 'POST', body: JSON.stringify(payload) });
                 window.location.href = data.success_url || ('/booking/success/' + data.booking.booking_code);
             } catch (e) {

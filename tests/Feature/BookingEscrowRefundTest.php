@@ -61,7 +61,7 @@ class BookingEscrowRefundTest extends TestCase
         $this->assertSame(0, (int) $coach->wallet);
         $this->assertDatabaseHas('bookings', [
             'booking_code' => $code,
-            'status' => 'CANCELLED',
+            'status' => 'REJECTED',
             'payment_status' => 'refunded',
             'settlement_status' => 'refunded',
         ]);

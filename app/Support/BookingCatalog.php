@@ -37,7 +37,26 @@ class BookingCatalog
 
     public static function statuses(): array
     {
-        return ['PENDING', 'OPEN', 'ACCEPTED', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
+        return ['PENDING', 'OPEN', 'ACCEPTED', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'REJECTED'];
+    }
+
+    public static function closedStatuses(): array
+    {
+        return ['CANCELLED', 'REJECTED'];
+    }
+
+    public static function statusLabel(string $status): string
+    {
+        return match (strtoupper($status)) {
+            'PENDING' => 'در انتظار تأیید',
+            'OPEN' => 'درخواست باز',
+            'ACCEPTED' => 'پذیرفته‌شده',
+            'CONFIRMED' => 'تأیید نهایی',
+            'COMPLETED' => 'تکمیل‌شده',
+            'CANCELLED' => 'لغو شده',
+            'REJECTED' => 'رد شده',
+            default => $status,
+        };
     }
 
     public static function slotTemplate(): array

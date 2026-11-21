@@ -5,15 +5,16 @@
 @section('content')
 @php
     $statusMap = [
-        'PENDING' => ['در انتظار', 'is-pending'],
-        'OPEN' => ['باز', 'is-pending'],
+        'PENDING' => ['در انتظار تأیید', 'is-pending'],
+        'OPEN' => ['درخواست باز', 'is-pending'],
         'QUOTED' => ['پیشنهاد شده', 'is-pending'],
-        'ACCEPTED' => ['پذیرفته', 'is-active'],
-        'CONFIRMED' => ['تأیید شده', 'is-active'],
-        'COMPLETED' => ['انجام شده', 'is-done'],
+        'ACCEPTED' => ['پذیرفته / در انتظار پرداخت', 'is-active'],
+        'CONFIRMED' => ['تأیید نهایی', 'is-active'],
+        'COMPLETED' => ['تکمیل‌شده', 'is-done'],
         'CANCELLED' => ['لغو شده', 'is-danger'],
+        'REJECTED' => ['رد شده', 'is-danger'],
     ];
-    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+    $lockedStatuses = $lockedStatuses ?? ['ACCEPTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED'];
 @endphp
 <div class="sp-dash sp-dash--customer">
     <div class="sp-dash__inner">
@@ -107,7 +108,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="tab" value="inbox">
-                                        <input type="hidden" name="status" value="CANCELLED">
+                                        <input type="hidden" name="status" value="REJECTED">
                                         <button type="submit" class="sp-btn sp-btn--ghost" style="min-height:34px;padding:6px 14px;color:var(--sp-danger)">رد</button>
                                     </form>
                                 </div>
