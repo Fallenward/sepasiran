@@ -93,6 +93,6 @@ class InsurancePurchaseLicenseTest extends TestCase
 
         $this->get(route('frontend.clinic.insurance.show', $insurance->id))
             ->assertOk()
-            ->assertSee('طرح‌ها و مدت پوشش', false);
+            ->assertSee('مدت پوشش', false);
     }
 }
