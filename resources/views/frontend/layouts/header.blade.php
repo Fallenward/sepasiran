@@ -53,53 +53,56 @@
                 <a class="sp-menu__trigger {{ request()->routeIs('frontend.home') ? 'is-active' : '' }}"
                    href="{{ route('frontend.home') }}">خانه</a>
             </li>
+
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">سگ‌ها</button>
+                <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.coaches.*', 'frontend.breeders.*', 'frontend.clinics.*') ? 'is-active' : '' }}" aria-haspopup="true">کاربران</button>
                 <div class="sp-menu__dropdown" role="menu">
-                    <a href="{{ route('frontend.dog.supply.index') }}"
-                       class="{{ request()->routeIs('frontend.dog.supply.*') ? 'is-active' : '' }}">لیست سگ‌ها</a>
-                    <a href="{{ route('frontend.breeders.index') }}">پرورش‌دهندگان</a>
-                    <a href="{{ route('frontend.shelter.index') }}">پناهگاه</a>
+                    <a href="{{ route('frontend.coaches.index') }}"
+                       class="{{ request()->routeIs('frontend.coaches.*') ? 'is-active' : '' }}">مربی‌ها</a>
+                    <a href="{{ route('frontend.breeders.index') }}"
+                       class="{{ request()->routeIs('frontend.breeders.*') ? 'is-active' : '' }}">پرورش‌دهندگان</a>
+                    <a href="{{ route('frontend.clinics.index') }}"
+                       class="{{ request()->routeIs('frontend.clinics.*') ? 'is-active' : '' }}">کلینیک‌ها</a>
                 </div>
             </li>
+
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">خدمات</button>
+                <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.services.*', 'frontend.booking.*', 'frontend.clinic.insurance.*', 'frontend.online.courses', 'frontend.courses.*') ? 'is-active' : '' }}" aria-haspopup="true">خدمات</button>
                 <div class="sp-menu__dropdown" role="menu">
+                    <a href="{{ route('frontend.services.index') }}"
+                       class="{{ request()->routeIs('frontend.services.*') ? 'is-active' : '' }}">همه خدمات</a>
                     <a href="{{ route('frontend.booking.index') }}"
                        class="{{ request()->routeIs('frontend.booking.index', 'frontend.booking.store', 'frontend.booking.success') ? 'is-active' : '' }}">رزرو خدمت</a>
                     <a href="{{ route('frontend.booking.open') }}"
                        class="{{ request()->routeIs('frontend.booking.open*') ? 'is-active' : '' }}">درخواست‌های باز</a>
-                    <a href="{{ route('frontend.services.index') }}">همه خدمات</a>
-                    <a href="{{ route('frontend.coaches.index') }}">مربی‌ها</a>
-                    <a href="{{ route('frontend.clinics.index') }}">کلینیک‌ها</a>
-                    <a href="{{ route('frontend.clinic.insurance.index') }}">بیمه</a>
-                    <a href="{{ route('frontend.online.courses') }}">دوره‌ها</a>
+                    <a href="{{ route('frontend.clinic.insurance.index') }}"
+                       class="{{ request()->routeIs('frontend.clinic.insurance.*') ? 'is-active' : '' }}">بیمه</a>
+                    <a href="{{ route('frontend.online.courses') }}"
+                       class="{{ request()->routeIs('frontend.online.courses', 'frontend.courses.*') ? 'is-active' : '' }}">دوره‌ها</a>
                 </div>
             </li>
+
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">فروشگاه</button>
+                <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.dog.supply.*', 'frontend.dog-supply.*', 'frontend.stores.*', 'frontend.products.*', 'frontend.shelter.*') ? 'is-active' : '' }}" aria-haspopup="true">فروشگاه</button>
                 <div class="sp-menu__dropdown" role="menu">
+                    <a href="{{ route('frontend.dog.supply.index') }}"
+                       class="{{ request()->routeIs('frontend.dog.supply.*', 'frontend.dog-supply.*') ? 'is-active' : '' }}">سگ‌ها</a>
                     <a href="{{ route('frontend.stores.index') }}"
                        class="{{ request()->routeIs('frontend.stores.*', 'frontend.products.*') ? 'is-active' : '' }}">محصولات</a>
+                    <a href="{{ route('frontend.shelter.index') }}"
+                       class="{{ request()->routeIs('frontend.shelter.*') ? 'is-active' : '' }}">پناهگاه</a>
                 </div>
             </li>
+
             <li class="sp-menu__item">
-                <button type="button" class="sp-menu__trigger" aria-haspopup="true">حساب</button>
+                <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.support.*', 'frontend.support-web.*', 'frontend.contact.*') ? 'is-active' : '' }}" aria-haspopup="true">تیکت و تماس</button>
                 <div class="sp-menu__dropdown" role="menu">
-                    @guest
-                        <a href="{{ route('login') }}">ورود</a>
-                        <a href="{{ route('register') }}">ثبت‌نام</a>
-                    @else
-                        @foreach($accountLinks as $link)
-                            <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
-                        @endforeach
-                        <form action="{{ route('logout') }}" method="POST" class="sp-menu__logout">
-                            @csrf
-                            <button type="submit">خروج</button>
-                        </form>
-                    @endguest
-                    <a href="{{ route('frontend.about') }}">درباره ما</a>
-                    <a href="{{ route('frontend.contact.index') }}">تماس</a>
+                    <a href="{{ route('frontend.support.index') }}"
+                       class="{{ request()->routeIs('frontend.support.*') ? 'is-active' : '' }}">تیکت / پشتیبانی</a>
+                    <a href="{{ route('frontend.contact.index') }}"
+                       class="{{ request()->routeIs('frontend.contact.*') ? 'is-active' : '' }}">تماس با ما</a>
+                    <a href="{{ route('frontend.about') }}"
+                       class="{{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">درباره ما</a>
                 </div>
             </li>
         </ul>
@@ -202,33 +205,38 @@
 
         <div class="sp-sheet__body">
             <section class="sp-sheet__group">
-                <h3>شروع</h3>
+                <h3>خانه</h3>
                 <a href="{{ route('frontend.home') }}" class="{{ request()->routeIs('frontend.home') ? 'is-active' : '' }}">خانه</a>
-                <a href="{{ route('frontend.booking.index') }}">رزرو خدمت</a>
-                <a href="{{ route('frontend.booking.open') }}">درخواست‌های باز</a>
             </section>
 
             <section class="sp-sheet__group">
-                <h3>سگ‌ها</h3>
-                <a href="{{ route('frontend.dog.supply.index') }}">لیست سگ‌ها</a>
+                <h3>کاربران</h3>
+                <a href="{{ route('frontend.coaches.index') }}">مربی‌ها</a>
                 <a href="{{ route('frontend.breeders.index') }}">پرورش‌دهندگان</a>
-                <a href="{{ route('frontend.shelter.index') }}">پناهگاه</a>
+                <a href="{{ route('frontend.clinics.index') }}">کلینیک‌ها</a>
             </section>
 
             <section class="sp-sheet__group">
                 <h3>خدمات</h3>
                 <a href="{{ route('frontend.services.index') }}">همه خدمات</a>
-                <a href="{{ route('frontend.coaches.index') }}">مربی‌ها</a>
-                <a href="{{ route('frontend.clinics.index') }}">کلینیک‌ها</a>
+                <a href="{{ route('frontend.booking.index') }}">رزرو خدمت</a>
+                <a href="{{ route('frontend.booking.open') }}">درخواست‌های باز</a>
                 <a href="{{ route('frontend.clinic.insurance.index') }}">بیمه</a>
                 <a href="{{ route('frontend.online.courses') }}">دوره‌ها</a>
             </section>
 
             <section class="sp-sheet__group">
-                <h3>فروشگاه و ارتباط</h3>
+                <h3>فروشگاه</h3>
+                <a href="{{ route('frontend.dog.supply.index') }}">سگ‌ها</a>
                 <a href="{{ route('frontend.stores.index') }}">محصولات</a>
+                <a href="{{ route('frontend.shelter.index') }}">پناهگاه</a>
+            </section>
+
+            <section class="sp-sheet__group">
+                <h3>تیکت و تماس</h3>
+                <a href="{{ route('frontend.support.index') }}">تیکت / پشتیبانی</a>
+                <a href="{{ route('frontend.contact.index') }}">تماس با ما</a>
                 <a href="{{ route('frontend.about') }}">درباره ما</a>
-                <a href="{{ route('frontend.contact.index') }}">تماس</a>
             </section>
 
             <section class="sp-sheet__group">

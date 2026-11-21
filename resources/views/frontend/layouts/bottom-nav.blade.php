@@ -3,30 +3,20 @@
        class="{{ request()->routeIs('frontend.home') ? 'is-active' : '' }}">
         <span><i class="fas fa-home"></i></span>خانه
     </a>
-    <a href="{{ route('frontend.dog.supply.index') }}"
-       class="{{ request()->routeIs('frontend.dog.supply.*') ? 'is-active' : '' }}">
-        <span><i class="fas fa-search"></i></span>جستجو
+    <a href="{{ route('frontend.coaches.index') }}"
+       class="{{ request()->routeIs('frontend.coaches.*', 'frontend.breeders.*', 'frontend.clinics.*') ? 'is-active' : '' }}">
+        <span><i class="fas fa-users"></i></span>کاربران
     </a>
-    <a href="{{ route('frontend.booking.index') }}"
-       class="{{ request()->routeIs('frontend.booking.*') ? 'is-active' : '' }}">
-        <span><i class="far fa-calendar-check"></i></span>رزرو
+    <a href="{{ route('frontend.services.index') }}"
+       class="{{ request()->routeIs('frontend.services.*', 'frontend.booking.*') ? 'is-active' : '' }}">
+        <span><i class="fas fa-concierge-bell"></i></span>خدمات
     </a>
     <a href="{{ route('frontend.stores.index') }}"
-       class="{{ request()->routeIs('frontend.stores.*', 'frontend.products.*') ? 'is-active' : '' }}">
+       class="{{ request()->routeIs('frontend.stores.*', 'frontend.products.*', 'frontend.dog.supply.*', 'frontend.dog-supply.*') ? 'is-active' : '' }}">
         <span><i class="fas fa-store"></i></span>فروشگاه
     </a>
-    @auth
-        @php
-            $dashUrl = auth()->user()->dashboardRoute();
-            $dashActive = request()->routeIs('user.*', 'breeder.dashboard', 'coaches.dashboard', 'clinic.dashboard');
-        @endphp
-        <a href="{{ $dashUrl }}"
-           class="{{ $dashActive ? 'is-active' : '' }}">
-            <span><i class="far fa-user"></i></span>حساب من
-        </a>
-    @else
-        <a href="{{ route('login') }}">
-            <span><i class="far fa-user"></i></span>ورود
-        </a>
-    @endauth
+    <a href="{{ route('frontend.support.index') }}"
+       class="{{ request()->routeIs('frontend.support.*', 'frontend.contact.*') ? 'is-active' : '' }}">
+        <span><i class="fas fa-headset"></i></span>تیکت
+    </a>
 </nav>
