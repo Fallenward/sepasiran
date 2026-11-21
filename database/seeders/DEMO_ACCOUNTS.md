@@ -1,6 +1,8 @@
-# Demo accounts (DemoScenarioSeeder)
+# Demo accounts
 
-Password for all accounts: `password123`
+Password for **all** accounts: `password123`
+
+Login accepts **email or phone**.
 
 | Role | Email | Phone |
 |------|-------|-------|
@@ -12,34 +14,33 @@ Password for all accounts: `password123`
 
 Extras: `coach2@sepasiran.test`, `clinic2@sepasiran.test`
 
-## What gets seeded
-
-- Role attachments (providers also get `user`)
-- Owned dogs for customer + breeder (ready/pending/waiting/sold)
-- Coach courses
-- Bookings across COACH / CLINIC / BREEDER with multiple statuses
-- 6 months of wallet transactions (for finance charts)
-- Read + unread notifications
-
-## Commands
+## Seed commands
 
 ```bash
-php artisan db:seed --class=DemoScenarioSeeder
-# or full:
+# Booking-ready demo (accounts + services + availability + open session)
+php artisan db:seed --class=BookingDemoSeeder
+
+# Or full reset
 php artisan migrate:fresh --seed
 ```
 
-Then sign in and open:
+`BookingDemoSeeder` also runs `DemoScenarioSeeder`, then adds:
 
-- `/user/dashboard`, `/coach/dashboard`, `/clinic/dashboard`, `/breeder/dashboard`
-- `/wallet`, `/account/profile`, `/account/notifications`
-- `/booking`, `/breeder/dogs-listing`, `/breeder/dashboard-create`
+- Coach/clinic/breeder **provider services** (active + one inactive coach service)
+- **Availability** Mon–Sun 09:00–18:00 with 13:00–14:00 break
+- Customer wallet **10,000,000** + owned dogs
+- Published open session for the coach
 
-## Role dashboard QA routes
+## How to test locked coach booking
 
-| Role | Dashboard | Special sections |
-|------|-----------|------------------|
-| Customer | `/user/dashboard` | `/account/bookings`, `/account/dogs`, `/account/dogs/create` |
-| Coach | `/coach/dashboard` | `/coach/reservations`, `/coach/listing` |
-| Clinic | `/clinic/dashboard` | `/clinic/reservations` |
-| Breeder | `/breeder/dashboard` | `/breeder/reservations`, `/breeder/dogs-listing`, `/breeder/dashboard-create` |
+1. Login as **customer** (`customer@sepasiran.test` / `password123`)
+2. Open: `/booking?type=coach&provider={COACH_ID}`  
+   (printed by the seeder, or look up coach id in DB / profile)
+3. Pick dog → city → **service** → date/slot → pay with wallet
+4. Logout, login as **coach**, open `/account/bookings?tab=inbox` → Accept / Reject
+
+## Other useful URLs
+
+- Customer: `/user/dashboard`, `/account/dogs`, `/booking/open`, `/wallet`
+- Coach: `/coach/dashboard`, `/account/services`, `/account/availability`, `/open-sessions/mine`
+- Clinic / Breeder: role dashboards + `/account/services`

@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             UsersTableSeeder::class,
             DemoScenarioSeeder::class,
+            BookingDemoSeeder::class,
         ]);
     }
 }
