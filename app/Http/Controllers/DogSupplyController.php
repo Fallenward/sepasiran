@@ -130,7 +130,9 @@ class DogSupplyController extends Controller
     public function show($id)
     {
         $dog = Dog::with([
-            'owner:id,name',
+            'owner:id,name,family,phone,bio,profile_picture,photo,city_id,is_verified',
+            'owner.city:id,name',
+            'owner.speciality',
             'city:id,name',
             'breed:id,name',
             'fatherBreed:id,name',
@@ -139,8 +141,34 @@ class DogSupplyController extends Controller
             'maternalGrandfatherBreed:id,name',
             'paternalGrandmotherBreed:id,name',
             'paternalGrandfatherBreed:id,name',
+            'media',
         ])->findOrFail($id);
 
-        return view('dogOrder.index', compact('dog'));
+        $owner = $dog->owner;
+        $ownerProfile = $owner
+            ? \App\Support\ProviderPublicProfile::summarize($owner)
+            : null;
+
+        $pendingOrder = null;
+        if (auth()->check()) {
+            $pendingOrder = \App\Models\DogOrder::query()
+                ->where('dog_id', $dog->id)
+                ->where('buyer_id', auth()->id())
+                ->where('status', \App\Models\DogOrder::STATUS_PENDING)
+                ->latest('id')
+                ->first();
+        }
+
+        $forSale = $dog->isForSale() || ($pendingOrder && $dog->status === 'waiting');
+        $isOwner = auth()->check() && (int) $dog->user_id === (int) auth()->id();
+
+        return view('dogOrder.index', [
+            'dog' => $dog,
+            'owner' => $owner,
+            'ownerProfile' => $ownerProfile,
+            'pendingOrder' => $pendingOrder,
+            'forSale' => $forSale,
+            'isOwner' => $isOwner,
+        ]);
     }
 }

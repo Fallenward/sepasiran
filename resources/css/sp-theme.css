@@ -4816,3 +4816,70 @@ body.sp-body {
   width: 84px;
   height: 84px;
 }
+
+.sp-dog-show {
+  padding-bottom: 56px;
+}
+
+.sp-dog-show__hero {
+  position: relative;
+  padding: 28px 0 18px;
+  background:
+    linear-gradient(180deg, rgba(8, 12, 11, 0.72), rgba(8, 12, 11, 0.92)),
+    var(--sp-dog-hero, url("/images/demo/dogs/dog-02.jpg")) center / cover no-repeat;
+}
+
+.sp-dog-show__hero-inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 22px;
+  align-items: center;
+}
+
+.sp-dog-show__photo {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 22px;
+  border: 1px solid var(--sp-border);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.sp-dog-show__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  padding-top: 22px;
+}
+
+.sp-dog-show__main {
+  display: grid;
+  gap: 18px;
+}
+
+.sp-dog-show__aside {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  position: sticky;
+  top: 88px;
+}
+
+@media (max-width: 900px) {
+  .sp-dog-show__hero-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-dog-show__photo {
+    max-width: 220px;
+  }
+
+  .sp-dog-show__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-dog-show__aside {
+    position: static;
+    order: -1;
+  }
+}

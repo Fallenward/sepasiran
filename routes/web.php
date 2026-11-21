@@ -22,6 +22,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
 use App\Http\Controllers\Frontend\BookingController as FrontendBookingController;
 use App\Http\Controllers\Frontend\BookingApiController as FrontendBookingApiController;
@@ -204,6 +205,12 @@ Route::name('frontend.')->group(function () {
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
     Route::get('/dog-supply/suggest', [DogSupplyController::class, 'suggest'])->name('dog.supply.suggest');
     Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
+    Route::post('/dog/{id}/order', [DogOrderController::class, 'store'])
+        ->middleware('auth')
+        ->name('dog.order.store');
+    Route::post('/dog/{id}/order/{order}/pay', [DogOrderController::class, 'pay'])
+        ->middleware('auth')
+        ->name('dog.order.pay');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');

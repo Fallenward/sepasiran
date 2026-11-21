@@ -9,14 +9,25 @@ class Dog extends Model
     protected $perPage = 20;
 
     protected $fillable = [
-        'title', 'image', 'color', 'status', 'age', 'birth_date', 'cover_type', 'eye_color', 'shajare',
+        'title', 'description', 'image', 'color', 'status', 'price', 'age', 'birth_date', 'cover_type', 'eye_color', 'shajare',
         'breed_id', 'father_name', 'father_breed_id', 'mother_name', 'mother_breed_id',
         'maternal_grandmother_name', 'maternal_grandmother_breed_id',
         'maternal_grandfather_name', 'maternal_grandfather_breed_id',
         'paternal_grandmother_name', 'paternal_grandmother_breed_id',
         'paternal_grandfather_name', 'paternal_grandfather_breed_id',
-        'user_id',
+        'user_id', 'city_id', 'size',
     ];
+
+    protected $casts = [
+        'price' => 'integer',
+        'shajare' => 'boolean',
+        'birth_date' => 'date',
+    ];
+
+    public function isForSale(): bool
+    {
+        return \App\Support\DogPurchaseService::isForSale($this);
+    }
 
     // Main breed
     public function breed()
@@ -57,7 +68,7 @@ class Dog extends Model
     // Owner relation (User)
     public function owner()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function media()
