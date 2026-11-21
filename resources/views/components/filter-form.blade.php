@@ -31,6 +31,14 @@
 
     // keep optional suggestUrl
     $q = request('q');
+    if ($searchPlaceholder === 'نام، نژاد یا شهر را بنویسید…' && request()->routeIs('frontend.online.courses', 'frontend.courses.*')) {
+        $searchPlaceholder = 'عنوان یا دسته را بنویسید';
+        $searchIcon = 'course';
+    }
+    if ($searchPlaceholder === 'نام، نژاد یا شهر را بنویسید…' && request()->routeIs('frontend.clinic.insurance.*')) {
+        $searchPlaceholder = 'نام بیمه را بنویسید';
+        $searchIcon = 'insurance';
+    }
 
     $active = [];
     if (filled($q)) {
