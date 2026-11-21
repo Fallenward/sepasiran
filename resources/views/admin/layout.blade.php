@@ -165,7 +165,7 @@
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>{{ __('خروج') }}</p>
                     </a>
-                    <form id="logout-form" class="d-none" action="#" method="POST">
+                    <form id="logout-form" class="d-none" action="{{ route('logout') }}" method="POST">
                         @csrf
                     </form>
                 </li>

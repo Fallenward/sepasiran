@@ -51,6 +51,21 @@ class AuthPagesTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_logout_accepts_get_and_post_without_csrf_token(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)
+            ->get(route('logout'))
+            ->assertRedirect('/');
+        $this->assertGuest();
+
+        $user = User::factory()->create();
+        $this->actingAs($user)
+            ->post(route('logout'), []) // no _token on purpose
+            ->assertRedirect('/');
+        $this->assertGuest();
+    }
+
     public function test_can_register_as_coach_role(): void
     {
         $this->post(route('register.store'), [

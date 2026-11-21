@@ -23,7 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Payment gateways POST back without a CSRF token.
+        // Logout is safe to skip: users must be able to leave even with a stale CSRF/session.
         $middleware->validateCsrfTokens(except: [
+            'logout',
             'booking/pay/*/callback',
             'dog-order/*/callback',
         ]);
