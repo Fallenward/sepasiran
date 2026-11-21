@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Dog;
+use App\Models\InsuranceLicense;
 use App\Models\Notification;
 use App\Support\DashboardFinance;
 use Illuminate\Support\Facades\Auth;
@@ -30,10 +31,19 @@ class UserDashboardController extends Controller
             ->limit(6)
             ->get();
 
+        $insuranceLicenses = InsuranceLicense::query()
+            ->forUser((int) $user->id)
+            ->with(['insurance', 'plan'])
+            ->latest('ends_at')
+            ->limit(5)
+            ->get();
+        $insuranceLicenses->each(fn (InsuranceLicense $license) => $license->refreshStatus());
+
         $stats = [
             'wallet' => (int) ($user->wallet ?? 0),
             'upcoming' => $upcomingBookings->count(),
             'dogs' => Dog::query()->where('user_id', $user->id)->count(),
+            'insurance' => InsuranceLicense::query()->forUser((int) $user->id)->active()->count(),
         ];
 
         return view('frontend.pages.user.dashboard', [
@@ -41,6 +51,7 @@ class UserDashboardController extends Controller
             'stats' => $stats,
             'myDogs' => $myDogs,
             'upcomingBookings' => $upcomingBookings,
+            'insuranceLicenses' => $insuranceLicenses,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'dashNotifications' => Notification::query()->where('user_id', $user->id)->latest()->limit(5)->get(),
             'roleLabel' => $user->primaryRoleLabel(),

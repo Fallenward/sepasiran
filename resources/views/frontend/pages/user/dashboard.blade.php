@@ -33,6 +33,7 @@
                 ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو', 'icon' => 'fas fa-wallet', 'url' => route('wallet.index')],
                 ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check', 'url' => route('account.bookings.index')],
                 ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'مجوز بیمه فعال', 'value' => number_format($stats['insurance'] ?? 0), 'hint' => 'پوشش جاری', 'icon' => 'fas fa-shield-alt', 'url' => route('account.insurance-licenses.index')],
             ],
         ])
 
@@ -57,8 +58,12 @@
                 ['label' => 'جلسات باز من', 'hint' => 'ایجاد / اپلای‌ها', 'url' => route('frontend.open-sessions.mine'), 'icon' => 'fas fa-comments'],
                 ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
+                ['label' => 'مجوزهای بیمه', 'hint' => 'پوشش و اعتبار مجوزها', 'url' => route('account.insurance-licenses.index'), 'icon' => 'fas fa-shield-alt'],
+                ['label' => 'خرید بیمه', 'hint' => 'طرح و مدت پوشش', 'url' => route('frontend.clinic.insurance.index'), 'icon' => 'fas fa-file-medical'],
             ],
         ])
+
+        @include('frontend.partials.dashboard-insurance-licenses', ['insuranceLicenses' => $insuranceLicenses ?? collect()])
 
         @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 

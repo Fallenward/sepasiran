@@ -1,109 +1,130 @@
-@extends('layouts.app')
+@extends('frontend.layouts.app')
+
+@section('title', ($insurance->name ?? 'بیمه').' — سپاسیران')
 
 @section('content')
-    <!-- Insurance Card Section -->
-    <div class="container my-5">
-        <div class="row g-4 align-items-center flex-row-reverse">
-            <div class="col-md-4 text-center">
-                <img src="{{ $insurance->logo ? asset('storage/' . $insurance->logo) : asset('images/dogPicture.jpg') }}"
-                     alt="{{ $insurance->name }}"
-                     class="img-fluid rounded shadow-sm" />
+@php
+    $tz = config('app.timezone', 'Asia/Tehran');
+@endphp
+<div class="sp-ins">
+    <section class="sp-ins__hero">
+        <div class="sp-ins__hero-bg" style="background-image:url('{{ $insurance->logoUrl() }}')" aria-hidden="true"></div>
+        <div class="sp-ins__hero-scrim" aria-hidden="true"></div>
+        <div class="wrap sp-ins__hero-inner">
+            <p class="sp-ins__brand">سپاسیران · بیمه</p>
+            <h1>{{ $insurance->name }}</h1>
+            <p class="sp-ins__lede">{{ \Illuminate\Support\Str::limit(strip_tags($insurance->description ?: 'پوشش درمانی برای حیوان خانگی شما — طرح را انتخاب و مجوز مدت‌دار دریافت کنید.'), 140) }}</p>
+            <div class="sp-ins__hero-actions">
+                <a class="btn btn-primary" href="#insPlans">انتخاب طرح و خرید</a>
+                <a class="sp-ins__ghost" href="{{ route('frontend.clinic.insurance.index') }}">بازگشت به فهرست</a>
             </div>
+        </div>
+    </section>
 
-            <div class="col-md-8">
-                <h3 class="fw-bold">{{ $insurance->name }}</h3>
-                <div style="width: 60px; height: 4px; background-color: #0d47a1;" class="my-3 rounded"></div>
+    <div class="wrap sp-ins__body">
+        @if($errors->any())
+            <div class="sp-ins__alert" role="alert">
+                {{ $errors->first() }}
+            </div>
+        @endif
 
-                @if($insurance->description)
-                    <p class="mt-3 text-muted">{{ $insurance->description }}</p>
+        @if($activeLicenses->isNotEmpty())
+            <section class="sp-ins__section">
+                <h2>مجوزهای فعال شما برای این بیمه</h2>
+                <p class="sp-ins__hint">این مجوزها تا پایان اعتبار در داشبورد هم نمایش داده می‌شوند.</p>
+                <div class="sp-ins__license-row">
+                    @foreach($activeLicenses as $lic)
+                        <article class="sp-ins__license">
+                            <span class="sp-ins__license-code num">{{ $lic->license_code }}</span>
+                            <strong>{{ $lic->plan?->name ?? 'طرح' }}</strong>
+                            <small>اعتبار تا <span class="num">{{ optional($lic->ends_at)->timezone($tz)->format('Y/m/d') }}</span></small>
+                        </article>
+                    @endforeach
+                </div>
+                <a class="sp-ins__link" href="{{ route('account.insurance-licenses.index') }}">مشاهده همه مجوزها</a>
+            </section>
+        @endif
+
+        <section class="sp-ins__section" id="insPlans">
+            <h2>طرح‌ها و مدت پوشش</h2>
+            <p class="sp-ins__hint">پس از پرداخت، یک مجوز با همان مدت انتخابی در داشبورد شما صادر می‌شود.</p>
+
+            @guest
+                <div class="sp-ins__gate">
+                    <p>برای خرید بیمه وارد حساب شوید.</p>
+                    <a class="btn btn-primary" href="{{ $loginUrl }}">ورود و ادامه</a>
+                </div>
+            @else
+                @if($plans->isEmpty())
+                    <p class="sp-ins__hint">فعلاً طرح فعالی برای این بیمه ثبت نشده است.</p>
+                @else
+                    <form method="post" action="{{ route('frontend.clinic.insurance.purchase', $insurance->id) }}" class="sp-ins__buy" id="insBuyForm">
+                        @csrf
+                        <input type="hidden" name="payment_method" value="wallet">
+
+                        <div class="sp-ins__plans" role="radiogroup" aria-label="طرح بیمه">
+                            @foreach($plans as $plan)
+                                <label class="sp-ins__plan {{ (string) old('plan_id') === (string) $plan->id ? 'is-active' : '' }}">
+                                    <input type="radio" name="plan_id" value="{{ $plan->id }}"
+                                           @checked((string) old('plan_id') === (string) $plan->id || ($loop->first && ! old('plan_id')))
+                                           required>
+                                    <span class="sp-ins__plan-name">{{ $plan->name }}</span>
+                                    <span class="sp-ins__plan-meta"><span class="num">{{ $plan->duration_months }}</span> ماه پوشش</span>
+                                    @if($plan->coverage_summary)
+                                        <span class="sp-ins__plan-cover">{{ $plan->coverage_summary }}</span>
+                                    @endif
+                                    <span class="sp-ins__plan-price num">{{ number_format((int) $plan->price) }} تومان</span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div class="sp-ins__dog">
+                            <label for="dog_id">سگ تحت پوشش (اختیاری)</label>
+                            <select name="dog_id" id="dog_id">
+                                <option value="">— بدون انتخاب —</option>
+                                @foreach($dogs as $dog)
+                                    <option value="{{ $dog->id }}" @selected((string) old('dog_id') === (string) $dog->id)>{{ $dog->title }}</option>
+                                @endforeach
+                            </select>
+                            @if($dogs->isEmpty())
+                                <p class="sp-ins__hint">سگی ثبت نکرده‌اید. می‌توانید بعداً از <a href="{{ route('account.dogs.create') }}">سگ‌های من</a> اضافه کنید.</p>
+                            @endif
+                        </div>
+
+                        <p class="sp-ins__hint">پرداخت از کیف پول سپاسیران انجام می‌شود.</p>
+                        <button type="submit" class="btn btn-primary">پرداخت و صدور مجوز</button>
+                    </form>
                 @endif
+            @endguest
+        </section>
 
-                <ul class="list-unstyled mt-4">
-                    @if($insurance->contact_phone)
-                        <li><strong>تلفن تماس:</strong> {{ $insurance->contact_phone }}</li>
-                    @endif
-                    @if($insurance->contact_email)
-                        <li><strong>ایمیل:</strong> {{ $insurance->contact_email }}</li>
-                    @endif
-                    @if($insurance->website)
-                        <li><strong>وب‌سایت:</strong>
-                            <a href="{{ $insurance->website }}" target="_blank">{{ $insurance->website }}</a>
-                        </li>
-                    @endif
-                    <li><strong>وضعیت:</strong> {{ $insurance->is_active ? 'فعال' : 'غیرفعال' }}</li>
-                    <li><strong>شهر:</strong> {{ $insurance->city->name ?? 'نامشخص' }}</li>
-                </ul>
-
-                <a href="{{ route('frontend.clinic.insurance.index') }}" class="btn btn-primary mt-3">
-                    بازگشت به لیست بیمه‌ها
-                </a>
-            </div>
-        </div>
+        <section class="sp-ins__section sp-ins__facts">
+            <h2>اطلاعات تماس</h2>
+            <ul>
+                @if($insurance->contact_phone)
+                    <li><span>تلفن</span><strong class="num">{{ $insurance->contact_phone }}</strong></li>
+                @endif
+                @if($insurance->contact_email)
+                    <li><span>ایمیل</span><strong>{{ $insurance->contact_email }}</strong></li>
+                @endif
+                @if($insurance->website)
+                    <li><span>وب‌سایت</span><a href="{{ $insurance->website }}" target="_blank" rel="noopener">{{ $insurance->website }}</a></li>
+                @endif
+            </ul>
+        </section>
     </div>
-
-    <!-- Statistics Section -->
-    <section class="statistics-section section-spacing">
-        <div class="container-fluid px-5">
-            <div class="row g-4">
-                @foreach($statistics as $item)
-                    <div class="col-6 col-md-6 col-lg-3">
-                        <div class="card text-center h-100">
-                            <div class="card-body">
-                                <p class="card-text-counter fs-3 fw-bold text-primary">
-                                    {{ $item['counter'] }}<i class="fa fa-plus ms-1"></i>
-                                </p>
-                                <h5 class="card-title-counter">{{ $item['title'] }}</h5>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- Repeat Stats Section -->
-    <section class="statistics-section section-spacing">
-        <div class="container-fluid px-5">
-            <div class="row g-4">
-                @foreach($statistics as $item)
-                    <div class="col-6 col-md-6 col-lg-3">
-                        <div class="card text-center h-100">
-                            <div class="card-body">
-                                <p class="card-text-counter fs-3 fw-bold text-primary">
-                                    {{ $item['counter'] }}<i class="fa fa-plus ms-1"></i>
-                                </p>
-                                <h5 class="card-title-counter">{{ $item['title'] }}</h5>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- Comments Section -->
-    <div class="container my-5">
-        <h4 class="fw-bold mb-4">نظرات کاربران</h4>
-        <ul class="list-unstyled">
-            @foreach($comments as $comment)
-                <li class="mb-4 d-flex align-items-start">
-                    <img src="{{ $comment->user->avatar ?? asset('images/default-avatar.png') }}"
-                         alt="{{ $comment->user->name ?? 'کاربر' }}"
-                         class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
-
-                    <div>
-                        <h6 class="mb-1 fw-bold">{{ $comment->user->name ?? 'کاربر' }}</h6>
-
-                        <div class="text-warning mb-2">
-                            @for ($i = 0; $i < 5; $i++)
-                                <i class="fa fa-star"></i>
-                            @endfor
-                        </div>
-
-                        <p>{{ $comment->content ?? '' }}</p>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.sp-ins__plan input').forEach(function (input) {
+        input.addEventListener('change', function () {
+            document.querySelectorAll('.sp-ins__plan').forEach(function (el) { el.classList.remove('is-active'); });
+            input.closest('.sp-ins__plan').classList.add('is-active');
+        });
+    });
+});
+</script>
+@endpush

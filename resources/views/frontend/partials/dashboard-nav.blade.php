@@ -39,6 +39,13 @@
             'active' => request()->routeIs('account.notifications.*'),
         ],
         [
+            'label' => 'مجوز بیمه',
+            'url' => route('account.insurance-licenses.index'),
+            'icon' => 'fas fa-shield-alt',
+            'active' => request()->routeIs('account.insurance-licenses.*', 'frontend.clinic.insurance.*'),
+        ],
+
+        [
             'label' => 'رزرو جدید',
             'url' => route('frontend.booking.index'),
             'icon' => 'far fa-calendar-plus',

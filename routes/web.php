@@ -172,6 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::get('/insurance-licenses', [ClinicInsuranceController::class, 'myLicenses'])->name('insurance-licenses.index');
         Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/{booking}', [BookingHubController::class, 'show'])->name('bookings.show');
         Route::patch('/bookings/{booking}/status', [BookingHubController::class, 'updateStatus'])->name('bookings.status');
@@ -249,6 +250,9 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
     Route::get('clinic/insurances/{insurance}', [ClinicInsuranceController::class, 'show'])->name('clinic.insurance.show');
+    Route::post('clinic/insurances/{insurance}/purchase', [ClinicInsuranceController::class, 'purchase'])
+        ->middleware(['auth', 'throttle:payment'])
+        ->name('clinic.insurance.purchase');
 
     Route::get('/blogs/{slug}', [BlogController::class, 'showBlog'])->name('blogs.show');
     Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('blogs.store.comment');

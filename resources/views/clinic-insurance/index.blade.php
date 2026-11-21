@@ -1,20 +1,22 @@
-@extends('layouts.app')
+@extends('frontend.layouts.app')
 
-@section('title', 'بیمه حیوانات')
+@section('title', 'بیمه حیوانات — سپاسیران')
 
 @section('content')
-<x-listing-hero
-    title="بیمه حیوانات"
-    lede="جستجو در نام و شهر — پوشش مناسب برای همراه شما."
-    icon="insurance"
-    image="images/demo/hero/hero-03.jpg"
-    :crumbs="[
-        ['label' => 'خانه', 'route' => route('frontend.home')],
-        ['label' => 'بیمه حیوانات'],
-    ]"
-/>
+<section class="sp-ins-index__hero">
+    <div class="sp-ins-index__hero-bg" style="background-image:url('{{ asset('images/demo/hero/hero-03.jpg') }}')" aria-hidden="true"></div>
+    <div class="sp-ins-index__hero-scrim" aria-hidden="true"></div>
+    <div class="wrap sp-ins-index__hero-inner">
+        <p class="sp-ins__brand">سپاسیران</p>
+        <h1>بیمه حیوانات</h1>
+        <p class="sp-ins__lede">طرح و مدت را انتخاب کنید؛ پس از خرید، مجوز پوشش در داشبوردتان فعال می‌شود.</p>
+        @auth
+            <a class="btn btn-primary" href="{{ route('account.insurance-licenses.index') }}">مجوزهای من</a>
+        @endauth
+    </div>
+</section>
 
-<div class="wrap sp-listing" style="padding-top:28px;padding-bottom:56px">
+<div class="wrap sp-listing sp-ins-index" style="padding-top:28px;padding-bottom:56px">
     <div class="sp-listing__layout">
         <div class="sp-listing__filters">
             <x-filter-form :filters="$filters" />

@@ -2,18 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
+use App\Models\Dog;
 use App\Models\Insurance;
+use App\Models\InsuranceLicense;
+use App\Models\InsurancePlan;
+use App\Support\InsurancePurchaseService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ClinicInsuranceController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Insurance::query()->where('is_active', true);
+        $query = Insurance::query()
+            ->where('is_active', true)
+            ->with(['activePlans' => fn ($q) => $q->orderBy('price')]);
 
         if ($request->filled('q')) {
-            $term = '%' . trim((string) $request->q) . '%';
+            $term = '%'.trim((string) $request->q).'%';
             $query->where(function ($builder) use ($term) {
                 $builder->where('name', 'like', $term)
                     ->orWhere('description', 'like', $term)
@@ -37,23 +46,98 @@ class ClinicInsuranceController extends Controller
         return view('clinic-insurance.index', compact('insurances', 'filters'));
     }
 
-    public function show($id)
+    public function show(int $insurance): View
     {
-        $insurance = Insurance::query()->findOrFail($id);
+        $insurance = Insurance::query()
+            ->where('is_active', true)
+            ->with(['activePlans'])
+            ->findOrFail($insurance);
 
-        $statistics = [
-            ['title' => 'مراجعه‌کنندگان', 'counter' => 120],
-            ['title' => 'مراکز طرف قرارداد', 'counter' => 45],
-            ['title' => 'کاربران راضی', 'counter' => 98],
-            ['title' => 'نظرات ثبت‌شده', 'counter' => 70],
-        ];
+        $dogs = collect();
+        $activeLicenses = collect();
+        if (Auth::check()) {
+            $dogs = Dog::query()
+                ->where('user_id', Auth::id())
+                ->orderByDesc('id')
+                ->limit(30)
+                ->get(['id', 'title']);
+            $activeLicenses = InsuranceLicense::query()
+                ->forUser((int) Auth::id())
+                ->where('insurance_id', $insurance->id)
+                ->active()
+                ->with('plan')
+                ->latest('ends_at')
+                ->get();
+        }
 
-        $comments = Comment::with('user')
-            ->where('user_id', $insurance->id)
-            ->latest()
-            ->take(10)
-            ->get();
+        return view('insurance.show', [
+            'insurance' => $insurance,
+            'plans' => $insurance->activePlans,
+            'dogs' => $dogs,
+            'activeLicenses' => $activeLicenses,
+            'loginUrl' => route('login', ['redirect' => route('frontend.clinic.insurance.show', $insurance->id)]),
+        ]);
+    }
 
-        return view('insurance.show', compact('insurance', 'statistics', 'comments'));
+    public function purchase(Request $request, int $insurance, InsurancePurchaseService $purchase): RedirectResponse
+    {
+        if (! Auth::check()) {
+            return redirect()->guest(route('login', [
+                'redirect' => route('frontend.clinic.insurance.show', $insurance),
+            ]));
+        }
+
+        $insurer = Insurance::query()->where('is_active', true)->findOrFail($insurance);
+
+        $data = $request->validate([
+            'plan_id' => ['required', 'integer', 'exists:insurance_plans,id'],
+            'dog_id' => ['nullable', 'integer', 'exists:dogs,id'],
+            'payment_method' => ['nullable', 'in:wallet'],
+        ], [
+            'plan_id.required' => 'یک طرح بیمه را انتخاب کنید.',
+        ]);
+
+        $plan = InsurancePlan::query()
+            ->whereKey($data['plan_id'])
+            ->where('insurance_id', $insurer->id)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        try {
+            $license = $purchase->purchase(
+                Auth::user(),
+                $plan,
+                isset($data['dog_id']) ? (int) $data['dog_id'] : null,
+                $data['payment_method'] ?? 'wallet'
+            );
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+
+        return redirect()
+            ->route('account.insurance-licenses.index')
+            ->with('success', 'پرداخت انجام شد. مجوز '.$license->license_code.' تا '
+                .optional($license->ends_at)->timezone(config('app.timezone', 'Asia/Tehran'))->format('Y/m/d')
+                .' در داشبورد شما فعال است.');
+    }
+
+    public function myLicenses(): View
+    {
+        $user = Auth::user();
+        abort_unless($user, 403);
+
+        $licenses = InsuranceLicense::query()
+            ->forUser((int) $user->id)
+            ->with(['insurance', 'plan', 'dog'])
+            ->latest('id')
+            ->paginate(12);
+
+        $licenses->getCollection()->each(fn (InsuranceLicense $license) => $license->refreshStatus());
+
+        return view('frontend.pages.account.insurance-licenses', [
+            'licenses' => $licenses,
+            'user' => $user,
+            'roleLabel' => $user->primaryRoleLabel(),
+        ]);
     }
 }
