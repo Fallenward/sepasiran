@@ -18,23 +18,57 @@ class BookingController extends Controller
         $cities = City::query()->orderBy('name')->get(['id', 'name']);
         $providerId = (int) $request->get('provider', 0);
         $cityId = (int) $request->get('city_id', 0);
+        $allowedTypes = array_column(BookingCatalog::serviceTypes(), 'key');
+        $serviceType = (string) $request->get('type', 'coach');
+        if (! in_array($serviceType, $allowedTypes, true)) {
+            $serviceType = 'coach';
+        }
 
-        if ($cityId < 1 && $providerId > 0) {
-            $cityId = (int) (User::query()->whereKey($providerId)->value('city_id') ?: 0);
+        $lockedProvider = null;
+        if ($providerId > 0) {
+            $provider = User::query()->with('city:id,name')->find($providerId);
+            if ($provider) {
+                $display = trim(($provider->name ?? '').' '.($provider->family ?? ''));
+                $lockedProvider = [
+                    'id' => (int) $provider->id,
+                    'name' => $display !== '' ? $display : (string) ($provider->name ?? 'ارائه‌دهنده'),
+                    'city_name' => $provider->city?->name,
+                ];
+                if ($cityId < 1) {
+                    $cityId = (int) ($provider->city_id ?: 0);
+                }
+            } else {
+                $providerId = 0;
+            }
         }
 
         $selectedCityName = $cityId > 0
             ? optional($cities->firstWhere('id', $cityId))->name
             : null;
 
+        $trainingType = (string) $request->get('training_type', '');
+        $allowedTraining = array_column(BookingCatalog::trainingTypes(), 'key');
+        if ($trainingType !== '' && ! in_array($trainingType, $allowedTraining, true)) {
+            $trainingType = '';
+        }
+        if ($trainingType === '' && $serviceType === 'coach' && $lockedProvider) {
+            $trainingType = 'beginner';
+        }
+
+        $locked = $lockedProvider !== null;
+
         return view('frontend.pages.booking.index', [
             'cities' => $cities,
             'selectedCityName' => $selectedCityName,
+            'lockedProvider' => $lockedProvider,
             'prefill' => [
-                'service_type' => $request->get('type', 'coach'),
+                'service_type' => $serviceType,
                 'provider_id' => $providerId,
                 'city_id' => $cityId,
                 'date' => $request->get('date', now()->addDay()->format('Y-m-d')),
+                'training_type' => $trainingType,
+                'fulfillment_mode' => $locked ? 'direct' : (string) $request->get('mode', 'direct'),
+                'locked' => $locked,
             ],
             'authUser' => Auth::user(),
             'apiBase' => url('/booking/api'),

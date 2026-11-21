@@ -3,9 +3,16 @@
 @section('title', 'رزرو خدمت')
 
 @section('content')
+@php
+    $isLockedBooking = !empty($prefill['locked']) && !empty($lockedProvider);
+    $lockedServiceLabel = collect(\App\Support\BookingCatalog::serviceTypes())
+        ->firstWhere('key', $prefill['service_type'] ?? 'coach')['label'] ?? 'خدمت';
+@endphp
 <x-listing-hero
     title="رزرو خدمت"
-    lede="سگ خود را انتخاب کنید، شهر و خدمت را مشخص کنید، سپس مستقیم یا به‌صورت درخواست باز رزرو کنید."
+    :lede="$isLockedBooking
+        ? ('رزرو مستقیم با '.$lockedProvider['name'].' — فقط سگ، شهر و زمان را مشخص کنید.')
+        : 'سگ خود را انتخاب کنید، شهر و خدمت را مشخص کنید، سپس مستقیم یا به‌صورت درخواست باز رزرو کنید.'"
     icon="cta"
     image="images/demo/hero/hero-03.jpg"
     :crumbs="[
@@ -19,14 +26,20 @@
      data-csrf="{{ $csrf }}"
      data-login="{{ $loginUrl }}"
      data-auth="{{ $isAuthenticated ? '1' : '0' }}"
-     data-add-dog="{{ url('/breeder/dashboard-create') }}">
+     data-add-dog="{{ url('/breeder/dashboard-create') }}"
+     data-locked="{{ $isLockedBooking ? '1' : '0' }}"
+     data-provider-id="{{ (int)($prefill['provider_id'] ?? 0) }}"
+     data-provider-name="{{ $lockedProvider['name'] ?? '' }}"
+     data-service-type="{{ $prefill['service_type'] ?? 'coach' }}"
+     data-training-type="{{ $prefill['training_type'] ?? '' }}"
+     data-fulfillment-mode="{{ $prefill['fulfillment_mode'] ?? 'direct' }}">
     <div class="sp-booking__steps" role="list" id="bookingSteps">
         <div class="sp-booking__step is-current" data-step="1">۱. سگ</div>
         <div class="sp-booking__step" data-step="2">۲. شهر</div>
-        <div class="sp-booking__step" data-step="3">۳. خدمت</div>
-        <div class="sp-booking__step" data-step="4">۴. نحوه</div>
-        <div class="sp-booking__step" data-step="5">۵. جزئیات</div>
-        <div class="sp-booking__step" data-step="6">۶. تأیید</div>
+        <div class="sp-booking__step" data-step="3">۳. {{ $isLockedBooking ? 'جزئیات خدمت' : 'خدمت' }}</div>
+        <div class="sp-booking__step" data-step="4" @if($isLockedBooking) hidden @endif>۴. نحوه</div>
+        <div class="sp-booking__step" data-step="5">{{ $isLockedBooking ? '۴' : '۵' }}. جزئیات</div>
+        <div class="sp-booking__step" data-step="6">{{ $isLockedBooking ? '۵' : '۶' }}. تأیید</div>
     </div>
 
     @if ($errors->any())
@@ -44,8 +57,8 @@
         <input type="hidden" name="dog_id" id="field_dog_id" value="">
         <input type="hidden" name="city_id" id="field_city_id" value="{{ $prefill['city_id'] ?? '' }}">
         <input type="hidden" name="service_type" id="field_service_type" value="{{ $prefill['service_type'] ?? 'coach' }}">
-        <input type="hidden" name="training_type" id="field_training_type" value="">
-        <input type="hidden" name="fulfillment_mode" id="field_fulfillment_mode" value="direct">
+        <input type="hidden" name="training_type" id="field_training_type" value="{{ $prefill['training_type'] ?? '' }}">
+        <input type="hidden" name="fulfillment_mode" id="field_fulfillment_mode" value="{{ $prefill['fulfillment_mode'] ?? 'direct' }}">
         <input type="hidden" name="provider_ids[]" id="field_provider_ids" value="{{ $prefill['provider_id'] ?? '' }}">
         <input type="hidden" name="preferred_date" id="field_preferred_date" value="{{ $prefill['date'] ?? '' }}">
         <input type="hidden" name="preferred_slot" id="field_preferred_slot" value="">
@@ -120,19 +133,33 @@
             </section>
 
             <section class="panel sp-booking__panel" data-panel="3" hidden>
-                <h2>انتخاب خدمت</h2>
-                <div class="sp-booking__service-grid" id="serviceGrid"></div>
+                <h2>{{ $isLockedBooking ? 'جزئیات خدمت' : 'انتخاب خدمت' }}</h2>
+                @if($isLockedBooking)
+                    <div class="sp-booking__locked-card" id="lockedServiceCard">
+                        <span>خدمت قفل‌شده</span>
+                        <strong>{{ $lockedServiceLabel }}</strong>
+                        @if(!empty($lockedProvider['name']))
+                            <small>ارائه‌دهنده: {{ $lockedProvider['name'] }}</small>
+                        @endif
+                    </div>
+                    <div class="sp-booking__service-grid" id="serviceGrid" hidden></div>
+                @else
+                    <div class="sp-booking__service-grid" id="serviceGrid"></div>
+                @endif
                 <div class="field" id="coachExtras" hidden>
                     <label for="ui_training_type">نوع آموزش</label>
                     <select id="ui_training_type"></select>
+                    @if($isLockedBooking)
+                        <p class="sp-booking__hint">پیش‌فرض روی آموزش مقدماتی است؛ در صورت نیاز تغییر دهید.</p>
+                    @endif
                 </div>
                 <div class="sp-booking__actions">
                     <button type="button" class="btn btn-ghost" data-prev="2">بازگشت</button>
-                    <button type="button" class="btn btn-primary" data-next="4">ادامه</button>
+                    <button type="button" class="btn btn-primary" data-next="{{ $isLockedBooking ? 5 : 4 }}">ادامه</button>
                 </div>
             </section>
 
-            <section class="panel sp-booking__panel" data-panel="4" hidden>
+            <section class="panel sp-booking__panel" data-panel="4" @if($isLockedBooking) hidden @endif>
                 <h2>نحوه انجام رزرو</h2>
                 <div class="sp-booking__service-grid" id="modeGrid"></div>
                 <p class="sp-booking__hint" id="modeHint"></p>
@@ -146,11 +173,26 @@
                 <h2>جزئیات رزرو</h2>
 
                 <div id="directExtras">
-                    <div class="field">
-                        <label for="ui_provider_q">جستجوی ارائه‌دهنده</label>
-                        <input type="search" id="ui_provider_q" placeholder="نام…">
-                    </div>
-                    <div class="sp-booking__provider-list" id="providerList"></div>
+                    @if($isLockedBooking)
+                        <div class="sp-booking__locked-card" id="lockedProviderCard">
+                            <span>ارائه‌دهنده انتخاب‌شده</span>
+                            <strong>{{ $lockedProvider['name'] }}</strong>
+                            @if(!empty($lockedProvider['city_name']))
+                                <small>{{ $lockedProvider['city_name'] }}</small>
+                            @endif
+                        </div>
+                        <div class="field" hidden>
+                            <label for="ui_provider_q">جستجوی ارائه‌دهنده</label>
+                            <input type="search" id="ui_provider_q" placeholder="نام…" disabled>
+                        </div>
+                        <div class="sp-booking__provider-list" id="providerList" hidden></div>
+                    @else
+                        <div class="field">
+                            <label for="ui_provider_q">جستجوی ارائه‌دهنده</label>
+                            <input type="search" id="ui_provider_q" placeholder="نام…">
+                        </div>
+                        <div class="sp-booking__provider-list" id="providerList"></div>
+                    @endif
                     <div class="field">
                         <label for="ui_date">تاریخ ترجیحی</label>
                         <input class="num" type="date" id="ui_date" value="{{ $prefill['date'] ?? '' }}">
@@ -188,7 +230,7 @@
                 </div>
 
                 <div class="sp-booking__actions">
-                    <button type="button" class="btn btn-ghost" data-prev="4">بازگشت</button>
+                    <button type="button" class="btn btn-ghost" data-prev="{{ $isLockedBooking ? 3 : 4 }}">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="6">ادامه</button>
                 </div>
             </section>
@@ -232,16 +274,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const apiBase = root.dataset.apiBase;
     const csrf = root.dataset.csrf;
     const isAuth = root.dataset.auth === '1';
+    const locked = root.dataset.locked === '1';
+    const lockedProviderId = Number(root.dataset.providerId || 0);
+    const lockedProviderName = root.dataset.providerName || '';
+    const lockedServiceType = root.dataset.serviceType || 'coach';
+    const prefillTrainingType = root.dataset.trainingType || '';
+    const prefillMode = root.dataset.fulfillmentMode || 'direct';
     const form = document.getElementById('bookingForm');
     let meta = { service_types: [], training_types: [], fulfillment_modes: [], pricing: {} };
     let step = 1;
     let dogs = [];
-    let selectedProviders = {{ (int)($prefill['provider_id'] ?? 0) }} ? [{{ (int)($prefill['provider_id'] ?? 0) }}] : [];
+    let selectedProviders = lockedProviderId ? [lockedProviderId] : [];
     let providerNames = {};
+    if (lockedProviderId && lockedProviderName) {
+        providerNames[lockedProviderId] = lockedProviderName;
+    }
     let quote = null;
     let labels = { service: {}, mode: {}, training: {} };
     let jalaliHint = '';
     const allCities = @json($cities->map(function ($c) { return ['id' => $c->id, 'name' => $c->name]; })->values());
+
+    function resolveStep(n) {
+        if (locked && n === 4) return step > 4 ? 3 : 5;
+        return n;
+    }
 
     async function api(path, options) {
         const res = await fetch(apiBase + path, Object.assign({
@@ -277,13 +333,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function selectedService() {
+        if (locked) return lockedServiceType || document.getElementById('field_service_type').value || 'coach';
         const el = form.querySelector('input[name="service_type_ui"]:checked');
         return el ? el.value : (document.getElementById('field_service_type').value || 'coach');
     }
 
     function selectedMode() {
+        if (locked) return 'direct';
         const el = form.querySelector('input[name="mode_ui"]:checked');
-        return el ? el.value : (document.getElementById('field_fulfillment_mode').value || 'direct');
+        return el ? el.value : (document.getElementById('field_fulfillment_mode').value || prefillMode || 'direct');
     }
 
     function selectedDogId() {
@@ -388,9 +446,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderServices() {
         const grid = document.getElementById('serviceGrid');
+        if (!grid) return;
         grid.innerHTML = '';
         meta.service_types.forEach(function (row) {
             labels.service[row.key] = row.label;
+        });
+        if (locked) {
+            document.getElementById('field_service_type').value = lockedServiceType;
+            updateSummary();
+            return;
+        }
+        meta.service_types.forEach(function (row) {
             const label = document.createElement('label');
             label.className = 'sp-booking__choice' + (selectedService() === row.key ? ' is-active' : '');
             label.innerHTML = '<input type="radio" name="service_type_ui" value="' + row.key + '"' +
@@ -412,9 +478,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderModes() {
         const grid = document.getElementById('modeGrid');
+        if (!grid) return;
         grid.innerHTML = '';
         (meta.fulfillment_modes || []).forEach(function (row) {
             labels.mode[row.key] = row.label;
+        });
+        if (locked) {
+            document.getElementById('field_fulfillment_mode').value = 'direct';
+            toggleModeExtras();
+            updateSummary();
+            return;
+        }
+        (meta.fulfillment_modes || []).forEach(function (row) {
             const label = document.createElement('label');
             label.className = 'sp-booking__choice' + (selectedMode() === row.key ? ' is-active' : '');
             label.innerHTML = '<input type="radio" name="mode_ui" value="' + row.key + '"' +
@@ -434,27 +509,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderTraining() {
         const sel = document.getElementById('ui_training_type');
+        if (!sel) return;
         sel.innerHTML = '<option value="">—</option>';
         meta.training_types.forEach(function (row) {
             labels.training[row.key] = row.label;
             const opt = document.createElement('option');
             opt.value = row.key;
             opt.textContent = row.label + (row.surcharge ? (' (+' + Number(row.surcharge).toLocaleString('fa-IR') + ')') : '');
+            if (prefillTrainingType && prefillTrainingType === row.key) opt.selected = true;
             sel.appendChild(opt);
         });
+        if (prefillTrainingType) {
+            sel.value = prefillTrainingType;
+            document.getElementById('field_training_type').value = prefillTrainingType;
+        } else if (locked && selectedService() === 'coach' && meta.training_types.length) {
+            sel.value = meta.training_types[0].key;
+            document.getElementById('field_training_type').value = sel.value;
+        }
         sel.addEventListener('change', updateSummary);
     }
 
     async function reloadProviders() {
         if (!isAuth) return;
+        if (locked && lockedProviderId) {
+            selectedProviders = [lockedProviderId];
+            if (lockedProviderName) providerNames[lockedProviderId] = lockedProviderName;
+            updateSummary();
+            reloadSlots();
+            return;
+        }
         const type = selectedService();
         const cityId = document.getElementById('ui_city_id').value;
-        const q = document.getElementById('ui_provider_q').value || '';
+        const qEl = document.getElementById('ui_provider_q');
+        const q = qEl ? (qEl.value || '') : '';
         let path = '/providers?service_type=' + encodeURIComponent(type);
         if (cityId) path += '&city_id=' + encodeURIComponent(cityId);
         if (q) path += '&q=' + encodeURIComponent(q);
         const data = await api(path);
         const list = document.getElementById('providerList');
+        if (!list) return;
         list.innerHTML = '';
         (data.results || []).forEach(function (row) {
             providerNames[row.id] = row.display_name || row.name;
@@ -541,10 +634,10 @@ document.addEventListener('DOMContentLoaded', function () {
     form.querySelectorAll('[data-next]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             syncHidden();
-            const next = Number(btn.dataset.next);
+            let next = resolveStep(Number(btn.dataset.next));
             if (next === 2 && !selectedDogId()) { alert('سگ خود را انتخاب کنید.'); return; }
             if (next === 3 && !document.getElementById('field_city_id').value) { alert('شهر را انتخاب کنید.'); return; }
-            if (next === 4 && selectedService() === 'coach' && !document.getElementById('field_training_type').value) {
+            if ((next === 4 || (locked && next === 5)) && selectedService() === 'coach' && !document.getElementById('field_training_type').value) {
                 alert('نوع آموزش را انتخاب کنید.'); return;
             }
             if (next === 6 && selectedMode() === 'direct' && !selectedProviders.length) {
@@ -557,7 +650,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     form.querySelectorAll('[data-prev]').forEach(function (btn) {
-        btn.addEventListener('click', function () { showStep(Number(btn.dataset.prev)); });
+        btn.addEventListener('click', function () {
+            showStep(resolveStep(Number(btn.dataset.prev)));
+        });
     });
 
     const submitBtn = document.getElementById('submitBooking');
@@ -592,10 +687,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('ui_date').addEventListener('change', function () { updateSummary(); reloadSlots(); });
     document.getElementById('ui_open_date').addEventListener('change', updateSummary);
     let providerTimer = null;
-    document.getElementById('ui_provider_q').addEventListener('input', function () {
-        clearTimeout(providerTimer);
-        providerTimer = setTimeout(reloadProviders, 280);
-    });
+    const providerSearch = document.getElementById('ui_provider_q');
+    if (providerSearch && !locked) {
+        providerSearch.addEventListener('input', function () {
+            clearTimeout(providerTimer);
+            providerTimer = setTimeout(reloadProviders, 280);
+        });
+    }
 
     function setCity(id, name) {
         const input = document.getElementById('ui_city_id');
@@ -763,9 +861,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (link) link.href = meta.add_dog_url;
             root.dataset.addDog = meta.add_dog_url;
         }
+        if (locked) {
+            document.getElementById('field_service_type').value = lockedServiceType;
+            document.getElementById('field_fulfillment_mode').value = 'direct';
+            selectedProviders = lockedProviderId ? [lockedProviderId] : [];
+        }
         renderServices();
         renderModes();
         renderTraining();
+        toggleModeExtras();
         if (isAuth) {
             await loadBreedsForQuick();
             const mine = await api('/my-dogs');
@@ -777,6 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderDogs();
             await reloadProviders();
         }
+        updateSummary();
         showStep(1);
     })().catch(function (e) {
         console.error(e);

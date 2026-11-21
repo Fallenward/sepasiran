@@ -2804,6 +2804,31 @@ body.sp-body {
   font-size: 0.85rem;
 }
 
+.sp-booking__locked-card {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(79, 191, 120, 0.35);
+  border-radius: 14px;
+  background: rgba(79, 191, 120, 0.08);
+  color: var(--sp-text);
+}
+
+.sp-booking__locked-card span {
+  color: var(--sp-text-subtle);
+  font-size: 0.8rem;
+}
+
+.sp-booking__locked-card strong {
+  font-size: 1.05rem;
+  color: var(--sp-green);
+}
+
+.sp-booking__locked-card small {
+  color: var(--sp-text-subtle);
+}
+
 .sp-booking__selected-city {
   display: flex;
   flex-wrap: wrap;
