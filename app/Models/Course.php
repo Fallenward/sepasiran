@@ -69,6 +69,11 @@ namespace App\Models;
         return $this->hasMany(CourseLesson::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    public function enrollments()
+    {
+        return $this->hasMany(CourseEnrollment::class);
+    }
+
 
     public function level()
 {

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             BlogSeeder::class,
             BlogRatingSeeder::class,
             CourseSeeder::class,
+            CourseDemoSeeder::class,
             ReviewSeeder::class,
             CartSeeder::class,
             BookingSeeder::class,

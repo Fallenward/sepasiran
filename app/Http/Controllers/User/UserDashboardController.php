@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\CourseEnrollment;
 use App\Models\Dog;
 use App\Models\InsuranceLicense;
 use App\Models\Notification;
@@ -39,11 +40,20 @@ class UserDashboardController extends Controller
             ->get();
         $insuranceLicenses->each(fn (InsuranceLicense $license) => $license->refreshStatus());
 
+        $courseEnrollments = CourseEnrollment::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->with(['course:id,title,slug'])
+            ->latest('id')
+            ->limit(5)
+            ->get();
+
         $stats = [
             'wallet' => (int) ($user->wallet ?? 0),
             'upcoming' => $upcomingBookings->count(),
             'dogs' => Dog::query()->where('user_id', $user->id)->count(),
             'insurance' => InsuranceLicense::query()->forUser((int) $user->id)->active()->count(),
+            'courses' => CourseEnrollment::query()->where('user_id', $user->id)->where('status', 'active')->count(),
         ];
 
         return view('frontend.pages.user.dashboard', [
@@ -52,6 +62,7 @@ class UserDashboardController extends Controller
             'myDogs' => $myDogs,
             'upcomingBookings' => $upcomingBookings,
             'insuranceLicenses' => $insuranceLicenses,
+            'courseEnrollments' => $courseEnrollments,
             'financeChart' => DashboardFinance::monthlySeries($user),
             'dashNotifications' => Notification::query()->where('user_id', $user->id)->latest()->limit(5)->get(),
             'roleLabel' => $user->primaryRoleLabel(),

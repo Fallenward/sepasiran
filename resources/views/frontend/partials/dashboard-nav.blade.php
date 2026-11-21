@@ -44,6 +44,12 @@
             'icon' => 'fas fa-shield-alt',
             'active' => request()->routeIs('account.insurance-licenses.*', 'frontend.clinic.insurance.*'),
         ],
+        [
+            'label' => 'دوره‌های من',
+            'url' => route('account.course-enrollments.index'),
+            'icon' => 'fas fa-play-circle',
+            'active' => request()->routeIs('account.course-enrollments.*', 'frontend.courses.*', 'frontend.online.courses'),
+        ],
 
         [
             'label' => 'رزرو جدید',

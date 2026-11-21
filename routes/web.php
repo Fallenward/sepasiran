@@ -173,6 +173,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
         Route::get('/insurance-licenses', [ClinicInsuranceController::class, 'myLicenses'])->name('insurance-licenses.index');
+        Route::get('/course-enrollments', [OnlineCourseController::class, 'myEnrollments'])->name('course-enrollments.index');
         Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/{booking}', [BookingHubController::class, 'show'])->name('bookings.show');
         Route::patch('/bookings/{booking}/status', [BookingHubController::class, 'updateStatus'])->name('bookings.status');
@@ -239,8 +240,11 @@ Route::name('frontend.')->group(function () {
 
     Route::prefix('course')->group(function () {
         Route::get('/', [OnlineCourseController::class, 'index'])->name('online.courses');
-        Route::get('/{slug}', [OnlineCourseController::class, 'showCourse'])->name('courses.show');
         Route::get('/filter', [OnlineCourseController::class, 'filter'])->name('courses.filter');
+        Route::post('/{slug}/purchase', [OnlineCourseController::class, 'purchase'])
+            ->middleware(['auth', 'throttle:payment'])
+            ->name('courses.purchase');
+        Route::get('/{slug}', [OnlineCourseController::class, 'showCourse'])->name('courses.show');
     });
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');

@@ -34,6 +34,7 @@
                 ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check', 'url' => route('account.bookings.index')],
                 ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
                 ['label' => 'مجوز بیمه فعال', 'value' => number_format($stats['insurance'] ?? 0), 'hint' => 'پوشش جاری', 'icon' => 'fas fa-shield-alt', 'url' => route('account.insurance-licenses.index')],
+                ['label' => 'دوره‌های من', 'value' => number_format($stats['courses'] ?? 0), 'hint' => 'دسترسی فعال', 'icon' => 'fas fa-graduation-cap', 'url' => route('account.course-enrollments.index')],
             ],
         ])
 
@@ -60,10 +61,14 @@
                 ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
                 ['label' => 'مجوزهای بیمه', 'hint' => 'پوشش و اعتبار مجوزها', 'url' => route('account.insurance-licenses.index'), 'icon' => 'fas fa-shield-alt'],
                 ['label' => 'خرید بیمه', 'hint' => 'طرح و مدت پوشش', 'url' => route('frontend.clinic.insurance.index'), 'icon' => 'fas fa-file-medical'],
+                ['label' => 'دوره‌های من', 'hint' => 'دسترسی به درس‌ها', 'url' => route('account.course-enrollments.index'), 'icon' => 'fas fa-play-circle'],
+                ['label' => 'خرید دوره', 'hint' => 'فهرست دوره‌های آموزشی', 'url' => route('frontend.online.courses'), 'icon' => 'fas fa-graduation-cap'],
             ],
         ])
 
         @include('frontend.partials.dashboard-insurance-licenses', ['insuranceLicenses' => $insuranceLicenses ?? collect()])
+
+        @include('frontend.partials.dashboard-course-enrollments', ['courseEnrollments' => $courseEnrollments ?? collect()])
 
         @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
