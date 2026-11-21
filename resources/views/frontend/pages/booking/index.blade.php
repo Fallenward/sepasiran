@@ -101,32 +101,22 @@
 
             <section class="panel sp-booking__panel" data-panel="2" hidden>
                 <h2>انتخاب شهر</h2>
-                <p class="sp-booking__hint">نام شهر را جستجو کنید یا از لیست زیر یکی را انتخاب کنید.</p>
-                <div class="field sp-typeahead" id="cityTypeahead">
+                <p class="sp-booking__hint">نام شهر را تایپ کنید؛ پیشنهادها هم‌زمان نمایش داده می‌شوند (مثلاً با حرف «ت»).</p>
+                <div class="sp-booking__city-search sp-typeahead" id="cityTypeahead">
                     <label for="ui_city_q">جستجوی شهر</label>
-                    <input type="search" id="ui_city_q" class="sp-typeahead__input" placeholder="مثلاً تهران…" autocomplete="off" aria-autocomplete="list" aria-controls="citySuggest">
+                    <input type="search" id="ui_city_q" class="sp-typeahead__input"
+                           placeholder="شروع به تایپ کنید…"
+                           value="{{ $selectedCityName ?? '' }}"
+                           autocomplete="off" aria-autocomplete="list" aria-controls="citySuggest" aria-expanded="false">
                     <div class="sp-suggest" id="citySuggest" role="listbox" hidden></div>
                 </div>
                 <div class="sp-booking__selected-city" id="citySelectedChip" @if(empty($prefill['city_id'])) hidden @endif>
                     <span>شهر انتخاب‌شده:</span>
                     <strong id="citySelectedName">{{ $selectedCityName ?? '—' }}</strong>
-                    <button type="button" class="btn btn-ghost" id="cityClearBtn" style="min-height:32px;padding:4px 10px">حذف</button>
+                    <button type="button" class="sp-booking__back" id="cityClearBtn">حذف</button>
                 </div>
                 <input type="hidden" id="ui_city_id" value="{{ !empty($prefill['city_id']) ? (int) $prefill['city_id'] : '' }}" required>
-                <div class="sp-booking__city-list" id="cityList" role="listbox" aria-label="فهرست شهرها">
-                    @forelse($cities as $city)
-                        <button type="button"
-                                class="sp-booking__city {{ (int)($prefill['city_id'] ?? 0) === (int)$city->id ? 'is-active' : '' }}"
-                                data-city-id="{{ $city->id }}"
-                                data-city-name="{{ $city->name }}"
-                                role="option"
-                                aria-selected="{{ (int)($prefill['city_id'] ?? 0) === (int)$city->id ? 'true' : 'false' }}">
-                            <strong>{{ $city->name }}</strong>
-                        </button>
-                    @empty
-                        <p class="sp-booking__empty">شهری در سیستم ثبت نشده است.</p>
-                    @endforelse
-                </div>
+                <p class="sp-booking__hint" id="citySearchHint" hidden></p>
                 <div class="sp-booking__actions">
                     <button type="button" class="sp-booking__back" data-prev="1">بازگشت</button>
                     <button type="button" class="btn btn-primary" data-next="3">ادامه</button>
@@ -723,7 +713,12 @@ document.addEventListener('DOMContentLoaded', function () {
             syncHidden();
             let next = resolveStep(Number(btn.dataset.next));
             if (next === 2 && !selectedDogId()) { alert('سگ خود را انتخاب کنید.'); return; }
-            if (next === 3 && !document.getElementById('field_city_id').value) { alert('شهر را انتخاب کنید.'); return; }
+            if (next === 3 && !document.getElementById('field_city_id').value) {
+                alert('نام شهر را تایپ کنید و از پیشنهادها یکی را انتخاب کنید.');
+                const q = document.getElementById('ui_city_q');
+                if (q) { q.focus(); searchCities(q.value); }
+                return;
+            }
             if ((next === 4 || (locked && next === 5)) && selectedService() === 'coach' && !document.getElementById('field_training_type').value) {
                 alert('نوع آموزش را انتخاب کنید.'); return;
             }
@@ -793,60 +788,83 @@ document.addEventListener('DOMContentLoaded', function () {
         input.value = id ? String(id) : '';
         const chip = document.getElementById('citySelectedChip');
         const nameEl = document.getElementById('citySelectedName');
+        const q = document.getElementById('ui_city_q');
         if (nameEl) nameEl.textContent = name || '—';
         if (chip) chip.hidden = !id;
-        document.querySelectorAll('#cityList .sp-booking__city').forEach(function (btn) {
-            const on = String(btn.dataset.cityId) === String(id);
-            btn.classList.toggle('is-active', on);
-            btn.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-        const suggest = document.getElementById('citySuggest');
-        if (suggest) {
-            suggest.hidden = true;
-            suggest.innerHTML = '';
+        if (q && name) q.value = name;
+        if (q && !id) q.value = '';
+        hideCitySuggest();
+        const hint = document.getElementById('citySearchHint');
+        if (hint) {
+            hint.hidden = true;
+            hint.textContent = '';
         }
         updateSummary();
         reloadProviders();
     }
 
-    function renderCityList(rows) {
-        const list = document.getElementById('cityList');
-        if (!list) return;
-        const current = document.getElementById('ui_city_id').value;
-        if (!rows.length) {
-            list.innerHTML = '<p class="sp-booking__empty">شهری با این جستجو پیدا نشد.</p>';
-            return;
+    function hideCitySuggest() {
+        const box = document.getElementById('citySuggest');
+        const q = document.getElementById('ui_city_q');
+        if (box) {
+            box.hidden = true;
+            box.innerHTML = '';
         }
-        list.innerHTML = rows.map(function (row) {
-            const on = String(row.id) === String(current);
-            return '<button type="button" class="sp-booking__city' + (on ? ' is-active' : '') + '"'
-                + ' data-city-id="' + row.id + '" data-city-name="' + String(row.name).replace(/"/g, '&quot;') + '"'
-                + ' role="option" aria-selected="' + (on ? 'true' : 'false') + '">'
-                + '<strong>' + row.name + '</strong></button>';
-        }).join('');
+        if (q) q.setAttribute('aria-expanded', 'false');
     }
 
-    function renderCitySuggest(rows) {
+    function renderCitySuggest(rows, query) {
         const box = document.getElementById('citySuggest');
+        const q = document.getElementById('ui_city_q');
+        const hint = document.getElementById('citySearchHint');
         if (!box) return;
         if (!rows.length) {
             box.hidden = true;
             box.innerHTML = '';
+            if (q) q.setAttribute('aria-expanded', 'false');
+            if (hint && query) {
+                hint.hidden = false;
+                hint.textContent = 'شهری با «' + query + '» پیدا نشد.';
+            }
             return;
         }
+        if (hint) {
+            hint.hidden = true;
+            hint.textContent = '';
+        }
         box.hidden = false;
-        box.innerHTML = rows.slice(0, 12).map(function (row) {
-            return '<button type="button" class="sp-suggest__item" data-city-id="' + row.id
+        if (q) q.setAttribute('aria-expanded', 'true');
+        box.innerHTML = rows.slice(0, 15).map(function (row) {
+            return '<button type="button" class="sp-suggest__item" role="option" data-city-id="' + row.id
                 + '" data-city-name="' + String(row.name).replace(/"/g, '&quot;') + '">'
                 + '<strong>' + row.name + '</strong></button>';
         }).join('');
     }
 
-    document.getElementById('cityList').addEventListener('click', function (e) {
-        const btn = e.target.closest('[data-city-id]');
-        if (!btn) return;
-        setCity(btn.dataset.cityId, btn.dataset.cityName);
-    });
+    async function searchCities(query) {
+        const q = (query || '').trim();
+        // Local filter first for instant feedback, then refresh from API.
+        if (allCities.length) {
+            const needle = q.toLowerCase();
+            const local = !q ? allCities.slice(0, 15) : allCities.filter(function (row) {
+                return String(row.name || '').toLowerCase().indexOf(needle) !== -1;
+            });
+            renderCitySuggest(local, q);
+        }
+        try {
+            const data = await api('/cities?q=' + encodeURIComponent(q));
+            renderCitySuggest(data.results || [], q);
+        } catch (e) {
+            console.warn(e);
+            if (!allCities.length) {
+                const hint = document.getElementById('citySearchHint');
+                if (hint) {
+                    hint.hidden = false;
+                    hint.textContent = e.message || 'جستجوی شهر ناموفق بود.';
+                }
+            }
+        }
+    }
 
     const citySuggest = document.getElementById('citySuggest');
     if (citySuggest) {
@@ -854,8 +872,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const btn = e.target.closest('[data-city-id]');
             if (!btn) return;
             setCity(btn.dataset.cityId, btn.dataset.cityName);
-            const q = document.getElementById('ui_city_q');
-            if (q) q.value = btn.dataset.cityName || '';
         });
     }
 
@@ -863,9 +879,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cityClearBtn) {
         cityClearBtn.addEventListener('click', function () {
             setCity('', '');
-            const q = document.getElementById('ui_city_q');
-            if (q) q.value = '';
-            renderCityList(allCities);
+            hideCitySuggest();
         });
     }
 
@@ -873,29 +887,35 @@ document.addEventListener('DOMContentLoaded', function () {
     const citySearch = document.getElementById('ui_city_q');
     if (citySearch) {
         citySearch.addEventListener('input', function () {
+            // Typing means selection is no longer valid until they pick again.
+            const selectedName = (document.getElementById('citySelectedName') || {}).textContent || '';
+            if (citySearch.value.trim() !== selectedName.trim()) {
+                document.getElementById('ui_city_id').value = '';
+                const chip = document.getElementById('citySelectedChip');
+                if (chip) chip.hidden = true;
+                updateSummary();
+            }
             clearTimeout(cityTimer);
-            cityTimer = setTimeout(async function () {
-                const q = citySearch.value.trim();
-                const data = await api('/cities?q=' + encodeURIComponent(q));
-                const rows = data.results || [];
-                renderCityList(rows);
-                renderCitySuggest(q ? rows : []);
-            }, 220);
+            cityTimer = setTimeout(function () {
+                searchCities(citySearch.value);
+            }, 160);
         });
-        citySearch.addEventListener('focus', async function () {
-            if (citySearch.value.trim() === '') {
-                const data = await api('/cities');
-                renderCitySuggest((data.results || []).slice(0, 12));
+        citySearch.addEventListener('focus', function () {
+            searchCities(citySearch.value);
+        });
+        citySearch.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') hideCitySuggest();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const first = citySuggest && citySuggest.querySelector('[data-city-id]');
+                if (first) setCity(first.dataset.cityId, first.dataset.cityName);
             }
         });
     }
 
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#cityTypeahead')) {
-            const box = document.getElementById('citySuggest');
-            if (box) {
-                box.hidden = true;
-            }
+            hideCitySuggest();
         }
     });
 
