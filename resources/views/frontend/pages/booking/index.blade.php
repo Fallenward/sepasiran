@@ -104,7 +104,7 @@
                 <p class="sp-booking__hint">نام شهر را تایپ کنید؛ پیشنهادها هم‌زمان نمایش داده می‌شوند (مثلاً با حرف «ت»).</p>
                 <div class="sp-booking__city-search sp-typeahead" id="cityTypeahead">
                     <label for="ui_city_q">جستجوی شهر</label>
-                    <input type="search" id="ui_city_q" class="sp-typeahead__input"
+                    <input type="text" id="ui_city_q" class="sp-typeahead__input"
                            placeholder="شروع به تایپ کنید…"
                            value="{{ $selectedCityName ?? '' }}"
                            autocomplete="off" aria-autocomplete="list" aria-controls="citySuggest" aria-expanded="false">
@@ -841,16 +841,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    let cityTimer = null;
+    let citySearchSeq = 0;
+    let cityPickLock = false;
+
     function setCity(id, name) {
+        cityPickLock = true;
+        clearTimeout(cityTimer);
+        citySearchSeq += 1;
         const input = document.getElementById('ui_city_id');
+        const field = document.getElementById('field_city_id');
         input.value = id ? String(id) : '';
+        if (field) field.value = id ? String(id) : '';
         const chip = document.getElementById('citySelectedChip');
         const nameEl = document.getElementById('citySelectedName');
         const q = document.getElementById('ui_city_q');
         if (nameEl) nameEl.textContent = name || '—';
         if (chip) chip.hidden = !id;
-        if (q && name) q.value = name;
-        if (q && !id) q.value = '';
+        if (q) q.value = id && name ? name : '';
         hideCitySuggest();
         const hint = document.getElementById('citySearchHint');
         if (hint) {
@@ -859,6 +867,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         updateSummary();
         reloadProviders();
+        // Allow typing again after the programmatic value write settles.
+        setTimeout(function () { cityPickLock = false; }, 0);
     }
 
     function hideCitySuggest() {
@@ -869,6 +879,14 @@ document.addEventListener('DOMContentLoaded', function () {
             box.innerHTML = '';
         }
         if (q) q.setAttribute('aria-expanded', 'false');
+    }
+
+    function escapeAttr(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 
     function renderCitySuggest(rows, query) {
@@ -893,13 +911,22 @@ document.addEventListener('DOMContentLoaded', function () {
         box.hidden = false;
         if (q) q.setAttribute('aria-expanded', 'true');
         box.innerHTML = rows.slice(0, 15).map(function (row) {
-            return '<button type="button" class="sp-suggest__item" role="option" data-city-id="' + row.id
-                + '" data-city-name="' + String(row.name).replace(/"/g, '&quot;') + '">'
-                + '<strong>' + row.name + '</strong></button>';
+            return '<button type="button" class="sp-suggest__item" role="option" data-city-id="' + escapeAttr(row.id)
+                + '" data-city-name="' + escapeAttr(row.name) + '">'
+                + '<strong>' + escapeAttr(row.name) + '</strong></button>';
         }).join('');
     }
 
+    function pickCityFromEl(el) {
+        if (!el) return;
+        const id = el.getAttribute('data-city-id') || el.dataset.cityId;
+        const name = el.getAttribute('data-city-name') || el.dataset.cityName || '';
+        if (!id) return;
+        setCity(id, name);
+    }
+
     async function searchCities(query) {
+        const seq = ++citySearchSeq;
         const q = (query || '').trim();
         // Local filter first for instant feedback, then refresh from API.
         if (allCities.length) {
@@ -907,12 +934,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const local = !q ? allCities.slice(0, 15) : allCities.filter(function (row) {
                 return String(row.name || '').toLowerCase().indexOf(needle) !== -1;
             });
-            renderCitySuggest(local, q);
+            if (seq === citySearchSeq) renderCitySuggest(local, q);
         }
         try {
             const data = await api('/cities?q=' + encodeURIComponent(q));
+            if (seq !== citySearchSeq) return;
             renderCitySuggest(data.results || [], q);
         } catch (e) {
+            if (seq !== citySearchSeq) return;
             console.warn(e);
             if (!allCities.length) {
                 const hint = document.getElementById('citySearchHint');
@@ -926,10 +955,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const citySuggest = document.getElementById('citySuggest');
     if (citySuggest) {
+        // mousedown + preventDefault keeps focus and avoids losing the click when the list re-renders.
+        citySuggest.addEventListener('mousedown', function (e) {
+            const btn = e.target.closest('[data-city-id]');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            pickCityFromEl(btn);
+        });
         citySuggest.addEventListener('click', function (e) {
             const btn = e.target.closest('[data-city-id]');
             if (!btn) return;
-            setCity(btn.dataset.cityId, btn.dataset.cityName);
+            e.preventDefault();
+            e.stopPropagation();
+            pickCityFromEl(btn);
         });
     }
 
@@ -941,14 +980,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    let cityTimer = null;
     const citySearch = document.getElementById('ui_city_q');
     if (citySearch) {
         citySearch.addEventListener('input', function () {
+            if (cityPickLock) return;
             // Typing means selection is no longer valid until they pick again.
             const selectedName = (document.getElementById('citySelectedName') || {}).textContent || '';
             if (citySearch.value.trim() !== selectedName.trim()) {
                 document.getElementById('ui_city_id').value = '';
+                const field = document.getElementById('field_city_id');
+                if (field) field.value = '';
                 const chip = document.getElementById('citySelectedChip');
                 if (chip) chip.hidden = true;
                 updateSummary();
@@ -959,6 +1000,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 160);
         });
         citySearch.addEventListener('focus', function () {
+            if (cityPickLock) return;
             searchCities(citySearch.value);
         });
         citySearch.addEventListener('keydown', function (e) {
@@ -966,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const first = citySuggest && citySuggest.querySelector('[data-city-id]');
-                if (first) setCity(first.dataset.cityId, first.dataset.cityName);
+                if (first) pickCityFromEl(first);
             }
         });
     }

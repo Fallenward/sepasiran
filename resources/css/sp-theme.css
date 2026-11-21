@@ -2901,6 +2901,13 @@ body.sp-body {
 .sp-booking__city-search .sp-suggest {
   z-index: 40;
   max-height: 280px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sp-booking__city-search .sp-suggest__item {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .sp-booking__slot.is-disabled,
