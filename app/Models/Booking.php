@@ -15,6 +15,7 @@ class Booking extends Model
         'service_type',
         'fulfillment_mode',
         'provider_id',
+        'provider_service_id',
         'city_id',
         'breed_id',
         'training_type',
@@ -29,6 +30,8 @@ class Booking extends Model
         'total',
         'payment_method',
         'payment_status',
+        'settlement_status',
+        'held_amount',
         'transaction_id',
         'gateway_driver',
         'gateway_transaction_id',
@@ -46,7 +49,24 @@ class Booking extends Model
         'tax' => 'decimal:2',
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
+        'held_amount' => 'integer',
     ];
+
+    public function providerService()
+    {
+        return $this->belongsTo(ProviderService::class, 'provider_service_id');
+    }
+
+    public function isHeld(): bool
+    {
+        return (string) $this->settlement_status === 'held'
+            && (string) $this->payment_status === 'paid';
+    }
+
+    public function isSettled(): bool
+    {
+        return (string) $this->settlement_status === 'settled';
+    }
 
     protected static function booted(): void
     {

@@ -111,13 +111,28 @@ class BookingProviderPricePaymentTest extends TestCase
 
         $customer->refresh();
         $coach->refresh();
+        // Escrow: customer debited, provider NOT credited until accept.
         $this->assertSame(1_250_000, (int) $customer->wallet);
-        $this->assertSame(750000, (int) $coach->wallet);
+        $this->assertSame(0, (int) $coach->wallet);
         $this->assertDatabaseHas('bookings', [
             'booking_code' => $code,
             'payment_status' => 'paid',
             'payment_method' => 'online',
             'gateway_driver' => 'wallet',
+            'settlement_status' => 'held',
+            'status' => 'PENDING',
+        ]);
+
+        $this->actingAs($coach)
+            ->postJson(route('frontend.booking.api.respond', $code), ['action' => 'accept'])
+            ->assertOk()
+            ->assertJsonPath('booking.status', 'CONFIRMED');
+
+        $coach->refresh();
+        $this->assertSame(750000, (int) $coach->wallet);
+        $this->assertDatabaseHas('bookings', [
+            'booking_code' => $code,
+            'settlement_status' => 'settled',
             'status' => 'CONFIRMED',
         ]);
     }

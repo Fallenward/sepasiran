@@ -193,25 +193,21 @@ class BookingApiController extends Controller
             'provider_id' => ['required', 'integer', 'exists:users,id'],
             'date' => ['required', 'date_format:Y-m-d'],
             'service_type' => ['nullable', Rule::in(BookingCatalog::keys())],
+            'provider_service_id' => ['nullable', 'integer', 'exists:provider_services,id'],
         ]);
 
-        $date = Carbon::createFromFormat('Y-m-d', $validated['date'])->startOfDay();
-        $taken = Booking::query()
-            ->where('provider_id', $validated['provider_id'])
-            ->whereDate('appointment_date', $date->toDateString())
-            ->where('status', '!=', 'CANCELLED')
-            ->get(['appointment_date', 'slot'])
-            ->map(function (Booking $b) {
-                return $b->slot ?: optional($b->appointment_date)->format('H:i');
-            })
-            ->filter()
-            ->values()
-            ->all();
+        $tz = config('app.timezone', 'Asia/Tehran');
+        $date = Carbon::createFromFormat('Y-m-d', $validated['date'], $tz)->startOfDay();
+        $service = null;
+        if (! empty($validated['provider_service_id'])) {
+            $service = \App\Models\ProviderService::query()
+                ->whereKey($validated['provider_service_id'])
+                ->where('user_id', $validated['provider_id'])
+                ->first();
+        }
 
-        $slots = collect(BookingCatalog::slotTemplate())->map(fn (string $time) => [
-            'time' => $time,
-            'available' => !in_array($time, $taken, true),
-        ]);
+        $slots = app(\App\Support\BookingAvailabilityService::class)
+            ->slotsFor((int) $validated['provider_id'], $date, $service);
 
         return response()->json([
             'date' => $date->toDateString(),
@@ -653,12 +649,21 @@ class BookingApiController extends Controller
             ]);
         }
 
+        $pay = app(\App\Support\BookingPaymentService::class);
+
         if ($data['action'] === 'accept') {
             $booking->update([
                 'provider_id' => $userId,
                 'status' => 'ACCEPTED',
             ]);
+            $booking = $booking->fresh();
+            if ($booking->isHeld()) {
+                $booking = $pay->settleHeld($booking);
+            }
         } else {
+            if ($booking->isHeld() || ((string) $booking->payment_status === 'paid' && (string) $booking->settlement_status === 'held')) {
+                $pay->refundHeld($booking, 'reject');
+            }
             $booking->update(['status' => 'CANCELLED']);
         }
 

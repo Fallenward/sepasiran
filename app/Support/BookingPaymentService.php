@@ -126,40 +126,27 @@ class BookingPaymentService
                 $customerLocked->decrement('wallet', $amount);
             }
 
-            $provider = null;
-            if ($booking->provider_id) {
-                $provider = User::query()->lockForUpdate()->find($booking->provider_id);
-                if ($provider) {
-                    $provider->increment('wallet', $amount);
-                }
-            }
-
+            // Escrow: do NOT credit provider until accept (settleHeld).
             $ref = $externalRef ?: ('BK-'.Str::upper(Str::random(10)));
 
             $customerTx = Transaction::query()->create([
                 'user_id' => $customerLocked->id,
                 'transaction_id' => $ref.'-C',
-                'description' => ($method === 'gateway' ? 'پرداخت درگاه — ' : 'پرداخت کیف پول — ').'رزرو '.$booking->booking_code,
+                'description' => ($method === 'gateway' ? 'پرداخت درگاه (امانی) — ' : 'پرداخت کیف پول (امانی) — ').'رزرو '.$booking->booking_code,
                 'status' => 'completed',
                 'amount' => $method === 'wallet' ? -$amount : 0,
                 'cart_price' => $amount,
                 'payment_method' => 'online',
             ]);
 
-            if ($provider) {
-                Transaction::query()->create([
-                    'user_id' => $provider->id,
-                    'transaction_id' => $ref.'-P',
-                    'description' => 'دریافت رزرو '.$booking->booking_code,
-                    'status' => 'completed',
-                    'amount' => $amount,
-                    'cart_price' => $amount,
-                    'payment_method' => 'online',
-                ]);
+            $nextStatus = $booking->status;
+            // Pay alone must not CONFIRM while still awaiting provider approval.
+            if ((string) $booking->status === 'ACCEPTED') {
+                // Already accepted: settle immediately below via settleHeld after update.
+                $nextStatus = 'ACCEPTED';
             }
 
             $booking->update([
-                // Enum column only allows online|offline; channel detail is in gateway_driver.
                 'payment_method' => 'online',
                 'gateway_driver' => $method === 'wallet'
                     ? 'wallet'
@@ -168,10 +155,121 @@ class BookingPaymentService
                     ? ($externalRef ?: $booking->gateway_transaction_id)
                     : $booking->gateway_transaction_id,
                 'payment_status' => 'paid',
+                'settlement_status' => 'held',
+                'held_amount' => $amount,
                 'transaction_id' => $customerTx->id,
-                'status' => in_array((string) $booking->status, ['PENDING', 'ACCEPTED'], true)
-                    ? 'CONFIRMED'
-                    : $booking->status,
+                'status' => $nextStatus,
+            ]);
+
+            $fresh = $booking->fresh(['provider', 'user', 'dog', 'city']);
+            if ((string) $fresh->status === 'ACCEPTED' && $fresh->isHeld()) {
+                return $this->settleHeld($fresh);
+            }
+
+            return $fresh;
+        });
+    }
+
+    /**
+     * Release escrow to provider and mark booking CONFIRMED.
+     */
+    public function settleHeld(Booking $booking): Booking
+    {
+        return DB::transaction(function () use ($booking) {
+            /** @var Booking $booking */
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->id);
+
+            if ($booking->isSettled()) {
+                return $booking->fresh(['provider', 'user', 'dog', 'city']);
+            }
+
+            if (! $booking->isHeld()) {
+                throw ValidationException::withMessages([
+                    'booking' => 'مبلغ امانی برای تسویه وجود ندارد.',
+                ]);
+            }
+
+            $amount = (int) ($booking->held_amount ?: round((float) $booking->total));
+            if ($amount < 1 || ! $booking->provider_id) {
+                throw ValidationException::withMessages([
+                    'booking' => 'تسویه امانی ممکن نیست.',
+                ]);
+            }
+
+            /** @var User $provider */
+            $provider = User::query()->lockForUpdate()->findOrFail($booking->provider_id);
+            $provider->increment('wallet', $amount);
+
+            $ref = 'BK-SET-'.Str::upper(Str::random(8));
+            Transaction::query()->create([
+                'user_id' => $provider->id,
+                'transaction_id' => $ref.'-P',
+                'description' => 'تسویه رزرو '.$booking->booking_code,
+                'status' => 'completed',
+                'amount' => $amount,
+                'cart_price' => $amount,
+                'payment_method' => 'online',
+            ]);
+
+            $booking->update([
+                'settlement_status' => 'settled',
+                'held_amount' => 0,
+                'status' => 'CONFIRMED',
+            ]);
+
+            return $booking->fresh(['provider', 'user', 'dog', 'city']);
+        });
+    }
+
+    /**
+     * Refund held funds to customer (wallet credit). Gateway refunds credit wallet as fallback.
+     */
+    public function refundHeld(Booking $booking, string $reason = 'reject'): Booking
+    {
+        return DB::transaction(function () use ($booking, $reason) {
+            /** @var Booking $booking */
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->id);
+
+            if ((string) $booking->settlement_status === 'refunded') {
+                return $booking->fresh(['provider', 'user', 'dog', 'city']);
+            }
+
+            if ($booking->isSettled()) {
+                throw ValidationException::withMessages([
+                    'booking' => 'پس از تسویه، بازپرداخت خودکار ممکن نیست.',
+                ]);
+            }
+
+            if (! $booking->isHeld() && (string) $booking->payment_status !== 'paid') {
+                $booking->update([
+                    'settlement_status' => 'none',
+                    'held_amount' => 0,
+                ]);
+
+                return $booking->fresh(['provider', 'user', 'dog', 'city']);
+            }
+
+            $amount = (int) ($booking->held_amount ?: round((float) $booking->total));
+            /** @var User $customer */
+            $customer = User::query()->lockForUpdate()->findOrFail($booking->user_id);
+            if ($amount > 0) {
+                $customer->increment('wallet', $amount);
+                $ref = 'BK-RF-'.Str::upper(Str::random(8));
+                Transaction::query()->create([
+                    'user_id' => $customer->id,
+                    'transaction_id' => $ref.'-R',
+                    'description' => 'بازپرداخت رزرو '.$booking->booking_code.($reason ? ' ('.$reason.')' : ''),
+                    'status' => 'completed',
+                    'amount' => $amount,
+                    'cart_price' => $amount,
+                    'payment_method' => 'online',
+                ]);
+            }
+
+            $booking->update([
+                'payment_status' => 'refunded',
+                'settlement_status' => 'refunded',
+                'held_amount' => 0,
             ]);
 
             return $booking->fresh(['provider', 'user', 'dog', 'city']);

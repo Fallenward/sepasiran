@@ -151,13 +151,22 @@ class BookingHubController extends Controller
             ]);
         }
 
+        $pay = app(\App\Support\BookingPaymentService::class);
+
         // Provider may accept or reject any undecided request (direct or open).
         if ($isProvider && $decision === 'ACCEPTED') {
             $booking->forceFill([
                 'status' => 'ACCEPTED',
                 'provider_id' => $user->id,
             ])->save();
+            if ($booking->fresh()->isHeld()) {
+                $pay->settleHeld($booking->fresh());
+            }
         } else {
+            $fresh = $booking->fresh();
+            if ($fresh->isHeld() || ((string) $fresh->payment_status === 'paid' && (string) $fresh->settlement_status === 'held')) {
+                $pay->refundHeld($fresh, $isOwner ? 'cancel' : 'reject');
+            }
             $booking->forceFill(['status' => 'CANCELLED'])->save();
         }
 
