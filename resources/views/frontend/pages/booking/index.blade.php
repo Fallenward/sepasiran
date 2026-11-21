@@ -182,6 +182,7 @@
                         </div>
                         <div class="sp-booking__provider-list" id="providerList" hidden></div>
                     @else
+                        <p class="sp-booking__hint" id="providerCityHint">ارائه‌دهندگان شهر انتخاب‌شده در اینجا نمایش داده می‌شوند.</p>
                         <div class="field">
                             <label for="ui_provider_q">جستجوی ارائه‌دهنده</label>
                             <input type="search" id="ui_provider_q" placeholder="نام…">
@@ -338,7 +339,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         if (n === 5) {
             toggleModeExtras();
-            if (locked) loadProviderServices();
+            if (locked) {
+                loadProviderServices();
+            } else if (selectedMode() === 'direct') {
+                reloadProviders();
+            }
         }
         if (n === 6) refreshQuote();
         updateSummary();
@@ -559,6 +564,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 grid.querySelectorAll('.sp-booking__choice').forEach(function (c) { c.classList.remove('is-active'); });
                 input.closest('.sp-booking__choice').classList.add('is-active');
                 toggleModeExtras();
+                if (selectedMode() === 'direct') {
+                    reloadProviders();
+                } else {
+                    selectedProviders = [];
+                }
                 updateSummary();
             });
         });
@@ -586,6 +596,15 @@ document.addEventListener('DOMContentLoaded', function () {
         sel.addEventListener('change', updateSummary);
     }
 
+    function selectedCityName() {
+        const chip = document.getElementById('citySelectedName');
+        if (chip && chip.textContent && chip.textContent.trim() && chip.textContent.trim() !== '—') {
+            return chip.textContent.trim();
+        }
+        const q = document.getElementById('ui_city_q');
+        return q && q.value ? q.value.trim() : '';
+    }
+
     async function reloadProviders() {
         if (!isAuth) return;
         if (locked && lockedProviderId) {
@@ -595,40 +614,79 @@ document.addEventListener('DOMContentLoaded', function () {
             reloadSlots();
             return;
         }
+        const list = document.getElementById('providerList');
+        const hint = document.getElementById('providerCityHint');
         const type = selectedService();
         const cityRaw = document.getElementById('ui_city_id').value;
         const cityId = cityRaw && Number(cityRaw) > 0 ? Number(cityRaw) : null;
+        const cityLabel = selectedCityName();
         const qEl = document.getElementById('ui_provider_q');
         const q = qEl ? (qEl.value || '') : '';
-        let path = '/providers?service_type=' + encodeURIComponent(type);
-        if (cityId) path += '&city_id=' + encodeURIComponent(cityId);
-        if (q) path += '&q=' + encodeURIComponent(q);
-        const data = await api(path);
-        const list = document.getElementById('providerList');
+
+        if (hint) {
+            hint.textContent = cityLabel
+                ? ('ارائه‌دهندگان شهر «' + cityLabel + '»')
+                : 'ابتدا در مرحله شهر، یک شهر انتخاب کنید.';
+        }
+
         if (!list) return;
-        list.innerHTML = '';
-        (data.results || []).forEach(function (row) {
-            providerNames[row.id] = row.display_name || row.name;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'sp-booking__provider' + (selectedProviders.indexOf(row.id) >= 0 ? ' is-active' : '');
-            btn.dataset.id = row.id;
-            btn.innerHTML = '<strong>' + (row.display_name || row.name) + '</strong>' +
-                '<span>' + (row.city ? row.city.name : '—')
-                + (row.price ? (' · ' + Number(row.price).toLocaleString('fa-IR') + ' ت') : '')
-                + '</span>';
-            btn.addEventListener('click', function () {
-                const id = Number(row.id);
-                const idx = selectedProviders.indexOf(id);
-                if (idx >= 0) selectedProviders.splice(idx, 1);
-                else selectedProviders.push(id);
-                reloadProviders();
-                reloadSlots();
+
+        if (!cityId) {
+            list.innerHTML = '<p class="sp-booking__empty">برای دیدن ارائه‌دهندگان، ابتدا شهر را انتخاب کنید.</p>';
+            selectedProviders = [];
+            updateSummary();
+            return;
+        }
+
+        let path = '/providers?service_type=' + encodeURIComponent(type)
+            + '&city_id=' + encodeURIComponent(cityId);
+        if (q) path += '&q=' + encodeURIComponent(q);
+
+        try {
+            const data = await api(path);
+            const rows = data.results || [];
+            if (hint && data.city_name) {
+                hint.textContent = 'ارائه‌دهندگان شهر «' + data.city_name + '»';
+            }
+            list.innerHTML = '';
+            if (!rows.length) {
+                list.innerHTML = '<p class="sp-booking__empty">در شهر «'
+                    + (data.city_name || cityLabel || 'انتخاب‌شده')
+                    + '» ارائه‌دهنده‌ای برای این خدمت پیدا نشد.</p>';
+                selectedProviders = [];
                 updateSummary();
+                return;
+            }
+            const visibleIds = {};
+            rows.forEach(function (row) {
+                visibleIds[row.id] = true;
+                providerNames[row.id] = row.display_name || row.name;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'sp-booking__provider' + (selectedProviders.indexOf(row.id) >= 0 ? ' is-active' : '');
+                btn.dataset.id = row.id;
+                btn.innerHTML = '<strong>' + (row.display_name || row.name) + '</strong>' +
+                    '<span>' + (row.city ? row.city.name : '—')
+                    + (row.price ? (' · ' + Number(row.price).toLocaleString('fa-IR') + ' ت') : '')
+                    + '</span>';
+                btn.addEventListener('click', function () {
+                    const id = Number(row.id);
+                    const idx = selectedProviders.indexOf(id);
+                    if (idx >= 0) selectedProviders.splice(idx, 1);
+                    else selectedProviders.push(id);
+                    reloadProviders();
+                    reloadSlots();
+                    updateSummary();
+                });
+                list.appendChild(btn);
             });
-            list.appendChild(btn);
-        });
-        updateSummary();
+            // Drop selections that are outside the current city filter.
+            selectedProviders = selectedProviders.filter(function (id) { return !!visibleIds[id]; });
+            updateSummary();
+        } catch (e) {
+            console.warn(e);
+            list.innerHTML = '<p class="sp-booking__empty">' + (e.message || 'بارگذاری ارائه‌دهندگان ناموفق بود.') + '</p>';
+        }
     }
 
     async function reloadSlots() {

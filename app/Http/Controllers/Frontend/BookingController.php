@@ -17,7 +17,13 @@ class BookingController extends Controller
 {
     public function index(Request $request)
     {
-        $cities = City::query()->orderBy('name')->get(['id', 'name']);
+        // Prefer lowest id per name so duplicate city seed rows don't break provider matching.
+        $cities = City::query()
+            ->orderBy('id')
+            ->get(['id', 'name'])
+            ->unique(fn (City $c) => mb_strtolower(trim((string) $c->name)))
+            ->sortBy(fn (City $c) => $c->name, SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
         $providerId = (int) $request->get('provider', 0);
         $cityId = (int) $request->get('city_id', 0);
         $allowedTypes = array_column(BookingCatalog::serviceTypes(), 'key');

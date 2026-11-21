@@ -75,6 +75,30 @@ class BookingApiTest extends TestCase
             ->assertJsonFragment(['id' => $coach->id]);
     }
 
+    public function test_providers_endpoint_filters_by_city_including_duplicate_names(): void
+    {
+        $tehranA = $this->makeCity('تهران');
+        $tehranB = $this->makeCity('تهران');
+        $mashhad = $this->makeCity('مشهد');
+
+        $inTehran = $this->makeCoach(['name' => 'TehranCoach', 'city_id' => $tehranA->id]);
+        $otherCity = $this->makeCoach(['name' => 'MashhadCoach', 'city_id' => $mashhad->id]);
+
+        // Selecting the duplicate city id must still return providers on the canonical city row.
+        $this->getJson(route('frontend.booking.api.providers', [
+            'service_type' => 'coach',
+            'city_id' => $tehranB->id,
+        ]))
+            ->assertOk()
+            ->assertJsonPath('city_name', 'تهران')
+            ->assertJsonFragment(['id' => $inTehran->id])
+            ->assertJsonMissing(['id' => $otherCity->id]);
+
+        $this->getJson(route('frontend.booking.api.cities', ['q' => 'ته']))
+            ->assertOk()
+            ->assertJsonCount(1, 'results');
+    }
+
     public function test_slots_mark_taken_times_unavailable(): void
     {
         $customer = User::factory()->create();

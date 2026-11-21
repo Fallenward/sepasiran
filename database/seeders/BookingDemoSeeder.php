@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\City;
 use App\Models\Dog;
 use App\Models\OpenSession;
 use App\Models\ProviderAvailabilityRule;
@@ -32,6 +33,23 @@ class BookingDemoSeeder extends Seeder
 
         $customer->forceFill(['wallet' => 10_000_000])->save();
         $coach->forceFill(['wallet' => 500_000])->save();
+
+        // Ensure demo/legacy coaches have a city so direct booking city filter can find them.
+        $tehranId = (int) (City::query()->where('name', 'تهران')->orderBy('id')->value('id') ?: City::query()->orderBy('id')->value('id'));
+        if ($tehranId > 0) {
+            User::query()
+                ->whereIn('email', [
+                    'coach@sepasiran.test',
+                    'coach2@sepasiran.test',
+                    'coach1@example.com',
+                    'coach2@example.com',
+                    'coach3@example.com',
+                ])
+                ->where(function ($q) {
+                    $q->whereNull('city_id')->orWhere('city_id', 0);
+                })
+                ->update(['city_id' => $tehranId]);
+        }
 
         Dog::query()->where('user_id', $customer->id)->update(['status' => 'owned']);
 

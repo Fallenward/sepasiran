@@ -53,11 +53,15 @@ class BookingApiController extends Controller
     public function cities(Request $request): JsonResponse
     {
         $term = trim((string) $request->get('q', ''));
+        // Prefer the lowest id per city name so duplicate seed rows don't confuse the wizard.
         $rows = City::query()
             ->when($term !== '', fn ($q) => $q->where('name', 'like', '%'.$term.'%'))
-            ->orderBy('name')
-            ->limit(40)
+            ->orderBy('id')
             ->get(['id', 'name'])
+            ->unique(fn (City $c) => mb_strtolower(trim((string) $c->name)))
+            ->sortBy(fn (City $c) => $c->name, SORT_NATURAL | SORT_FLAG_CASE)
+            ->take(40)
+            ->values()
             ->map(fn (City $c) => ['id' => $c->id, 'name' => $c->name]);
 
         return response()->json(['results' => $rows]);
@@ -150,6 +154,9 @@ class BookingApiController extends Controller
 
         $role = BookingCatalog::roleFor($validated['service_type']);
         $term = trim((string) ($validated['q'] ?? ''));
+        $cityIds = $this->cityIdsMatchingSelection(
+            isset($validated['city_id']) ? (int) $validated['city_id'] : null
+        );
 
         $query = User::query()
             ->select('users.*')
@@ -159,8 +166,17 @@ class BookingApiController extends Controller
             ->with('city:id,name')
             ->orderBy('users.name');
 
-        if (! empty($validated['city_id'])) {
-            $query->where('users.city_id', $validated['city_id']);
+        // Direct booking: only providers in the selected city (including duplicate city rows with the same name).
+        if ($cityIds !== null) {
+            if ($cityIds === []) {
+                return response()->json([
+                    'results' => [],
+                    'city_id' => $validated['city_id'] ?? null,
+                    'city_name' => null,
+                    'empty' => true,
+                ]);
+            }
+            $query->whereIn('users.city_id', $cityIds);
         }
 
         if ($term !== '') {
@@ -172,6 +188,11 @@ class BookingApiController extends Controller
         }
 
         $serviceType = $validated['service_type'];
+        $cityName = null;
+        if (! empty($validated['city_id'])) {
+            $cityName = optional(City::query()->find($validated['city_id']))->name;
+        }
+
         $results = $query->limit(40)->get()->map(function (User $user) use ($role, $serviceType) {
             $display = trim(($user->name ?? '').' '.($user->family ?? ''));
             $priceRow = BookingCatalog::providerPriceRow((int) $user->id, $serviceType);
@@ -189,7 +210,43 @@ class BookingApiController extends Controller
             ];
         });
 
-        return response()->json(['results' => $results]);
+        return response()->json([
+            'results' => $results,
+            'city_id' => $validated['city_id'] ?? null,
+            'city_name' => $cityName,
+            'empty' => $results->isEmpty(),
+        ]);
+    }
+
+    /**
+     * Resolve all city ids that should match a wizard selection.
+     * Duplicate city names in the DB (e.g. two «تهران» rows) must still return providers.
+     *
+     * @return list<int>|null null = no city filter
+     */
+    private function cityIdsMatchingSelection(?int $cityId): ?array
+    {
+        if ($cityId === null || $cityId < 1) {
+            return null;
+        }
+
+        $city = City::query()->find($cityId);
+        if (! $city) {
+            return [];
+        }
+
+        $name = trim((string) $city->name);
+        if ($name === '') {
+            return [(int) $city->id];
+        }
+
+        return City::query()
+            ->where('name', $name)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function slots(Request $request): JsonResponse
