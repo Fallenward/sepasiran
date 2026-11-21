@@ -147,10 +147,12 @@ public function show($id)
 
     $specialties = $trainer->speciality ?? collect();
     $address = trim((string) ($trainer->address ?? ''));
+    $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
 
     $facts = array_values(array_filter([
         $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
         ['label' => 'آگهی سگ', 'value' => (string) $dogsCount, 'num' => true],
+        ['label' => 'جلسات تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
         ['label' => 'تخصص‌ها', 'value' => (string) $specialties->count(), 'num' => true],
         $address !== '' ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
     ]));
@@ -168,6 +170,7 @@ public function show($id)
         'cityName' => $cityName,
         'facts' => $facts,
         'bookUrl' => $bookUrl,
+        'sessionResume' => $sessionResume,
     ]);
 }
 

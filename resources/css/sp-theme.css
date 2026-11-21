@@ -4642,3 +4642,75 @@ body.sp-body {
     border-radius: 22px;
   }
 }
+
+.sp-provider__resume-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.sp-provider__resume-head h2 {
+  margin: 0;
+}
+
+.sp-provider__resume-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.sp-provider__resume-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  position: relative;
+  padding: 12px 0;
+}
+
+.sp-provider__resume-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  bottom: -4px;
+  right: 8px;
+  width: 2px;
+  background: rgba(126, 200, 160, 0.28);
+}
+
+.sp-provider__resume-mark {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--sp-green-soft, #7ec8a0);
+  box-shadow: 0 0 0 4px rgba(126, 200, 160, 0.18);
+  justify-self: center;
+}
+
+.sp-provider__resume-body {
+  min-width: 0;
+}
+
+.sp-provider__resume-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sp-provider__resume-top strong {
+  font-size: 0.98rem;
+}
+
+.sp-provider__resume-body p {
+  margin: 6px 0 0;
+  color: var(--sp-text-subtle);
+  font-size: 0.88rem;
+}

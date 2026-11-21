@@ -82,10 +82,7 @@ public function index(Request $request)
     }
 
     $specialties = $clinic->speciality ?? collect();
-    $completed = \App\Models\Booking::query()
-        ->where('provider_id', $id)
-        ->whereIn('status', ['COMPLETED', 'CONFIRMED', 'ACCEPTED'])
-        ->count();
+    $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
 
     $workingHours = $clinic->getAttribute('working_hours');
     $animals = $clinic->getAttribute('animals');
@@ -96,7 +93,7 @@ public function index(Request $request)
         $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
         $address ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
         $workingHours ? ['label' => 'ساعت کاری', 'value' => (string) $workingHours] : null,
-        ['label' => 'نوبت‌های ثبت‌شده', 'value' => (string) $completed, 'num' => true],
+        ['label' => 'نوبت‌های تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
         ['label' => 'تخصص‌ها', 'value' => (string) $specialties->count(), 'num' => true],
     ]));
 
@@ -115,6 +112,7 @@ public function index(Request $request)
         'workingHours' => $workingHours,
         'animals' => $animals,
         'address' => $address,
+        'sessionResume' => $sessionResume,
     ]);
 }
  public function edit()

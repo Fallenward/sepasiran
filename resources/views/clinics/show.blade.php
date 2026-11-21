@@ -28,6 +28,7 @@
     :city-name="$cityName"
     :specialties="$specialties"
     :facts="$facts"
+    :session-resume="$sessionResume ?? null"
     hero-image="images/demo/hero/hero-03.jpg"
 >
     <section class="sp-provider__panel">

@@ -10,6 +10,7 @@
     'specialties' => null,
     'facts' => [],
     'heroImage' => 'images/demo/hero/hero-01.jpg',
+    'sessionResume' => null,
 ])
 @php
     $fullName = trim(($provider->name ?? '').' '.($provider->family ?? ''));
@@ -18,6 +19,7 @@
         $avatar = asset('images/demo/dogs/dog-02.jpg');
     }
     $specialties = collect($specialties ?? []);
+    $sessionResume = $sessionResume ?? ['total' => 0, 'items' => collect()];
 @endphp
 <div class="sp-provider">
     <section class="sp-provider__hero" style="--sp-provider-hero-image: url('{{ asset($heroImage) }}')">
@@ -66,6 +68,8 @@
             </section>
 
             {{ $slot }}
+
+            <x-provider-session-resume :resume="$sessionResume" :role-label="$roleLabel" />
         </div>
 
         <aside class="sp-provider__aside">

@@ -175,15 +175,12 @@ public function showById($id)
     $courses = $coursesQuery->latest()->take(8)->get();
 
     $specialties = $trainer->speciality ?? collect();
-    $completed = \App\Models\Booking::query()
-        ->where('provider_id', $id)
-        ->whereIn('status', ['COMPLETED', 'CONFIRMED', 'ACCEPTED'])
-        ->count();
+    $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
 
     $facts = array_values(array_filter([
         $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
         ['label' => 'دوره‌ها', 'value' => (string) $coursesCount, 'num' => true],
-        ['label' => 'جلسات ثبت‌شده', 'value' => (string) $completed, 'num' => true],
+        ['label' => 'جلسات تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
         ['label' => 'تخصص‌ها', 'value' => (string) max($specialties->count(), 0), 'num' => true],
     ]));
 
@@ -200,6 +197,7 @@ public function showById($id)
         'cityName' => $cityName,
         'facts' => $facts,
         'bookUrl' => $bookUrl,
+        'sessionResume' => $sessionResume,
     ]);
 }
 

@@ -24,6 +24,7 @@
     :city-name="$cityName"
     :specialties="$specialties"
     :facts="$facts"
+    :session-resume="$sessionResume ?? null"
     hero-image="images/demo/hero/hero-01.jpg"
 >
     @if($specialties->isNotEmpty())
