@@ -24,11 +24,7 @@
 <div class="wrap sp-listing" style="padding-top:28px;padding-bottom:56px">
     <div class="sp-listing__layout">
         <div class="sp-listing__filters">
-            <x-filter-form
-                :filters="$filters"
-                search-placeholder="عنوان یا دسته‌بندی را بنویسید…"
-                search-icon="course"
-            />
+            <x-filter-form :filters="$filters" search-placeholder="عنوان یا دسته را بنویسید" search-icon="course" />
         </div>
 
         <div class="sp-listing__results">
