@@ -17,32 +17,57 @@ class OnlineCourseController extends Controller
 {
 
 
-public function index()
+public function index(Request $request)
 {
-    $title = 'لیست دوره‌ها';
+    $title = 'دوره‌ها';
 
-    // Filters
-    $levels = Level::select('id', 'name')->get();
-    $categories = Category::select('id', 'name')->get();
-    $teachers = User::whereHas('roles', function ($q) {
-        $q->where('name', 'teacher');
-    })->select('id', 'name')->get();
+    $query = Course::query()
+        ->with(['category:id,name', 'user:id,name,family'])
+        ->where('status', 'published')
+        ->where('is_active', 1);
 
-    $paymentTypes = [
-        ['id' => 'free', 'name' => 'رایگان'],
-        ['id' => 'paid', 'name' => 'پولی'],
+    if ($request->filled('q')) {
+        $term = '%'.trim((string) $request->q).'%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('title', 'like', $term)
+                ->orWhere('short_description', 'like', $term)
+                ->orWhere('description', 'like', $term)
+                ->orWhereHas('category', fn ($q) => $q->where('name', 'like', $term));
+        });
+    }
+
+    if ($request->filled('category')) {
+        $query->whereIn('category_id', (array) $request->category);
+    }
+
+    if ($request->filled('level')) {
+        $query->whereIn('level_id', (array) $request->level);
+    }
+
+    if ($request->filled('price')) {
+        $prices = (array) $request->price;
+        $query->where(function ($builder) use ($prices) {
+            if (in_array('free', $prices, true)) {
+                $builder->orWhere('price', 0)->orWhereNull('price');
+            }
+            if (in_array('paid', $prices, true)) {
+                $builder->orWhere('price', '>', 0);
+            }
+        });
+    }
+
+    $courses = $query->latest('id')->paginate(9)->appends($request->query());
+
+    $filters = [
+        'category' => Category::query()->select('id', 'name')->orderBy('name')->get(),
+        'level' => Level::query()->select('id', 'name')->orderBy('name')->get(),
+        'price' => [
+            ['id' => 'free', 'name' => 'رایگان'],
+            ['id' => 'paid', 'name' => 'پولی'],
+        ],
     ];
 
-    // ✅ Load all active courses with category
-    $courses = Course::with('category')
-        ->where('status', 'published')
-        ->where('is_active', 1)
-        ->latest()
-        ->paginate(12);
-
-    return view('frontend.pages.courses.index', compact(
-        'title', 'levels', 'categories', 'teachers', 'paymentTypes', 'courses'
-    ));
+    return view('frontend.pages.courses.index', compact('title', 'courses', 'filters'));
 }
 
 
