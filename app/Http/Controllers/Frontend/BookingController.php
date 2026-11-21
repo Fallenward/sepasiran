@@ -67,7 +67,10 @@ class BookingController extends Controller
                 'service_type' => $serviceType,
                 'provider_id' => $providerId,
                 'city_id' => $cityId,
-                'date' => $request->get('date', now()->addDay()->format('Y-m-d')),
+                'date' => $request->get(
+                    'date',
+                    now(config('app.timezone', 'Asia/Tehran'))->addDay()->format('Y-m-d')
+                ),
                 'training_type' => $trainingType,
                 'fulfillment_mode' => $locked ? 'direct' : (string) $request->get('mode', 'direct'),
                 'locked' => $locked,

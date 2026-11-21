@@ -196,7 +196,7 @@
                     @endif
                     <div class="field">
                         <label for="ui_date">تاریخ ترجیحی</label>
-                        <input class="num" type="date" id="ui_date" value="{{ $prefill['date'] ?? '' }}">
+                        <input type="date" id="ui_date" min="{{ now(config('app.timezone', 'Asia/Tehran'))->toDateString() }}" value="{{ $prefill['date'] ?? '' }}">
                     </div>
                     <p class="sp-booking__hint">بازه زمانی</p>
                     <div class="sp-booking__slots" id="slotGrid"></div>
@@ -205,7 +205,7 @@
                 <div id="openExtras" hidden>
                     <div class="field">
                         <label for="ui_open_date">بازه پیشنهادی (از تاریخ)</label>
-                        <input class="num" type="date" id="ui_open_date" value="{{ $prefill['date'] ?? '' }}">
+                        <input type="date" id="ui_open_date" min="{{ now(config('app.timezone', 'Asia/Tehran'))->toDateString() }}" value="{{ $prefill['date'] ?? '' }}">
                     </div>
                     <p class="sp-booking__hint">درخواست شما برای ارائه‌دهندگان واجد شرایط منتشر می‌شود تا پیشنهاد بدهند.</p>
                 </div>
@@ -314,7 +314,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }, options || {}));
         const data = await res.json().catch(function () { return {}; });
         if (!res.ok) {
-            const msg = (data.message) || (data.errors && Object.values(data.errors).flat().join(' ')) || ('خطا ' + res.status);
+            let msg = data.message || '';
+            if (data.errors) {
+                const parts = Object.values(data.errors).flat().filter(Boolean);
+                if (parts.length) msg = parts.join(' ');
+            }
+            if (!msg || /^validation\./i.test(msg)) {
+                msg = 'لطفاً تاریخ را امروز یا روزهای بعد انتخاب کنید و فرم را کامل کنید.';
+            }
             throw new Error(msg);
         }
         return data;

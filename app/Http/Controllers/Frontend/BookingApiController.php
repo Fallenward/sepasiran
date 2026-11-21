@@ -257,6 +257,21 @@ class BookingApiController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        $today = Carbon::now(config('app.timezone', 'Asia/Tehran'))->toDateString();
+
+        // Normalize blank / Persian-digit dates before validation.
+        foreach (['preferred_date', 'date'] as $dateKey) {
+            $raw = $request->input($dateKey);
+            if ($raw === null || $raw === '') {
+                $request->merge([$dateKey => null]);
+                continue;
+            }
+            if (is_string($raw)) {
+                $normalized = $this->normalizeDateInput($raw);
+                $request->merge([$dateKey => $normalized]);
+            }
+        }
+
         $validated = $request->validate([
             'dog_id' => ['required', 'integer', 'exists:dogs,id'],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
@@ -266,14 +281,23 @@ class BookingApiController extends Controller
             'provider_ids' => ['nullable', 'array'],
             'provider_ids.*' => ['integer', 'exists:users,id'],
             'provider_id' => ['nullable', 'integer', 'exists:users,id'],
-            'preferred_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'preferred_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.$today],
             'preferred_slot' => ['nullable', Rule::in(BookingCatalog::slotTemplate())],
-            'date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.$today],
             'slot' => ['nullable', Rule::in(BookingCatalog::slotTemplate())],
             'contact_name' => ['required', 'string', 'max:120'],
             'contact_phone' => ['required', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['nullable', Rule::in(['wallet', 'gateway', 'offline', 'online'])],
+        ], [
+            'preferred_date.after_or_equal' => 'تاریخ ترجیحی باید امروز یا روزهای بعد باشد.',
+            'preferred_date.date_format' => 'قالب تاریخ ترجیحی معتبر نیست.',
+            'date.after_or_equal' => 'تاریخ باید امروز یا روزهای بعد باشد.',
+            'date.date_format' => 'قالب تاریخ معتبر نیست.',
+            'city_id.required' => 'شهر را انتخاب کنید.',
+            'dog_id.required' => 'سگ را انتخاب کنید.',
+            'contact_name.required' => 'نام تماس الزامی است.',
+            'contact_phone.required' => 'شماره تماس الزامی است.',
         ]);
 
         $dog = Dog::query()->findOrFail($validated['dog_id']);
@@ -462,7 +486,7 @@ class BookingApiController extends Controller
         $validated = $request->validate([
             'price' => ['required', 'numeric', 'min:0'],
             'message' => ['nullable', 'string', 'max:1000'],
-            'proposed_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'proposed_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.Carbon::now(config('app.timezone', 'Asia/Tehran'))->toDateString()],
             'proposed_slot' => ['nullable', Rule::in(BookingCatalog::slotTemplate())],
         ]);
 
@@ -1161,5 +1185,26 @@ class BookingApiController extends Controller
         }
 
         return !empty($user->is_admin);
+    }
+
+    private function normalizeDateInput(string $raw): ?string
+    {
+        $value = trim($raw);
+        if ($value === '') {
+            return null;
+        }
+
+        $western = strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $western)) {
+            return $western;
+        }
+
+        return $western !== '' ? $western : null;
     }
 }
