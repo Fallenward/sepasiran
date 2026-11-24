@@ -17,13 +17,21 @@ npm-debug.log
 yarn-error.log
 /auth.json
 /.fleet
-/.idea
+/.idea/
 /.nova
 /.vscode
 /.zed
+/.cursor/
+/.cursorrules
+/AGENTS.md
+/AGENT.md
+/notes.md
+/NOTES.md
+/TODO.md
+/*.local.md
 
 # Local / agent working notes (not for public clone)
 /booking-redesign.md
 /laravel-quality-uplift.md
 /structure.md
-/.idea/
+/design-preview/
