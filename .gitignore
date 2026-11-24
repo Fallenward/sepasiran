@@ -21,3 +21,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Local / agent working notes (not for public clone)
+/booking-redesign.md
+/laravel-quality-uplift.md
+/structure.md
+/.idea/

@@ -1,66 +1,69 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sepasiran
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sepasiran is an Iranian dog-care marketplace: buy and list dogs, book coaches and clinics, shop supplies, take online courses, and buy pet insurance — with wallets, bookings, and role dashboards for customers and providers.
 
-## About Laravel
+## What you can do
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Dog supply** — browse and buy dogs; sellers/breeders manage listings
+- **Booking** — book a coach, clinic, breeder visit, or insurance flow for your dog (direct provider or open request)
+- **Coaches & clinics** — find trainers and veterinary clinics by city
+- **Online courses** — enroll in multi-lesson courses (wallet checkout); coaches publish courses
+- **Pet insurance** — buy timed insurance plans; licenses appear in the customer dashboard
+- **Store & products** — pet supplies and related products
+- **Blog & news** — articles for dog owners
+- **Shelter** — shelter-related listings
+- **Accounts** — customer dashboard (dogs, bookings, enrollments, insurance licenses, wallet); coach / clinic / breeder dashboards; admin panel
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Roles
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Role | Typical use |
+|------|-------------|
+| Customer | Own dogs, book services, buy courses/insurance/products, wallet |
+| Coach | Profile, courses, availability, reservations |
+| Clinic | Profile, reservations, insurance-related flows |
+| Breeder | Dog listings, reservations |
+| Admin | Catalog, users, settings, finance |
 
-## Learning Laravel
+## Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Laravel 12 (PHP 8.2+), Blade, Vite
+- MySQL (local Laragon common), Spatie permissions
+- Shetabit Multipay for gateway payments; in-app wallet for many purchases
+- Jalali / Iran cities helpers, Kavenegar SMS where configured
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Local run
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+cp .env.example .env   # then set DB_* (MySQL) and APP_URL
+php artisan key:generate
+php artisan migrate
+php artisan db:seed    # optional demo data (includes CourseDemoSeeder)
+npm install
+npm run dev            # Vite → http://127.0.0.1:5173
+php artisan serve      # app → http://127.0.0.1:8000
+```
 
-## Laravel Sponsors
+Demo course seed only:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+php artisan db:seed --class=CourseDemoSeeder
+```
 
-### Premium Partners
+## Main public routes
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Path | Purpose |
+|------|---------|
+| `/` | Home |
+| `/dog-supply`, `/dog/{id}` | Dog marketplace |
+| `/booking` | Service booking |
+| `/coaches`, `/clinics`, `/breeders` | Provider directories |
+| `/course` | Online courses |
+| `/clinic-insurance` | Insurance listing & purchase |
+| `/stores`, `/products/{id}` | Store |
+| `/blog`, `/news` | Content |
+| `/user/dashboard` | Customer hub (auth) |
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary application code unless otherwise noted. Laravel framework itself remains MIT.
