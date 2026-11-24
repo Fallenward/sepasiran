@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProviderUserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -104,10 +105,10 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
         Route::resource('permissions', PermissionController::class);
         Route::resource('roles', RoleController::class);
 
-        // Clinics wallet under admin prefix
-        Route::prefix('clinics')->group(function () {
-            Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
-        });
+        // Provider role directories (clinics / breeders) + clinic wallet
+        Route::get('clinics/wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
+        Route::resource('clinics', ProviderUserController::class)->whereNumber(['clinic']);
+        Route::resource('breeders', ProviderUserController::class)->whereNumber(['breeder']);
     });
 
 // ----------------------------------------------

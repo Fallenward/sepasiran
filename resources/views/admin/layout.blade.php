@@ -41,6 +41,8 @@
             'items' => [
                 ['route' => 'admin.users.index', 'match' => 'admin.users.*', 'icon' => 'fas fa-users', 'text' => 'کاربران'],
                 ['route' => 'admin.coaches.index', 'match' => 'admin.coaches.*', 'icon' => 'fas fa-chalkboard-teacher', 'text' => 'مربی‌ها'],
+                ['route' => 'admin.clinics.index', 'match' => 'admin.clinics.*', 'icon' => 'fas fa-clinic-medical', 'text' => 'کلینیک‌ها'],
+                ['route' => 'admin.breeders.index', 'match' => 'admin.breeders.*', 'icon' => 'fas fa-home', 'text' => 'پرورش‌دهنده‌ها'],
                 ['route' => 'admin.roles.index', 'match' => 'admin.roles.*', 'icon' => 'fas fa-user-shield', 'text' => 'نقش‌ها'],
                 ['route' => 'admin.permissions.index', 'match' => 'admin.permissions.*', 'icon' => 'fas fa-key', 'text' => 'مجوزها'],
             ],
