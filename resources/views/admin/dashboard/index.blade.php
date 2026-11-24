@@ -38,10 +38,17 @@
 
 <div class="row gy-4">
     <div class="col-lg-7">
-        <div class="card sp-admin-card h-100">
+                <div class="card sp-admin-card h-100">
             <div class="card-body">
                 <h5 class="card-title mb-3">روند فروش ۶ ماه اخیر</h5>
-                <canvas id="salesChart" style="height:260px"></canvas>
+                @php $chartHasData = collect($chart['data'] ?? [])->sum() > 0; @endphp
+                @if($chartHasData)
+                    <div class="sp-admin-chart" style="position:relative;height:280px;width:100%">
+                        <canvas id="salesChart" aria-label="نمودار فروش"></canvas>
+                    </div>
+                @else
+                    <p class="text-muted mb-0 py-5 text-center">هنوز فروش ثبت‌شده‌ای در ۶ ماه اخیر نیست.</p>
+                @endif
             </div>
         </div>
     </div>
@@ -139,30 +146,57 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('assets/js/chart.js') }}"></script>
 <script>
-if (document.getElementById('salesChart')) {
-  new Chart(document.getElementById('salesChart'), {
+(function () {
+  const canvas = document.getElementById('salesChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const labels = @json($chart['labels'] ?? []);
+  const values = @json($chart['data'] ?? []).map(Number);
+  new Chart(canvas, {
     type: 'line',
     data: {
-      labels: @json($chart['labels'] ?? []),
+      labels,
       datasets: [{
-        data: @json($chart['data'] ?? []),
-        borderWidth: 2,
-        tension: .35,
-        fill: false,
-        borderColor: '#4fbf78',
-        backgroundColor: 'rgba(79,191,120,.2)'
+        label: 'فروش',
+        data: values,
+        borderWidth: 3,
+        tension: 0.35,
+        fill: true,
+        borderColor: '#3fbf74',
+        backgroundColor: 'rgba(63,191,116,.18)',
+        pointBackgroundColor: '#3fbf74',
+        pointRadius: 4,
+        pointHoverRadius: 6
       }]
     },
     options: {
-      plugins: { legend: { display: false } },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => new Intl.NumberFormat('fa-IR').format(ctx.parsed.y || 0) + ' ریال'
+          }
+        }
+      },
       scales: {
-        y: { ticks: { callback: v => new Intl.NumberFormat('fa-IR').format(v), color: '#8a9e93' }, grid: { color: 'rgba(232,240,235,.06)' } },
-        x: { ticks: { color: '#8a9e93' }, grid: { display: false } }
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#a7b8ae',
+            callback: (v) => new Intl.NumberFormat('fa-IR', { notation: 'compact' }).format(v)
+          },
+          grid: { color: 'rgba(232,240,235,.08)' }
+        },
+        x: {
+          ticks: { color: '#a7b8ae' },
+          grid: { display: false }
+        }
       }
     }
   });
-}
+})();
 </script>
 @endpush

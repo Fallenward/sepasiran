@@ -198,12 +198,20 @@ class DashboardController extends Controller
             'pending_bookings' => Booking::query()->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])->count(),
         ];
 
-        $months = collect(range(0, 5))->map(fn ($i) => now()->subMonths($i)->startOfMonth())->reverse();
+        $months = collect(range(0, 5))->map(fn ($i) => now()->subMonths($i)->startOfMonth())->reverse()->values();
 
         $chart = [
-            'labels' => $months->map(fn ($m) => $m->format('Y-m'))->toArray(),
-            'data' => $months->map(fn ($m) => Transaction::query()
-                ->whereIn('status', ['completed', 'paid'])
+            'labels' => $months->map(function ($m) {
+                try {
+                    return \Morilog\Jalali\Jalalian::fromCarbon($m)->format('Y/m');
+                } catch (\Throwable) {
+                    return $m->format('Y-m');
+                }
+            })->toArray(),
+            // Gross completed sales (ignore refunds/negatives so the line is meaningful)
+            'data' => $months->map(fn ($m) => (float) Transaction::query()
+                ->whereIn('status', ['completed', 'paid', 'success'])
+                ->where('amount', '>', 0)
                 ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
                 ->sum('amount'))->toArray(),
         ];

@@ -35,7 +35,9 @@ class AdminPanelSmokeTest extends TestCase
             ->assertOk()
             ->assertSee('داشبورد مدیریت', false)
             ->assertSee('تیکت‌های اخیر', false)
-            ->assertSee('سپاسیران ادمین', false);
+            ->assertSee('سپاسیران ادمین', false)
+            ->assertSee('روند فروش ۶ ماه اخیر', false)
+            ->assertSee('assets/js/chart.js', false);
 
         $this->actingAs($admin)->get('/admin')
             ->assertRedirect('/admin/dashboard');
