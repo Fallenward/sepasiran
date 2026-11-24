@@ -130,24 +130,31 @@ class BlogController extends Controller
     }
 
 
-        public function showBlog($slug)
+    public function showBlog($slug)
     {
-        $blog = Blog::where('slug', $slug)
-            ->with(['comments' => function ($query) {
-                $query->where('status', \App\Models\Comment::STATUS_APPROVED);
-            }])
+        $blog = Blog::query()
+            ->where('slug', $slug)
+            ->with(['comments', 'category', 'author'])
             ->firstOrFail();
 
-        $latestPosts = Blog::latest()->take(5)->get();
-        $categories = Category::all();
-        $blogRatingCount = $blog->ratings()->count(); // Assuming you have a ratings relation
+        $blog->increment('views');
+
+        $latestPosts = Blog::query()
+            ->where('id', '!=', $blog->id)
+            ->when($blog->type, fn ($q) => $q->where('type', $blog->type))
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $categories = Category::query()->orderBy('name')->get();
+        $blogRatingCount = $blog->ratings()->count();
 
         return view('frontend.pages.blogs.show', [
             'blog' => $blog,
             'title' => $blog->title,
             'latestPosts' => $latestPosts,
             'categories' => $categories,
-            'blogRatingCount' => $blogRatingCount
+            'blogRatingCount' => $blogRatingCount,
         ]);
     }
 
