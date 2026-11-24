@@ -10,6 +10,7 @@ return Application::configure(basePath: dirname(__DIR__))
             __DIR__ . '/../routes/web.php',
             __DIR__ . '/../routes/auth.php',
         ],
+        channels: __DIR__ . '/../routes/channels.php',
         // Uncomment if you have an API route file
         // api: __DIR__ . '/../routes/api.php',
         health: '/up',

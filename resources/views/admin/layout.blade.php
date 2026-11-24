@@ -61,6 +61,12 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.support-tickets.index') }}" title="تیکت‌های پشتیبانی" id="admin-support-alarm">
+                        <i class="fas fa-headset"></i>
+                        <span class="badge badge-danger navbar-badge" id="admin-support-badge" style="display:none">0</span>
+                    </a>
+                </li>
                 <!-- Search Icon -->
                 <li class="nav-item">
                     <a class="nav-link" data-widget="navbar-search" href="#" role="button">
@@ -139,7 +145,7 @@
                         ['route' => 'admin.roles.index',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
                         ['route' => 'admin.coaches.index',      'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
                         ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
+                        ['route' => 'admin.support-tickets.index', 'icon' => 'fas fa-headset',        'text' => __('پشتیبانی و تیکت‌ها')],
                         ['route' => 'admin.blogs.index',        'icon' => 'fas fa-blog',             'text' => __('وبلاگ‌ها')],
                         ['route' => 'coming.soon',              'icon' => 'fas fa-newspaper',        'text' => __('اخبار')],
                         ['route' => 'admin.sliders.index',      'icon' => 'fas fa-sliders-h',        'text' => __('اسلایدرها')],
@@ -352,6 +358,40 @@
 @endpush
 
 @stack('scripts')
+
+<script>
+(function () {
+  const badge = document.getElementById('admin-support-badge');
+  const alarm = document.getElementById('admin-support-alarm');
+  if (!badge || !alarm) return;
+  let known = 0;
+  async function poll() {
+    try {
+      const res = await fetch(@json(route('admin.support-tickets.poll')), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+      const data = await res.json();
+      const unread = Number(data.unread || 0);
+      if (unread > 0) {
+        badge.style.display = 'inline';
+        badge.textContent = unread > 99 ? '99+' : String(unread);
+        if (unread > known) {
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator(); const g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination); o.frequency.value = 760; g.gain.value = 0.05;
+            o.start(); setTimeout(() => { o.stop(); ctx.close(); }, 160);
+          } catch (e) {}
+          if (window.toastr) toastr.warning('تیکت پشتیبانی جدید دارید', 'هشدار');
+        }
+      } else {
+        badge.style.display = 'none';
+      }
+      known = unread;
+    } catch (e) {}
+  }
+  poll();
+  setInterval(poll, 4000);
+})();
+</script>
 
 <!-- ✅ jQuery (اول باید بارگذاری شود) -->
 

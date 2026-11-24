@@ -35,6 +35,7 @@
 
     @include('frontend.layouts.footer')
     @include('frontend.layouts.bottom-nav')
+    @include('frontend.partials.support-chat-widget')
 
     <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
     <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet"/>

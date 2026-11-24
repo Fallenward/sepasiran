@@ -30,6 +30,8 @@ use App\Http\Controllers\Frontend\OpenSessionController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
+use App\Http\Controllers\Frontend\SupportTicketController;
+use App\Http\Controllers\Admin\SupportTicketController as AdminSupportTicketController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
@@ -85,6 +87,12 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
 
         // Products CRUD routes
         Route::resource('products', AdminProductController::class);
+
+        Route::get('support-tickets/poll', [AdminSupportTicketController::class, 'poll'])->name('support-tickets.poll');
+        Route::get('support-tickets', [AdminSupportTicketController::class, 'index'])->name('support-tickets.index');
+        Route::get('support-tickets/{support_ticket}', [AdminSupportTicketController::class, 'show'])->name('support-tickets.show');
+        Route::post('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'reply'])->name('support-tickets.reply');
+        Route::get('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'messages'])->name('support-tickets.messages');
 
         // Permissions & Roles
         Route::resource('permissions', PermissionController::class);
@@ -220,6 +228,14 @@ Route::name('frontend.')->group(function () {
 
     Route::prefix('support')->name('support.')->group(function () {
         Route::get('/', [SupportController::class, 'index'])->name('index');
+        Route::get('/api/bootstrap', [SupportTicketController::class, 'bootstrap'])->name('api.bootstrap');
+        Route::middleware('auth')->group(function () {
+            Route::get('/api/tickets', [SupportTicketController::class, 'index'])->name('api.tickets');
+            Route::post('/api/tickets', [SupportTicketController::class, 'store'])->middleware('throttle:20,1')->name('api.tickets.store');
+            Route::get('/api/tickets/{ticket}', [SupportTicketController::class, 'show'])->name('api.tickets.show');
+            Route::get('/api/tickets/{ticket}/messages', [SupportTicketController::class, 'messages'])->name('api.tickets.messages');
+            Route::post('/api/tickets/{ticket}/messages', [SupportTicketController::class, 'reply'])->middleware('throttle:60,1')->name('api.tickets.reply');
+        });
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
