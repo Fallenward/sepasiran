@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             UsersTableSeeder::class,
             DemoScenarioSeeder::class,
             BookingDemoSeeder::class,
+            SupportTicketDemoSeeder::class,
         ]);
     }
 }
