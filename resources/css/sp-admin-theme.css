@@ -289,19 +289,14 @@ body.hold-transition.sidebar-mini.sp-admin {
   background: transparent !important;
   border-bottom: 2px solid var(--sp-admin-green) !important;
 }
-.sp-admin-status.is-closed {
-  background: rgba(167, 184, 174, 0.18);
-  color: #c5d0c9;
+.sp-admin-status.is-open {
+  background: rgba(63, 191, 116, 0.22);
+  color: #8fe0b0;
 }
-.sp-admin tr.sp-admin-row-closed,
-.sp-admin tr.sp-admin-row-closed td {
-  background: rgba(128, 140, 134, 0.12) !important;
-  color: #9aa89f !important;
+.sp-admin tr.sp-admin-row-open,
+.sp-admin tr.sp-admin-row-open td {
+  background: rgba(63, 191, 116, 0.10) !important;
 }
-.sp-admin tr.sp-admin-row-closed:hover td {
-  background: rgba(128, 140, 134, 0.18) !important;
-}
-.sp-admin tr.sp-admin-row-closed .sp-admin-status.is-closed {
-  background: rgba(167, 184, 174, 0.22);
-  color: #d5ddd8;
+.sp-admin tr.sp-admin-row-open:hover td {
+  background: rgba(63, 191, 116, 0.16) !important;
 }

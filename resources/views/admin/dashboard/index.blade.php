@@ -103,17 +103,15 @@
                         @forelse($recentTickets ?? [] as $ticket)
                             @php
                                 $st = (string) $ticket->status;
-                                $isClosed = $st === 'closed';
-                                $statusClass = $isClosed ? 'is-closed' : ($st === 'answered' ? 'is-ok' : 'is-warn');
+                                $isOpen = $st === 'open';
                                 $statusLabel = ['open' => 'باز', 'answered' => 'پاسخ داده شد', 'closed' => 'بسته'][$st] ?? $st;
-                                $rowClass = $isClosed
-                                    ? 'sp-admin-row-closed'
-                                    : ($ticket->unread_for_admin ? 'table-warning' : '');
                             @endphp
-                            <tr class="{{ $rowClass }}">
+                            <tr class="{{ $isOpen ? 'sp-admin-row-open' : '' }}">
                                 <td class="num">{{ $ticket->code }}</td>
                                 <td>{{ $ticket->subject }}</td>
-                                <td><span class="sp-admin-status {{ $statusClass }}">{{ $statusLabel }}</span></td>
+                                <td>
+                                    <span class="sp-admin-status {{ $isOpen ? 'is-open' : '' }}">{{ $statusLabel }}</span>
+                                </td>
                                 <td><a class="btn btn-xs btn-primary" href="{{ route('admin.support-tickets.show', $ticket) }}">چت</a></td>
                             </tr>
                         @empty

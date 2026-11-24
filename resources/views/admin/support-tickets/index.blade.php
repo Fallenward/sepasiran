@@ -45,20 +45,20 @@
                 @forelse($tickets as $ticket)
                     @php
                         $st = (string) $ticket->status;
-                        $isClosed = $st === 'closed';
-                        $cls = $isClosed ? 'is-closed' : ($st === 'answered' ? 'is-ok' : 'is-warn');
-                        $rowClass = $isClosed
-                            ? 'sp-admin-row-closed'
-                            : ($ticket->unread_for_admin ? 'table-warning' : '');
+                        $isOpen = $st === 'open';
                     @endphp
-                    <tr class="{{ $rowClass }}">
+                    <tr class="{{ $isOpen ? 'sp-admin-row-open' : '' }}">
                         <td class="num"><strong>{{ $ticket->code }}</strong></td>
                         <td>{{ $ticket->subject }}</td>
                         <td>
                             {{ $ticket->user?->name ?: '—' }}
                             <div class="text-muted small">{{ $ticket->user?->email }}</div>
                         </td>
-                        <td><span class="sp-admin-status {{ $cls }}">{{ ['open'=>'باز','answered'=>'پاسخ داده شد','closed'=>'بسته'][$st] ?? $st }}</span></td>
+                        <td>
+                            <span class="sp-admin-status {{ $isOpen ? 'is-open' : '' }}">
+                                {{ ['open'=>'باز','answered'=>'پاسخ داده شد','closed'=>'بسته'][$st] ?? $st }}
+                            </span>
+                        </td>
                         <td class="num">{{ $ticket->unread_for_admin }}</td>
                         <td class="num">{{ optional($ticket->last_message_at)->timezone(config('app.timezone','Asia/Tehran'))->format('Y/m/d H:i') ?: '—' }}</td>
                         <td><a class="btn btn-sm btn-primary" href="{{ route('admin.support-tickets.show', $ticket) }}">باز کردن چت</a></td>
