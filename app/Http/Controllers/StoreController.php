@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use App\Models\Category;
-use App\Models\Comment;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -47,18 +46,17 @@ class StoreController extends Controller
 
     public function show($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::query()
+            ->with(['category:id,name', 'user:id,name'])
+            ->findOrFail($id);
 
-        $recentProducts = Product::where('id', '!=', $product->id)
-            ->latest()
+        $recentProducts = Product::query()
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->latest('id')
             ->take(4)
             ->get();
 
-        $comments = Comment::with('user')
-            ->where('user_id', $product->id)
-            ->latest()
-            ->paginate(10);
-
-        return view('frontend.pages.products.show', compact('product', 'recentProducts', 'comments'));
+        return view('frontend.pages.products.show', compact('product', 'recentProducts'));
     }
 }
