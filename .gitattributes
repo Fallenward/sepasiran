@@ -9,3 +9,5 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+/design-preview export-ignore
+/database/seeders/DEMO_ACCOUNTS.md export-ignore
