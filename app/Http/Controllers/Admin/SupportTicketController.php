@@ -47,6 +47,28 @@ class SupportTicketController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, int $support_ticket): RedirectResponse
+    {
+        $ticket = SupportTicket::query()->findOrFail($support_ticket);
+
+        $data = $request->validate([
+            'status' => ['required', 'in:open,answered,closed'],
+        ], [
+            'status.required' => 'وضعیت را انتخاب کنید.',
+            'status.in' => 'وضعیت نامعتبر است.',
+        ]);
+
+        $ticket->forceFill(['status' => $data['status']])->save();
+
+        $labels = [
+            'open' => 'باز',
+            'answered' => 'پاسخ داده شد',
+            'closed' => 'بسته',
+        ];
+
+        return back()->with('success', 'وضعیت تیکت به «'.($labels[$data['status']] ?? $data['status']).'» تغییر کرد.');
+    }
+
     public function reply(Request $request, int $support_ticket, SupportTicketService $service): RedirectResponse|JsonResponse
     {
         $admin = Auth::user();

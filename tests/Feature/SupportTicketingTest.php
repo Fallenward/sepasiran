@@ -264,6 +264,45 @@ class SupportTicketingTest extends TestCase
             ->assertJsonValidationErrors(['body']);
     }
 
+    public function test_admin_can_change_ticket_status(): void
+    {
+        $user = $this->customer();
+        $admin = $this->admin();
+        $ticket = SupportTicket::query()->create([
+            'user_id' => $user->id,
+            'code' => 'TK-STATUS01',
+            'subject' => 'Status change',
+            'status' => 'open',
+            'unread_for_admin' => 0,
+            'unread_for_user' => 0,
+            'last_message_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.support-tickets.show', $ticket->id))
+            ->assertOk()
+            ->assertSee('تغییر وضعیت', false)
+            ->assertSee('name="status"', false);
+
+        $this->actingAs($admin)
+            ->from(route('admin.support-tickets.show', $ticket->id))
+            ->patch(route('admin.support-tickets.status', $ticket->id), ['status' => 'closed'])
+            ->assertRedirect(route('admin.support-tickets.show', $ticket->id))
+            ->assertSessionHas('success');
+
+        $this->assertSame('closed', $ticket->fresh()->status);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.support-tickets.status', $ticket->id), ['status' => 'answered'])
+            ->assertRedirect();
+
+        $this->assertSame('answered', $ticket->fresh()->status);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.support-tickets.status', $ticket->id), ['status' => 'nope'])
+            ->assertSessionHasErrors('status');
+    }
+
     public function test_admin_index_poll_show_and_messages_poll(): void
     {
         $user = $this->customer();

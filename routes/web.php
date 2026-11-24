@@ -96,6 +96,7 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
         Route::get('support-tickets/poll', [AdminSupportTicketController::class, 'poll'])->name('support-tickets.poll');
         Route::get('support-tickets', [AdminSupportTicketController::class, 'index'])->name('support-tickets.index');
         Route::get('support-tickets/{support_ticket}', [AdminSupportTicketController::class, 'show'])->name('support-tickets.show');
+        Route::patch('support-tickets/{support_ticket}/status', [AdminSupportTicketController::class, 'updateStatus'])->name('support-tickets.status');
         Route::post('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'reply'])->name('support-tickets.reply');
         Route::get('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'messages'])->name('support-tickets.messages');
 
