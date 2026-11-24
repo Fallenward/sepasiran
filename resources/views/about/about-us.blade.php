@@ -1,140 +1,157 @@
 @extends('layouts.app')
 
+@section('title', 'درباره سپاسیران')
+
 @section('content')
-<style>
-    .section-spacing {
-        margin-bottom: 5rem;
+@php
+    $aboutText = optional($settings ?? null)->about_setting_about
+        ?? optional($settings ?? null)->footer_setting_about
+        ?? 'سپاسیران بازار مینیمال سگ، مربی، کلینیک و فروشگاه است — با تمرکز روی اعتماد، وضوح و تجربهٔ فارسی.';
+    $aboutImage = optional($settings ?? null)->about_setting_img;
+    if ($aboutImage && str_starts_with((string) $aboutImage, 'http')) {
+        $path = parse_url($aboutImage, PHP_URL_PATH) ?: '';
+        $aboutImage = ltrim($path, '/');
     }
-    .section-title {
-        position: relative;
-        display: inline-block;
-        padding-bottom: 10px;
-        margin-bottom: 2rem;
+    if ($aboutImage && ! str_starts_with((string) $aboutImage, 'http')) {
+        $local = public_path(ltrim($aboutImage, '/'));
+        $aboutImage = file_exists($local) ? asset(ltrim($aboutImage, '/')) : null;
     }
-    .section-title::after {
-        content: "";
-        display: block;
-        width: 120px;
-        height: 5px;
-        background-color: #0d47a1;
-        border-radius: 3px;
-        margin: 10px auto 0;
+    if (! $aboutImage && isset($latestBlog) && ! empty($latestBlog->image)) {
+        $raw = ltrim($latestBlog->image, '/');
+        $aboutImage = str_starts_with($raw, 'images/') ? asset($raw) : asset('storage/'.$raw);
     }
-    .accordion-button:not(.collapsed) {
-        background-color: #e3f2fd;
-        color: #000;
+    if (! $aboutImage) {
+        $aboutImage = asset('images/demo/hero/hero-03.jpg');
     }
-    .accordion-button:focus {
-        box-shadow: none;
-    }
-</style>
+    $lede = \Illuminate\Support\Str::limit(strip_tags($latestBlog->excerpt ?? $latestBlog->content ?? $aboutText), 160);
+@endphp
 
-<div class="bg-white py-5">
-    <div class="container-fluid text-end px-5">
+<section class="sp-listing-hero">
+    <div class="sp-listing-hero__bg" aria-hidden="true">
+        <img src="{{ $aboutImage }}" alt="">
+    </div>
+    <div class="wrap sp-listing-hero__inner">
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>درباره ما</span>
+        </nav>
+        <h1>درباره سپاسیران</h1>
+        <p>{{ $lede }}</p>
+    </div>
+</section>
 
-        {{-- Section: About Blog --}}
-        <div class="row align-items-center text-end section-spacing" style="min-height: 350px;">
-            <div class="col-md-6 order-2 order-md-1 d-flex flex-column justify-content-center">
-                @if(isset($latestBlog))
-                    <h2 class="fw-bold mb-2">{{ $latestBlog->title }}</h2>
-                    <div style="height: 4px; width: 64px; background-color: #0d47a1;" class="mb-4"></div>
-                    <p class="text-muted">
-                        {{ \Illuminate\Support\Str::limit(strip_tags($latestBlog->excerpt ?? $latestBlog->content), 180) }}
-                    </p>
-                @else
-                    <p class="text-danger">محتوایی برای نمایش وجود ندارد.</p>
-                @endif
+<section class="section">
+    <div class="wrap">
+        <div class="sp-trust">
+            <div class="sp-trust__media">
+                <img src="{{ $aboutImage }}" alt="سپاسیران" loading="lazy">
             </div>
-            <div class="col-md-6 order-1 order-md-2 text-center">
-                @if(isset($latestBlog) && $latestBlog->image)
-                    <img src="{{ asset('images/support-card.png') }}" alt="{{ $latestBlog->title }}" class="img-fluid rounded shadow-sm" style="max-width: 500px;">
-                @else
-                    <img src="{{ asset('images/placeholder.jpg') }}" alt="تصویر پیش‌فرض" class="img-fluid rounded shadow-sm" style="max-width: 500px;">
-                @endif
+            <div class="sp-trust__body">
+                <p class="sp-trust__eyebrow">
+                    <span class="sp-section-head__icon sp-section-head__icon--inline" aria-hidden="true"><x-sp-icon name="trust" /></span>
+                    داستان ما
+                </p>
+                <h2>{{ $latestBlog->title ?? 'بازار آرام برای حیوان خانگی' }}</h2>
+                <p>{!! nl2br(e(strip_tags($latestBlog->content ?? $aboutText))) !!}</p>
+                <div class="sp-trust__actions">
+                    <a class="btn btn-primary" href="{{ route('frontend.dog.supply.index') }}">مشاهده سگ‌ها</a>
+                    <a class="btn btn-ghost" href="{{ route('frontend.contact.index') }}">تماس با ما</a>
+                </div>
             </div>
         </div>
-
-
-
-        {{-- Section: Stats --}}
-        <section class="statistics-section section-spacing">
-            <div class="container-fluid px-5">
-                <div class="row g-4">
-                    @foreach($statistics as $item)
-                        <div class="col-6 col-md-6 col-lg-3">
-                            <div class="card text-center h-100">
-                                <div class="card-body">
-                                    <p class="card-text-counter fs-3 fw-bold text-primary">
-                                        {{ $item['counter'] }}<i class="fa fa-plus ms-1"></i>
-                                    </p>
-                                    <h5 class="card-title-counter">{{ $item['title'] }}</h5>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        {{-- Section: Goals --}}
-        <section class="section-spacing">
-            <div class="rounded p-5" style="background-color: #0d47a1; height: 360px;">
-                <div class="row text-white flex-row-reverse" style="min-height: 300px;">
-                    <div class="col-md-6 d-flex align-items-end justify-content-end pe-4">
-                        <img src="{{ asset('images/dog-khati.png') }}" alt="Dog Lineart" class="img-fluid" style="width: 445px; height: 130%;">
-                    </div>
-                    <div class="col-md-6 text-end d-flex flex-column justify-content-center">
-                        <h2 class="fw-bold mb-3">اهداف</h2>
-                        <div style="height: 4px; width: 64px; background-color: white;" class="mb-4 ms-auto"></div>
-                        <p class="fs-6 lh-lg">
-                            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ...
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        {{-- Section: FAQ --}}
-        <section class="section-spacing text-center">
-            <h2 class="fw-bold section-title">سوالات متداول</h2>
-            <div class="bg-light rounded overflow-hidden mt-4">
-                <div class="accordion" id="faqAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading1">
-                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
-                                جلسات چقدر طول می‌کشد؟
-                            </button>
-                        </h2>
-                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted text-end">
-                                لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ...
-                            </div>
-                        </div>
-                    </div>
-
-                    @foreach ([
-                        'آیا امکان آموزش در خانه من هست؟',
-                        'مربیان با چه نژادهایی کار می‌کنند؟',
-                        'لورم ایپسوم متن ساختگی؟',
-                        'لورم ایپسوم متن ساختگی؟'
-                    ] as $index => $question)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="heading{{ $index + 2 }}">
-                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index + 2 }}">
-                                    {{ $question }}
-                                </button>
-                            </h2>
-                            <div id="collapse{{ $index + 2 }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-muted text-end">
-                                    پاسخ مربوط به سوال: "{{ $question }}"
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
     </div>
-</div>
+</section>
+
+@if(!empty($statistics))
+<section class="section" style="padding-top:0">
+    <div class="wrap">
+        <x-sp-section-head
+            title="سپاسیران در یک نگاه"
+            subtitle="اعداد واقعی از مربی، کلینیک، پرورش‌دهنده و آگهی‌ها."
+            icon="spark"
+        />
+        <div class="sp-stat-row" aria-label="آمار کلی">
+            @foreach($statistics as $stat)
+                <div class="sp-stat">
+                    <span class="sp-stat__icon"><x-sp-icon :name="$stat['icon'] ?? 'spark'" /></span>
+                    <strong class="num">{{ number_format((int) $stat['counter']) }}</strong>
+                    <span>{{ $stat['title'] }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+<section class="section" style="padding-top:0">
+    <div class="wrap">
+        <x-sp-section-head
+            title="چه کارهایی می‌کنیم؟"
+            subtitle="یک مسیر شفاف برای صاحب حیوان خانگی."
+            icon="services"
+        />
+        <div class="sp-service-lanes sp-service-lanes--compact">
+            <a class="sp-service-lane" href="{{ route('frontend.coaches.index') }}">
+                <span class="sp-service-lane__icon"><x-sp-icon name="coach" /></span>
+                <h3>مربی</h3>
+            </a>
+            <a class="sp-service-lane" href="{{ route('frontend.clinics.index') }}">
+                <span class="sp-service-lane__icon"><x-sp-icon name="clinic" /></span>
+                <h3>کلینیک</h3>
+            </a>
+            <a class="sp-service-lane" href="{{ route('frontend.clinic.insurance.index') }}">
+                <span class="sp-service-lane__icon"><x-sp-icon name="insurance" /></span>
+                <h3>بیمه</h3>
+            </a>
+            <a class="sp-service-lane" href="{{ route('frontend.online.courses') }}">
+                <span class="sp-service-lane__icon"><x-sp-icon name="course" /></span>
+                <h3>دوره</h3>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top:0">
+    <div class="wrap">
+        <x-sp-section-head
+            title="سوالات متداول"
+            subtitle="پاسخ‌های کوتاه برای شروع مطمئن."
+            icon="steps"
+        />
+        <div class="sp-provider__list">
+            @foreach([
+                ['q' => 'چطور رزرو کنم؟', 'a' => 'از منوی خدمات وارد رزرو شوید، سگ و شهر را انتخاب کنید و درخواست را ثبت کنید.'],
+                ['q' => 'پشتیبانی چگونه است؟', 'a' => 'از آیکون چت شناور تیکت باز کنید؛ تیم ادمین همان‌جا پاسخ می‌دهد.'],
+                ['q' => 'آیا دوره و بیمه هم دارید؟', 'a' => 'بله — دوره‌های آنلاین و طرح‌های بیمه مدت‌دار در سپاسیران فعال است.'],
+            ] as $faq)
+                <div class="sp-provider__list-item">
+                    <i class="fas fa-question-circle"></i>
+                    <div>
+                        <strong>{{ $faq['q'] }}</strong>
+                        <p>{{ $faq['a'] }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top:0">
+    <div class="wrap">
+        <div class="sp-final-cta">
+            <div>
+                <div class="sp-section-head__title-row" style="margin-bottom:8px">
+                    <span class="sp-section-head__icon" aria-hidden="true"><x-sp-icon name="cta" /></span>
+                    <h2 style="margin:0">آماده‌اید شروع کنید؟</h2>
+                </div>
+                <p>از سگ‌ها ببینید یا با ما در تماس باشید.</p>
+            </div>
+            <div class="sp-final-cta__actions">
+                <a class="btn btn-primary" href="{{ route('frontend.dog.supply.index') }}">مشاهده سگ‌ها</a>
+                <a class="btn btn-ghost" href="{{ route('frontend.contact.index') }}">تماس</a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
