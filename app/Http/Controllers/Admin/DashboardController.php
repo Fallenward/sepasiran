@@ -185,40 +185,170 @@ class DashboardController extends Controller
 
     private function adminDashboard(User $user, $dashNotifications): View
     {
+        $monthStarts = collect(range(0, 5))
+            ->map(fn ($i) => now()->subMonths($i)->startOfMonth())
+            ->reverse()
+            ->values();
+
+        $dayStarts = collect(range(0, 13))
+            ->map(fn ($i) => now()->subDays($i)->startOfDay())
+            ->reverse()
+            ->values();
+
+        $jalaliLabel = function ($carbon, string $format = 'Y/m') {
+            try {
+                return \Morilog\Jalali\Jalalian::fromCarbon($carbon)->format($format);
+            } catch (\Throwable) {
+                return $carbon->format($format === 'Y/m' ? 'Y-m' : 'm-d');
+            }
+        };
+
+        $salesByMonth = $monthStarts->map(fn ($m) => (float) Transaction::query()
+            ->whereIn('status', ['completed', 'paid', 'success'])
+            ->where('amount', '>', 0)
+            ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
+            ->sum('amount'));
+
+        $usersByMonth = $monthStarts->map(fn ($m) => (int) User::query()
+            ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
+            ->count());
+
+        $bookingsByMonth = $monthStarts->map(fn ($m) => (int) Booking::query()
+            ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
+            ->count());
+
+        $salesByDay = $dayStarts->map(fn ($d) => (float) Transaction::query()
+            ->whereIn('status', ['completed', 'paid', 'success'])
+            ->where('amount', '>', 0)
+            ->whereBetween('created_at', [$d, $d->copy()->endOfDay()])
+            ->sum('amount'));
+
+        $bookingStatus = Booking::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $dogStatus = Dog::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $ticketStatus = SupportTicket::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $serviceMix = Booking::query()
+            ->selectRaw('service_type, COUNT(*) as total')
+            ->whereNotNull('service_type')
+            ->groupBy('service_type')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->pluck('total', 'service_type');
+
+        $revenue30 = (float) Transaction::query()
+            ->where('created_at', '>=', now()->subDays(30))
+            ->whereIn('status', ['completed', 'paid', 'success'])
+            ->where('amount', '>', 0)
+            ->sum('amount');
+
+        $revenuePrev30 = (float) Transaction::query()
+            ->whereBetween('created_at', [now()->subDays(60), now()->subDays(30)])
+            ->whereIn('status', ['completed', 'paid', 'success'])
+            ->where('amount', '>', 0)
+            ->sum('amount');
+
+        $revenueDelta = $revenuePrev30 > 0
+            ? round((($revenue30 - $revenuePrev30) / $revenuePrev30) * 100, 1)
+            : ($revenue30 > 0 ? 100.0 : 0.0);
+
+        $newUsers30 = (int) User::query()->where('created_at', '>=', now()->subDays(30))->count();
+        $completedBookings = (int) Booking::query()->whereIn('status', ['COMPLETED', 'CONFIRMED', 'ACCEPTED'])->count();
+        $bookingTotal = max(1, (int) Booking::query()->count());
+        $bookingSuccessRate = round(($completedBookings / $bookingTotal) * 100, 1);
+
         $stats = [
             'users' => User::count(),
+            'new_users_30' => $newUsers30,
             'transactions' => Transaction::query()
                 ->where('created_at', '>=', now()->subDays(30))
-                ->whereIn('status', ['completed', 'paid'])
+                ->whereIn('status', ['completed', 'paid', 'success'])
                 ->count(),
+            'revenue_30' => $revenue30,
+            'revenue_delta' => $revenueDelta,
             'courses' => Course::where('is_active', 1)->count(),
             'dogs' => Dog::count(),
-            'open_tickets' => SupportTicket::query()->whereIn('status', ['open', 'answered'])->count(),
+            'dogs_available' => (int) ($dogStatus['available'] ?? 0) + (int) ($dogStatus['ready'] ?? 0),
+            'open_tickets' => (int) ($ticketStatus['open'] ?? 0),
             'inbox' => SupportMessage::query()->count(),
             'pending_bookings' => Booking::query()->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])->count(),
+            'booking_success_rate' => $bookingSuccessRate,
         ];
 
-        $months = collect(range(0, 5))->map(fn ($i) => now()->subMonths($i)->startOfMonth())->reverse()->values();
-
-        $chart = [
-            'labels' => $months->map(function ($m) {
-                try {
-                    return \Morilog\Jalali\Jalalian::fromCarbon($m)->format('Y/m');
-                } catch (\Throwable) {
-                    return $m->format('Y-m');
-                }
-            })->toArray(),
-            // Gross completed sales (ignore refunds/negatives so the line is meaningful)
-            'data' => $months->map(fn ($m) => (float) Transaction::query()
-                ->whereIn('status', ['completed', 'paid', 'success'])
-                ->where('amount', '>', 0)
-                ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
-                ->sum('amount'))->toArray(),
+        $charts = [
+            'sales' => [
+                'labels' => $monthStarts->map(fn ($m) => $jalaliLabel($m, 'Y/m'))->toArray(),
+                'data' => $salesByMonth->toArray(),
+            ],
+            'users' => [
+                'labels' => $monthStarts->map(fn ($m) => $jalaliLabel($m, 'Y/m'))->toArray(),
+                'data' => $usersByMonth->toArray(),
+            ],
+            'bookingsTrend' => [
+                'labels' => $monthStarts->map(fn ($m) => $jalaliLabel($m, 'Y/m'))->toArray(),
+                'data' => $bookingsByMonth->toArray(),
+            ],
+            'dailySales' => [
+                'labels' => $dayStarts->map(fn ($d) => $jalaliLabel($d, 'm/d'))->toArray(),
+                'data' => $salesByDay->toArray(),
+            ],
+            'bookingStatus' => [
+                'labels' => $bookingStatus->keys()->values()->toArray(),
+                'data' => $bookingStatus->values()->map(fn ($v) => (int) $v)->toArray(),
+            ],
+            'dogStatus' => [
+                'labels' => $dogStatus->keys()->values()->toArray(),
+                'data' => $dogStatus->values()->map(fn ($v) => (int) $v)->toArray(),
+            ],
+            'ticketStatus' => [
+                'labels' => $ticketStatus->keys()->map(fn ($s) => [
+                    'open' => 'باز',
+                    'answered' => 'پاسخ‌داده‌شده',
+                    'closed' => 'بسته',
+                ][$s] ?? $s)->values()->toArray(),
+                'data' => $ticketStatus->values()->map(fn ($v) => (int) $v)->toArray(),
+            ],
+            'serviceMix' => [
+                'labels' => $serviceMix->keys()->values()->toArray(),
+                'data' => $serviceMix->values()->map(fn ($v) => (int) $v)->toArray(),
+            ],
         ];
 
-        $recentTransactions = Transaction::with('user')->latest()->take(8)->get();
-        $recentTickets = SupportTicket::query()->latest('last_message_at')->latest('id')->take(6)->get();
-        $recentMessages = SupportMessage::query()->latest()->take(6)->get();
+        // Keep legacy key for older blade fragments / tests.
+        $chart = $charts['sales'];
+
+        $insights = [
+            [
+                'title' => 'درآمد ۳۰ روز',
+                'value' => number_format((int) $revenue30).' ریال',
+                'note' => ($revenueDelta >= 0 ? '+' : '').$revenueDelta.'٪ نسبت به ۳۰ روز قبل',
+            ],
+            [
+                'title' => 'نرخ موفقیت رزرو',
+                'value' => $bookingSuccessRate.'٪',
+                'note' => number_format($completedBookings).' از '.number_format($bookingTotal).' رزرو',
+            ],
+            [
+                'title' => 'سگ‌های قابل عرضه',
+                'value' => number_format((int) $stats['dogs_available']),
+                'note' => 'از مجموع '.number_format((int) $stats['dogs']).' آگهی',
+            ],
+            [
+                'title' => 'تیکت باز',
+                'value' => number_format((int) $stats['open_tickets']),
+                'note' => 'نیاز به پاسخ ادمین',
+            ],
+        ];
 
         return view('admin.dashboard.index', [
             'title' => 'داشبورد ادمین',
@@ -226,9 +356,11 @@ class DashboardController extends Controller
             'notifications' => $dashNotifications,
             'stats' => $stats,
             'chart' => $chart,
-            'recentTransactions' => $recentTransactions,
-            'recentTickets' => $recentTickets,
-            'recentMessages' => $recentMessages,
+            'charts' => $charts,
+            'insights' => $insights,
+            'recentTransactions' => Transaction::with('user')->latest()->take(8)->get(),
+            'recentTickets' => SupportTicket::query()->latest('last_message_at')->latest('id')->take(6)->get(),
+            'recentMessages' => SupportMessage::query()->latest()->take(6)->get(),
         ]);
     }
 }

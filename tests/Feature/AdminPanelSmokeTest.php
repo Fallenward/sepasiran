@@ -37,6 +37,11 @@ class AdminPanelSmokeTest extends TestCase
             ->assertSee('تیکت‌های اخیر', false)
             ->assertSee('سپاسیران ادمین', false)
             ->assertSee('روند فروش ۶ ماه اخیر', false)
+            ->assertSee('فروش ۱۴ روز اخیر', false)
+            ->assertSee('وضعیت رزروها', false)
+            ->assertSee('وضعیت سگ‌ها', false)
+            ->assertSee('وضعیت تیکت‌ها', false)
+            ->assertSee('کاربران جدید ۶ ماه', false)
             ->assertSee('assets/js/chart.js', false);
 
         $this->actingAs($admin)->get('/admin')
