@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     {{ $service->name ?? __('Show') . " " . __('Service') }}

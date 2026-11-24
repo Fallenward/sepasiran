@@ -32,6 +32,7 @@ use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController
 use App\Http\Controllers\Frontend\SupportController;
 use App\Http\Controllers\Frontend\SupportTicketController;
 use App\Http\Controllers\Admin\SupportTicketController as AdminSupportTicketController;
+use App\Http\Controllers\Admin\SupportMessageController as AdminSupportMessageController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
@@ -62,7 +63,11 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
     ->name('admin.')
     ->group(function () {
         // Dashboard
+        Route::redirect('/', '/admin/dashboard');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+        Route::get('support-messages', [AdminSupportMessageController::class, 'index'])->name('support-messages.index');
+        Route::delete('support-messages/{support_message}', [AdminSupportMessageController::class, 'destroy'])->name('support-messages.destroy');
 
         // Resource controllers
         Route::resources([

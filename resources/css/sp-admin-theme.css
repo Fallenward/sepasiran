@@ -159,3 +159,87 @@ body.hold-transition.sidebar-mini {
   border-color: rgba(79, 191, 120, 0.35);
   color: var(--sp-green-soft);
 }
+/* —— Admin UX shell —— */
+.sp-admin .sp-admin-content { padding-top: 1.25rem; padding-bottom: 2rem; }
+.sp-admin-pagehead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.25rem;
+}
+.sp-admin-pagehead__title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--sp-text);
+}
+.sp-admin-pagehead__sub {
+  margin: .35rem 0 0;
+  color: var(--sp-text-subtle);
+  font-size: .92rem;
+}
+.sp-admin-pagehead__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-admin-stat {
+  display: grid;
+  gap: 4px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  background: var(--sp-bg-elevated);
+  border: 1px solid var(--sp-border);
+  color: var(--sp-text);
+  text-decoration: none;
+  min-height: 110px;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.sp-admin-stat:hover {
+  border-color: rgba(79,191,120,.45);
+  color: var(--sp-text);
+  transform: translateY(-1px);
+}
+.sp-admin-stat__icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(79,191,120,.12); color: var(--sp-green-soft);
+}
+.sp-admin-stat strong { font-size: 1.25rem; }
+.sp-admin-stat span { color: var(--sp-text-subtle); font-size: .82rem; }
+.sp-admin-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-admin-card .card-title { color: var(--sp-text); font-weight: 650; }
+.sp-admin-table td, .sp-admin-table th { vertical-align: middle; }
+.sp-admin-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-admin-filters .form-control { max-width: 360px; }
+.sp-admin-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp-admin-sidebar .nav-header {
+  color: var(--sp-gold-soft) !important;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  opacity: .9;
+  margin-top: .75rem;
+}
+.sp-admin-search .form-control-navbar {
+  background: var(--sp-surface) !important;
+  border-color: var(--sp-border) !important;
+  color: var(--sp-text) !important;
+}
+.sp-admin-footer {
+  background: var(--sp-bg-elevated) !important;
+  border-top: 1px solid var(--sp-border) !important;
+  color: var(--sp-text-muted) !important;
+}
+.sp-admin .content-wrapper { min-height: calc(100vh - 57px); }
+.sp-admin .btn-outline-light {
+  border-color: rgba(232,240,235,.2);
+  color: var(--sp-text-muted);
+}
+.sp-admin .btn-outline-light:hover {
+  background: rgba(79,191,120,.12);
+  border-color: rgba(79,191,120,.35);
+  color: var(--sp-green-soft);
+}
+.sp-admin .card-body.bg-white { background: transparent !important; }
+.sp-admin .text-dark { color: var(--sp-text) !important; }
+.sp-admin .table-warning, .sp-admin tr.table-warning {
+  background: rgba(212,181,106,.12) !important;
+}

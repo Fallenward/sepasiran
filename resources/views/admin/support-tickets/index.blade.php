@@ -3,8 +3,9 @@
 @section('title', 'تیکت‌های پشتیبانی')
 
 @section('content')
+@include('admin.components.page-header', ['title' => 'تیکت‌های پشتیبانی', 'subtitle' => 'صف پاسخ‌گویی زنده به کاربران.'])
 <div class="mb-3 d-flex justify-content-between align-items-center">
-    <h1 class="m-0">تیکت‌های پشتیبانی</h1>
+    <div></div>
     @if($openCount)<span class="badge badge-danger">{{ $openCount }} خوانده‌نشده</span>@endif
 </div>
 <div class="card">

@@ -8,6 +8,8 @@ use App\Models\Course;
 use App\Models\Dog;
 use App\Models\Notification;
 use App\Models\Product;
+use App\Models\SupportMessage;
+use App\Models\SupportTicket;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Support\DashboardFinance;
@@ -185,21 +187,30 @@ class DashboardController extends Controller
     {
         $stats = [
             'users' => User::count(),
-            'transactions' => Transaction::where('status', 'completed')->count(),
+            'transactions' => Transaction::query()
+                ->where('created_at', '>=', now()->subDays(30))
+                ->whereIn('status', ['completed', 'paid'])
+                ->count(),
             'courses' => Course::where('is_active', 1)->count(),
             'dogs' => Dog::count(),
+            'open_tickets' => SupportTicket::query()->whereIn('status', ['open', 'answered'])->count(),
+            'inbox' => SupportMessage::query()->count(),
+            'pending_bookings' => Booking::query()->whereIn('status', ['PENDING', 'OPEN', 'QUOTED'])->count(),
         ];
 
         $months = collect(range(0, 5))->map(fn ($i) => now()->subMonths($i)->startOfMonth())->reverse();
 
         $chart = [
             'labels' => $months->map(fn ($m) => $m->format('Y-m'))->toArray(),
-            'data' => $months->map(fn ($m) => Transaction::where('status', 'completed')
+            'data' => $months->map(fn ($m) => Transaction::query()
+                ->whereIn('status', ['completed', 'paid'])
                 ->whereBetween('created_at', [$m, $m->copy()->endOfMonth()])
                 ->sum('amount'))->toArray(),
         ];
 
-        $recentTransactions = Transaction::with('user')->latest()->take(10)->get();
+        $recentTransactions = Transaction::with('user')->latest()->take(8)->get();
+        $recentTickets = SupportTicket::query()->latest('last_message_at')->latest('id')->take(6)->get();
+        $recentMessages = SupportMessage::query()->latest()->take(6)->get();
 
         return view('admin.dashboard.index', [
             'title' => 'داشبورد ادمین',
@@ -208,6 +219,8 @@ class DashboardController extends Controller
             'stats' => $stats,
             'chart' => $chart,
             'recentTransactions' => $recentTransactions,
+            'recentTickets' => $recentTickets,
+            'recentMessages' => $recentMessages,
         ]);
     }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     {{ $breed->name ?? __('Show') . " " . __('Breed') }}

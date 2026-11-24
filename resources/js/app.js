@@ -24,7 +24,8 @@ $(document).ready(function () {
     });
     /**@type {HTMLAnchorElement} */
     const logoutAnchor = document.querySelector("#logout-button");
-    if (logoutAnchor) {
+    // Admin layout owns confirmed logout; skip the plain submit there.
+    if (logoutAnchor && !document.body.classList.contains('sp-admin')) {
         logoutAnchor.addEventListener("click", function (e) {
             e.preventDefault();
 
