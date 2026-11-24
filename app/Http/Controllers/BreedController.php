@@ -39,7 +39,7 @@ class BreedController extends Controller
     {
         Breed::create($request->validated());
 
-        return Redirect::route('breeds.index')
+        return Redirect::route('admin.breeds.index')
             ->with('success', 'Breed created successfully.');
     }
 
@@ -48,7 +48,7 @@ class BreedController extends Controller
      */
     public function show($id): View
     {
-        $breed = Breed::find($id);
+        $breed = Breed::findOrFail($id);
 
         return view('breed.show', compact('breed'));
     }
@@ -58,7 +58,7 @@ class BreedController extends Controller
      */
     public function edit($id): View
     {
-        $breed = Breed::find($id);
+        $breed = Breed::findOrFail($id);
 
         return view('breed.edit', compact('breed'));
     }
@@ -70,15 +70,15 @@ class BreedController extends Controller
     {
         $breed->update($request->validated());
 
-        return Redirect::route('breeds.index')
+        return Redirect::route('admin.breeds.index')
             ->with('success', 'Breed updated successfully');
     }
 
     public function destroy($id): RedirectResponse
     {
-        Breed::find($id)->delete();
+        Breed::findOrFail($id)->delete();
 
-        return Redirect::route('breeds.index')
+        return Redirect::route('admin.breeds.index')
             ->with('success', 'Breed deleted successfully');
     }
 }

@@ -1,29 +1,9 @@
 @extends('admin.layout')
-
-@section('template_title')
-    {{ __('Update') }} Breed
-@endsection
-
+@section('title', 'ویرایش نژاد')
 @section('content')
-    <section class="content container-fluid">
-        <div class="">
-            <div class="col-md-12">
-
-                <div class="card card-default">
-                    <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Breed</span>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('breeds.update', $breed->id) }}"  role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
-                            @csrf
-
-                            @include('breed.form')
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+@include('admin.components.page-header', ['title' => 'ویرایش نژاد', 'subtitle' => $breed->name ?? ''])
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.breeds.index') }}">بازگشت</a>
+<div class="card sp-admin-card"><div class="card-body">
+<form method="POST" action="{{ route('admin.breeds.update', $breed) }}">@csrf @method('PUT') @include('breed.form')</form>
+</div></div>
 @endsection

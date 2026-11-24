@@ -39,7 +39,7 @@ class InsuranceController extends Controller
     {
         Insurance::create($request->validated());
 
-        return Redirect::route('insurances.index')
+        return Redirect::route('admin.insurances.index')
             ->with('success', 'Insurance created successfully.');
     }
 
@@ -48,7 +48,7 @@ class InsuranceController extends Controller
      */
     public function show($id): View
     {
-        $insurance = Insurance::find($id);
+        $insurance = Insurance::findOrFail($id);
 
         return view('insurance.show', compact('insurance'));
     }
@@ -58,7 +58,7 @@ class InsuranceController extends Controller
      */
     public function edit($id): View
     {
-        $insurance = Insurance::find($id);
+        $insurance = Insurance::findOrFail($id);
 
         return view('insurance.edit', compact('insurance'));
     }
@@ -70,15 +70,15 @@ class InsuranceController extends Controller
     {
         $insurance->update($request->validated());
 
-        return Redirect::route('insurances.index')
+        return Redirect::route('admin.insurances.index')
             ->with('success', 'Insurance updated successfully');
     }
 
     public function destroy($id): RedirectResponse
     {
-        Insurance::find($id)->delete();
+        Insurance::findOrFail($id)->delete();
 
-        return Redirect::route('insurances.index')
+        return Redirect::route('admin.insurances.index')
             ->with('success', 'Insurance deleted successfully');
     }
 }

@@ -1,28 +1,9 @@
 @extends('admin.layout')
-
-@section('template_title')
-    {{ __('Create') }} Breed
-@endsection
-
+@section('title', 'نژاد جدید')
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-
-                <div class="card card-default">
-                    <div class="card-header">
-                        <span class="card-title">{{ __('Create') }} Breed</span>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('breeds.store') }}"  role="form" enctype="multipart/form-data">
-                            @csrf
-
-                            @include('breed.form')
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+@include('admin.components.page-header', ['title' => 'ایجاد نژاد', 'subtitle' => 'نژاد جدید را به فهرست اضافه کنید.'])
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.breeds.index') }}">بازگشت</a>
+<div class="card sp-admin-card"><div class="card-body">
+<form method="POST" action="{{ route('admin.breeds.store') }}">@csrf @include('breed.form')</form>
+</div></div>
 @endsection
