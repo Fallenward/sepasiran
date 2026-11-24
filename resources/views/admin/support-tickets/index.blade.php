@@ -45,9 +45,13 @@
                 @forelse($tickets as $ticket)
                     @php
                         $st = (string) $ticket->status;
-                        $cls = $st === 'closed' ? 'is-bad' : ($st === 'answered' ? 'is-ok' : 'is-warn');
+                        $isClosed = $st === 'closed';
+                        $cls = $isClosed ? 'is-closed' : ($st === 'answered' ? 'is-ok' : 'is-warn');
+                        $rowClass = $isClosed
+                            ? 'sp-admin-row-closed'
+                            : ($ticket->unread_for_admin ? 'table-warning' : '');
                     @endphp
-                    <tr class="{{ $ticket->unread_for_admin ? 'table-warning' : '' }}">
+                    <tr class="{{ $rowClass }}">
                         <td class="num"><strong>{{ $ticket->code }}</strong></td>
                         <td>{{ $ticket->subject }}</td>
                         <td>
