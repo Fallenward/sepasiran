@@ -1,129 +1,185 @@
 @extends('layouts.app')
 
-@section('title', 'ثبت سفارش سگ')
+@section('title', ($dog->title ?? 'سگ').' — جزئیات')
 
 @section('content')
-<div class="container mb-5">
-    <div class="row gy-4">
+@php
+    $img = method_exists($dog, 'primaryImageUrl') ? $dog->primaryImageUrl() : null;
+    if (! $img) {
+        $img = !empty($dog->image)
+            ? (str_starts_with($dog->image, 'http') || str_starts_with($dog->image, '/') ? $dog->image : asset($dog->image))
+            : asset('images/demo/dogs/dog-02.jpg');
+    }
+    $breedName = method_exists($dog, 'breedName') ? $dog->breedName() : (optional($dog->breed)->name ?? '—');
+    $ownerName = $ownerProfile['full_name'] ?? trim(($owner->name ?? '').' '.($owner->family ?? ''));
+    $ownerName = $ownerName !== '' ? $ownerName : 'مالک نامشخص';
+    $statusLabels = [
+        'available' => 'برای فروش',
+        'ready' => 'آماده فروش',
+        'for_sale' => 'برای فروش',
+        'for-sale' => 'برای فروش',
+        'owned' => 'مالکیت شخصی',
+        'sold' => 'فروخته‌شده',
+        'pending' => 'در انتظار',
+        'waiting' => 'در انتظار پرداخت',
+    ];
+    $statusLabel = $statusLabels[$dog->status] ?? $dog->status;
+@endphp
 
-        <!-- Dog Info Card -->
-        <div class="col-md-6">
-            <div class="card shadow-sm p-4">
-                <h5 class="fw-bold mb-4">مشخصات سگ</h5>
+<div class="sp-dog-show">
+    @if(session('success'))
+        <div class="wrap" style="padding-top:16px">
+            <div class="sp-provider__panel" style="border-color:rgba(126,200,160,.45)">{{ session('success') }}</div>
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="wrap" style="padding-top:16px">
+            <div class="sp-provider__panel" style="border-color:rgba(220,80,80,.45)">
+                @foreach($errors->all() as $error)<p style="margin:0">{{ $error }}</p>@endforeach
+            </div>
+        </div>
+    @endif
 
-                <ul class="list-unstyled mb-4">
-                    <li class="mb-2"><strong>نام سگ:</strong> {{ $dog->name ?? 'بدون نام' }}</li>
-                    <li class="mb-2"><strong>رنگ:</strong> {{ $dog->color ?? 'نامشخص' }}</li>
-                    <li class="mb-2"><strong>سن:</strong> {{ $dog->age ?? 'نامشخص' }} ماه</li>
-                    <li class="mb-2"><strong>تاریخ تولد:</strong> {{ $dog->birth_date ?? 'نامشخص' }}</li>
-                    <li class="mb-2"><strong>نوع پوشش:</strong> {{ $dog->coat_type ?? 'نامشخص' }}</li>
-                    <li class="mb-2"><strong>رنگ چشم:</strong> {{ $dog->eye_color ?? 'نامشخص' }}</li>
-                    <li class="mb-2">
-                        <strong>شجره:</strong>
-                        @if($dog->shajare)
-                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#shajareModal">مشاهده</button>
-                        @else
-                            ندارد
-                        @endif
-                    </li>
-                    <li class="mb-2"><strong>مالک:</strong> {{ $dog->owner->name ?? 'مالک نامشخص' }}</li>
-                    <li class="mb-2"><strong>شهر:</strong> {{ $dog->city->name ?? 'نامشخص' }}</li>
-                    <li class="mb-2"><strong>تخصص:</strong> {{ $dog->specialty->name ?? 'بدون تخصص' }}</li>
-                </ul>
-
-                <!-- Features -->
-                <div class="row g-3">
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-shield-alt fa-2x text-primary me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">تضمین قیمت</h6>
-                            <p class="mb-0 small">خرید مستقیم از پرورش‌دهندگان معتبر با تضمین مناسب‌ترین قیمت.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-truck fa-2x text-primary me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">ارسال سریع و مطمئن</h6>
-                            <p class="mb-0 small">تحویل سریع در سراسر کشور.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-heart fa-2x text-primary me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">محبت و مراقبت</h6>
-                            <p class="mb-0 small">توجه ویژه به سلامت و رفاه سگ‌ها.</p>
-                        </div>
-                    </div>
-                    <div class="col-6 d-flex">
-                        <i class="fas fa-cogs fa-2x text-primary me-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1">خدمات پس از فروش</h6>
-                            <p class="mb-0 small">پشتیبانی مداوم برای اطمینان خاطر شما.</p>
-                        </div>
-                    </div>
+    <section class="sp-dog-show__hero" style="--sp-dog-hero:url('{{ $img }}')">
+        <div class="sp-dog-show__hero-inner wrap">
+            <img class="sp-dog-show__photo" src="{{ $img }}" alt="{{ $dog->title }}">
+            <div>
+                <p class="sp-provider__kicker">آگهی سگ</p>
+                <h1 class="sp-provider__name">{{ $dog->title }}</h1>
+                <p class="sp-provider__lede">{{ $breedName }}@if($dog->city) · {{ $dog->city->name }}@endif</p>
+                <div class="sp-provider__chips">
+                    <span class="sp-provider__chip is-accent">{{ $statusLabel }}</span>
+                    @if($dog->price)
+                        <span class="sp-provider__chip num">{{ number_format((int)$dog->price) }} تومان</span>
+                    @endif
+                    @if($dog->age)
+                        <span class="sp-provider__chip">{{ $dog->age }} ماه</span>
+                    @endif
+                    @if($dog->color)
+                        <span class="sp-provider__chip">{{ $dog->color }}</span>
+                    @endif
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Dog Image and Actions -->
-<div class="col-md-6">
-    <div class="card shadow-sm p-3 h-100" style="height: 400px; max-width: 90%; margin: 0 auto; display: flex; flex-direction: column;">
+    <div class="wrap sp-dog-show__layout">
+        <div class="sp-dog-show__main">
+            <section class="sp-provider__panel">
+                <h2>مشخصات سگ</h2>
+                <div class="sp-provider__facts">
+                    <div class="sp-provider__fact"><span>نژاد</span><strong>{{ $breedName }}</strong></div>
+                    <div class="sp-provider__fact"><span>سن</span><strong class="num">{{ $dog->age ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>رنگ</span><strong>{{ $dog->color ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>رنگ چشم</span><strong>{{ $dog->eye_color ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>پوشش</span><strong>{{ $dog->cover_type ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>اندازه</span><strong>{{ $dog->size ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>شهر</span><strong>{{ $dog->city->name ?? '—' }}</strong></div>
+                    <div class="sp-provider__fact"><span>شجره</span><strong>{{ $dog->shajare ? 'دارد' : 'ندارد' }}</strong></div>
+                </div>
+            </section>
 
-        <div style="flex: 1 1 60%;">
-            <img src="{{ $dog->image_url ? asset('storage/' . $dog->image_url) : asset('images/dogPicture.jpg') }}"
-                 class="card-img-top w-100"
-                 alt="{{ $dog->name ?? 'سگ' }}"
-                 style="height: 100%; object-fit: cover; border-radius: 0.5rem;">
+            <section class="sp-provider__panel">
+                <h2>درباره سگ</h2>
+                <p>{{ $dog->description ?: 'توضیح بیشتری ثبت نشده است.' }}</p>
+            </section>
+
+            @if($dog->shajare)
+                <section class="sp-provider__panel">
+                    <h2>شجره‌نامه</h2>
+                    <div class="sp-provider__list">
+                        <div class="sp-provider__list-item"><i class="fas fa-male"></i><div><strong>پدر</strong><p>{{ $dog->father_name ?: '—' }} @if($dog->fatherBreed) · {{ $dog->fatherBreed->name }}@endif</p></div></div>
+                        <div class="sp-provider__list-item"><i class="fas fa-female"></i><div><strong>مادر</strong><p>{{ $dog->mother_name ?: '—' }} @if($dog->motherBreed) · {{ $dog->motherBreed->name }}@endif</p></div></div>
+                    </div>
+                </section>
+            @endif
+
+            <section class="sp-provider__panel sp-provider__info-card">
+                <h2>اطلاعات مالک</h2>
+                @if($owner)
+                    <div class="sp-provider__info-main">
+                        <img class="sp-provider__info-avatar" src="{{ $owner->avatarUrl() ?: asset('images/demo/dogs/dog-02.jpg') }}" alt="{{ $ownerName }}">
+                        <div>
+                            <strong class="sp-provider__info-name">{{ $ownerName }}</strong>
+                            <p class="sp-provider__info-role">
+                                @if($ownerProfile && $ownerProfile['city_name']){{ $ownerProfile['city_name'] }} · @endif
+                                @if($ownerProfile && $ownerProfile['is_verified'])احراز هویت شده@else عضو سپاس‌ایران@endif
+                            </p>
+                            @if($ownerProfile)
+                                <x-provider-rating :avg="$ownerProfile['rating_avg']" :count="$ownerProfile['rating_count']" />
+                            @endif
+                        </div>
+                    </div>
+                    @if($ownerProfile && $ownerProfile['specialties']->isNotEmpty())
+                        <div class="sp-provider__tags" style="margin-top:12px">
+                            @foreach($ownerProfile['specialties']->take(6) as $spec)
+                                <span class="sp-provider__tag">{{ $spec }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if($owner->bio)
+                        <p class="sp-provider__cta-note" style="margin-top:12px">{{ \Illuminate\Support\Str::limit(strip_tags($owner->bio), 180) }}</p>
+                    @endif
+                    @if($owner->hasRole('breeder'))
+                        <a class="sp-btn sp-btn--ghost" style="margin-top:12px" href="{{ route('frontend.breeders.show', $owner->id) }}">پروفایل پرورش‌دهنده</a>
+                    @elseif($owner->hasRole('coach'))
+                        <a class="sp-btn sp-btn--ghost" style="margin-top:12px" href="{{ route('frontend.coaches.show', $owner->id) }}">پروفایل مربی</a>
+                    @endif
+                @else
+                    <p class="sp-provider__empty">مالک ثبت نشده است.</p>
+                @endif
+            </section>
         </div>
 
-        <div class="card-body text-center p-2" style="flex: 1 1 40%; display: flex; flex-direction: column; justify-content: center;">
-            <h5 class="fw-bold mb-2">{{ $dog->name ?? 'بدون نام' }}</h5>
-            <div class="mb-2">
-                <a href="tel:{{ $dog->owner->phone ?? '#' }}" class="btn btn-outline-primary btn-sm w-100">تماس با مالک</a>
+        <aside class="sp-dog-show__aside">
+            <div class="sp-provider__panel sp-provider__cta">
+                <h2 style="margin:0">خرید سگ</h2>
+                @if($dog->price)
+                    <p class="sp-provider__cta-note num" style="font-size:1.2rem;font-weight:700;color:var(--sp-gold-soft)">{{ number_format((int)$dog->price) }} تومان</p>
+                @endif
+
+                @auth
+                    @if($isOwner)
+                        <p class="sp-provider__cta-note">این سگ متعلق به شماست.</p>
+                    @elseif($pendingOrder)
+                        <p class="sp-provider__cta-note">سفارش شما ثبت شده. پرداخت را با کیف پول یا درگاه بانکی کامل کنید.</p>
+                        <div style="display:grid;gap:8px;width:100%">
+                            <form method="post" action="{{ route('frontend.dog.order.pay', [$dog->id, $pendingOrder->id]) }}">
+                                @csrf
+                                <input type="hidden" name="payment_method" value="wallet">
+                                <button type="submit" class="sp-btn sp-btn--primary" style="width:100%">
+                                    <i class="fas fa-wallet"></i> پرداخت از کیف پول
+                                </button>
+                            </form>
+                            <form method="post" action="{{ route('frontend.dog.order.pay', [$dog->id, $pendingOrder->id]) }}">
+                                @csrf
+                                <input type="hidden" name="payment_method" value="gateway">
+                                <button type="submit" class="sp-btn sp-btn--ghost" style="width:100%">
+                                    <i class="fas fa-credit-card"></i> پرداخت از درگاه بانکی
+                                </button>
+                            </form>
+                        </div>
+                    @elseif($dog->isForSale())
+                        <p class="sp-provider__cta-note">این سگ برای فروش است. ابتدا سفارش ثبت کنید، سپس پرداخت را کامل کنید.</p>
+                        <form method="post" action="{{ route('frontend.dog.order.store', $dog->id) }}">
+                            @csrf
+                            <button type="submit" class="sp-btn sp-btn--primary" style="width:100%">
+                                <i class="far fa-shopping-bag"></i> ثبت سفارش خرید
+                            </button>
+                        </form>
+                    @else
+                        <p class="sp-provider__cta-note">این سگ در حال حاضر برای فروش نیست.</p>
+                    @endif
+                @else
+                    @if($dog->isForSale())
+                        <p class="sp-provider__cta-note">برای ثبت سفارش و خرید وارد شوید.</p>
+                        <a class="sp-btn sp-btn--primary" href="{{ route('login') }}">ورود برای خرید</a>
+                    @else
+                        <p class="sp-provider__cta-note">این سگ در حال حاضر برای فروش نیست.</p>
+                    @endif
+                @endauth
             </div>
-            <div>
-                <a href="#" class="btn btn-primary btn-sm w-100">ثبت سفارش</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-    </div>
-</div>
-
-<!-- Shajare Modal -->
-@if($dog->shajare)
-<div class="modal fade" id="shajareModal" tabindex="-1" aria-labelledby="shajareModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="shajareModalLabel">اطلاعات شجره</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
-      </div>
-      <div class="modal-body">
-        <ul class="list-group">
-            <li class="list-group-item"><strong>پدر:</strong> {{ $dog->father_name }}</li>
-            <li class="list-group-item"><strong>نژاد پدر:</strong> {{ optional($dog->fatherBreed)->name }}</li>
-            <li class="list-group-item"><strong>مادر:</strong> {{ $dog->mother_name }}</li>
-            <li class="list-group-item"><strong>نژاد مادر:</strong> {{ optional($dog->motherBreed)->name }}</li>
-            <li class="list-group-item"><strong>مادربزرگ مادری:</strong> {{ $dog->maternal_grandmother_name }}</li>
-            <li class="list-group-item"><strong>پدربزرگ مادری:</strong> {{ $dog->maternal_grandfather_name }}</li>
-            <li class="list-group-item"><strong>مادربزرگ پدری:</strong> {{ $dog->paternal_grandmother_name }}</li>
-            <li class="list-group-item"><strong>پدربزرگ پدری:</strong> {{ $dog->paternal_grandfather_name }}</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-@endif
-
-<!-- About Section -->
-<div class="container mb-5">
-    <div class="bg-light p-4 rounded shadow-sm">
-        <h3 class="fw-bold mb-4">درباره {{ $dog->name ?? 'سگ' }}</h3>
-        <p class="text-justify" style="line-height: 1.8;">
-            {!! nl2br(e($dog->description ?? 'توضیحی برای این سگ موجود نیست.')) !!}
-        </p>
+        </aside>
     </div>
 </div>
 @endsection

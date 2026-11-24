@@ -3,39 +3,40 @@
 @section('title', 'فراموشی رمز عبور')
 
 @section('main')
-    <div class="container d-flex justify-content-center align-items-center min-vh-100" dir="rtl">
-        <div class="card shadow border-0 w-100" style="max-width: 640px; border-radius: 1rem;">
-            <div class="card-body p-5">
-                <div class="text-center mb-4">
-                    <h4 class="fw-bold">بازیابی رمز عبور</h4>
-                    <p class="text-muted">لطفاً شماره موبایل خود را وارد کنید تا لینک بازنشانی رمز عبور برای شما ارسال شود.</p>
-                </div>
-
-                <form action="{{ route('password.phone') }}" method="POST">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">شماره موبایل</label>
-                        <div class="input-group" dir="rtl">
-                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-mobile-alt text-muted"></i></span>
-                            <input type="tel" name="phone" id="phone"
-                                   class="form-control border-start-0 @error('phone') is-invalid @enderror"
-                                   placeholder="مثلاً 09121234567" value="{{ old('phone') }}" dir="rtl">
-                        </div>
-                        @error('phone')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">درخواست رمز عبور جدید</button>
-                    </div>
-
-                    <div class="text-center mt-2">
-                        <a href="{{ route('login') }}" class="text-decoration-none">بازگشت به صفحه ورود</a>
-                    </div>
-                </form>
-            </div>
+<div class="auth-shell">
+    <aside class="auth-brand" aria-hidden="true">
+        <div>
+            <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
+            <h1 class="sp-brand__fa" style="font-size:clamp(2.4rem,4vw,3.2rem);margin:0 0 14px">سپاسیران</h1>
+            <p style="color:var(--sp-text-muted);max-width:22rem;margin:0;line-height:1.8">
+                لینک بازیابی رمز به ایمیل حساب شما ارسال می‌شود.
+            </p>
         </div>
+    </aside>
+
+    <div class="auth-form">
+        <form class="panel auth-card" action="{{ route('password.email') }}" method="POST">
+            @csrf
+            <h1 class="auth-card__title">بازیابی رمز</h1>
+            <p class="auth-card__lede">ایمیل حساب خود را وارد کنید.</p>
+
+            @if (session('status'))
+                <div class="auth-alert auth-alert--ok" role="status">{{ session('status') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="auth-alert" role="alert">{{ $errors->first() }}</div>
+            @endif
+
+            <div class="field">
+                <label for="email">ایمیل</label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">ارسال لینک بازیابی</button>
+            <p class="auth-card__foot">
+                <a href="{{ route('login') }}">بازگشت به ورود</a>
+            </p>
+        </form>
     </div>
+</div>
 @endsection

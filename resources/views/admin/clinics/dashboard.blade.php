@@ -1,192 +1,94 @@
-@extends('admin.layout')
+@extends('frontend.layouts.app')
 
-@section('title', 'داشبورد کلینیک - Sepasiran')
-
-@section('header')
-    <header class="custom-header d-flex align-items-center justify-content-center">
-        <h5 class="text-white m-0">{{ $title }}</h5>
-    </header>
-@endsection
+@section('title', ($title ?? 'داشبورد کلینیک') . ' — سپاسیران')
 
 @section('content')
-<style>
-    body {
-        padding-bottom: 80px;
-        background-color: #f8f9fa;
-        font-family: Tahoma, sans-serif;
-        direction: rtl;
-        text-align: right;
-    }
+@php
+    $statusMap = [
+        'PENDING' => ['در انتظار', 'is-pending'],
+        'OPEN' => ['باز', 'is-pending'],
+        'QUOTED' => ['پیشنهاد شده', 'is-pending'],
+        'CONFIRMED' => ['تأیید شده', 'is-active'],
+        'COMPLETED' => ['انجام شده', 'is-done'],
+        'CANCELLED' => ['لغو شده', 'is-danger'],
+    ];
+@endphp
+<div class="sp-dash sp-dash--clinic">
+    <div class="sp-dash__inner">
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
+            'user' => $user,
+            'roleLabel' => $roleLabel ?? 'کلینیک',
+            'lede' => 'نوبت‌های فعال و درآمد تکمیل‌شده کلینیک را اینجا ببینید.',
+            'ctaTitle' => 'پروفایل کلینیک',
+            'ctaHint' => 'آدرس، تماس و تصویر کلینیک را برای مراجعان کامل کنید.',
+            'primaryAction' => ['label' => 'ویرایش پروفایل', 'url' => route('account.profile.edit')],
+        ])
 
-    .custom-header {
-        position: fixed;
-        width: 100%;
-        height: 58px;
-        left: 0;
-        top: 0;
-        background-color: #0d47a1;
-        color: white;
-        z-index: 1000;
-        border-bottom: 1px solid #ccc;
-        padding: 0 1rem;
-    }
+        @include('frontend.partials.dashboard-metrics', [
+            'metrics' => [
+                ['label' => 'نوبت‌های تأییدشده', 'value' => number_format($activeVisits), 'hint' => 'در حال انجام', 'icon' => 'fas fa-stethoscope'],
+                ['label' => 'در صف', 'value' => number_format($pendingVisits ?? 0), 'hint' => 'منتظر تأیید', 'icon' => 'fas fa-hourglass-half', 'url' => route('account.bookings.index', ['tab' => 'inbox'])],
+                ['label' => 'سگ‌های من', 'value' => number_format(($myDogs ?? collect())->count()), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'درآمد تکمیل‌شده', 'value' => number_format($clinicIncome) . ' ت', 'hint' => 'جمع سرویس‌های انجام‌شده', 'icon' => 'fas fa-coins', 'url' => route('wallet.index')],
+            ],
+        ])
 
-    .shortcut-icon {
-        background-color: #0d47a1;
-        color: #fff;
-        padding: 20px;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: auto;
-        transition: background-color 0.3s;
-    }
+        
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spClinicFinanceChart',
+        ])
 
-    .shortcut-icon:hover {
-        background-color: #1565c0;
-    }
 
-    .square-card {
-        background-color: #0d47a1;
-        color: #fff;
-        border-radius: 1rem;
-        padding: 0.75rem 0.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        min-height: 140px;
-    }
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
 
-    .square-card .btn {
-        margin-top: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
+@include('frontend.partials.dashboard-actions', [
+            'actions' => [
+                ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ‌های حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
+                ['label' => 'درخواست‌های نوبت', 'hint' => 'صندوق رزرو کلینیک', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
+                ['label' => 'پروفایل کلینیک', 'hint' => 'آدرس و اطلاعات تماس', 'url' => route('account.profile.edit'), 'icon' => 'far fa-hospital'],
+                ['label' => 'خدمات رزرو', 'hint' => 'قیمت، مدت، تخصص', 'url' => route('account.services.index'), 'icon' => 'fas fa-briefcase'],
+                ['label' => 'جلسات باز من', 'hint' => 'ایجاد و مدیریت جلسه باز', 'url' => route('frontend.open-sessions.mine'), 'icon' => 'fas fa-door-open'],
+                ['label' => 'زمان‌بندی', 'hint' => 'ساعات کاری و مسدودسازی', 'url' => route('account.availability.edit'), 'icon' => 'fas fa-calendar-alt'],
+                ['label' => 'قیمت خدمات', 'hint' => 'مبلغ رزرو کلینیک/بیمه', 'url' => route('account.service-prices.edit'), 'icon' => 'fas fa-tags'],
+                ['label' => 'کیف پول', 'hint' => 'موجودی حساب', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
+                ['label' => 'پروفایل', 'hint' => 'ویرایش اطلاعات', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
+            ],
+        ])
 
-    .footer-nav {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #f8f9fa;
-        border-top: 1px solid #ccc;
-        display: flex;
-        justify-content: space-around;
-        padding: 0.5rem 0;
-        z-index: 1001;
-    }
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
-    .footer-nav .nav-link {
-        text-align: center;
-        font-size: 0.85rem;
-    }
-</style>
-
-<div class="container mt-5 pt-4">
-
-    <!-- Clinic Info -->
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-        <div style="font-size: 24px;">&#9776;</div>
-        <div><strong>Sepasiran</strong></div>
-        <div class="d-flex align-items-center">
-            @foreach($clinics as $clinic)
-                <div class="d-flex align-items-center ms-3">
-                    <img src="{{ $clinic->logo_url ?? asset('images/default-clinic.png') }}" width="40" class="rounded-circle ms-2">
-                    <div>
-                        <div>{{ $clinic->name }}</div>
-                        <small>اعتبار: {{ number_format($clinic->credit ?? 0) }} تومان</small>
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>درخواست‌ها و نوبت‌ها</h2>
+                <a href="{{ route('account.bookings.index', ['tab' => 'inbox']) }}">مشاهده همه</a>
+            </header>
+            <div class="sp-dash__list">
+                @forelse($recentBookings as $booking)
+                    @php [$stLabel, $stClass] = $statusMap[$booking->status] ?? [$booking->status, 'is-pending']; @endphp
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-notes-medical"></i></span>
+                        <div>
+                            <strong>{{ $booking->user->name ?? 'مراجع' }} {{ $booking->user->family ?? '' }}</strong>
+                            <p class="sp-dash__muted">{{ $booking->booking_code }}</p>
+                        </div>
+                        <div class="sp-dash__row-meta">
+                            <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
+                            <span class="sp-dash__muted">{{ optional($booking->appointment_date)->format('Y/m/d H:i') ?? '—' }}</span>
+                        </div>
+                    </article>
+                @empty
+                    <div class="sp-dash__empty">
+                        <div class="sp-dash__empty-visual" style="background-image:linear-gradient(160deg,rgba(12,18,16,.25),rgba(7,10,8,.7)),url('/images/demo/hero/hero-03.jpg')" aria-hidden="true"></div>
+                        <p>نوبتی ثبت نشده است.</p>
                     </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    <!-- Search -->
-    <div class="input-group mb-3">
-        <input type="text" class="form-control text-end" placeholder="جست‌وجو..." aria-label="Search">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-    </div>
-
-    <!-- Notifications -->
-    <div class="card mb-4" style="border: 2px solid #0d47a1; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div class="card-header text-white" style="background-color: #0d47a1;">
-            <strong>اطلاعیه‌ها</strong>
-        </div>
-        <div class="card-body bg-white text-dark text-end">
-            @forelse($notifications as $notification)
-                <div class="mb-2 border-bottom pb-2">
-                    {{ $notification['message'] }}
-                    <br>
-                    <small><i class="bi bi-calendar"></i>
-                        {{ \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $notification['date'])->format('d M Y') }}
-                    </small>
-                </div>
-            @empty
-                <p class="text-muted">هیچ اطلاعیه‌ای موجود نیست.</p>
-            @endforelse
-        </div>
-    </div>
-
-    <!-- Shortcut Icons -->
-    <div class="row text-center mb-4">
-        @php
-            $shortcuts = [
-                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'link' => route('clinic.dashboard')],
-                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'link' => route('clinic.dashboard')],
-                ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'link' => route('clinic.dashboard')],
-            ];
-        @endphp
-
-        @foreach($shortcuts as $shortcut)
-            <div class="col-4 mb-3">
-                <a href="{{ $shortcut['link'] }}" class="text-decoration-none text-dark">
-                    <div class="shortcut-icon">
-                        <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
-                    </div>
-                    <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
-                </a>
+                @endforelse
             </div>
-        @endforeach
+        </section>
     </div>
-
-    <!-- Metrics -->
-    <div class="row text-center g-3">
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-clipboard2-check fs-3"></i>
-                <div class="mt-2">ویزیت‌های فعال</div>
-                <div>{{ number_format($activeVisits) }}</div>
-                <a href="{{ route('clinic.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-cash-stack fs-3"></i>
-                <div class="mt-2">درآمد کلینیک</div>
-                <div>{{ number_format($clinicIncome) }} تومان</div>
-                <a href="{{ route('clinic.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-people fs-3"></i>
-                <div class="mt-2">پزشکان فعال</div>
-                <div>{{ number_format($activeDoctors) }}</div>
-                <a href="{{ route('clinic.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-    </div>
-    <nav class="footer-nav">
-    <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-    <a class="nav-link" href="{{ route('clinic.profile.edit') }}"><i class="bi bi-journal-text">جلسات   </i><br></a>
-    <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-plus-circle"></i><br>کیف پول</a>
-    <a class="nav-link" href="{{ route('linic.profile.edit') }}"><i class="bi bi-person"></i><br>پروفایل</a>
-</nav>
 </div>
 @endsection
-
-

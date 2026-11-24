@@ -11,61 +11,32 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'redirect' => $request->query('redirect', ''),
+        ]);
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
-public function store(LoginRequest $request): RedirectResponse
-{
-    logger()->info('📥 Login submitted', $request->all());
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
 
-    $request->authenticate();
-    logger()->info('✅ Authentication passed');
+        $user = Auth::user();
+        $redirect = $request->input('redirect') ?: $request->query('redirect');
 
-    $request->session()->regenerate();
+        if (is_string($redirect) && str_starts_with($redirect, '/') && !str_starts_with($redirect, '//')) {
+            return redirect()->to($redirect);
+        }
 
-    $user = Auth::user();
-
-    // ✅ Only system-level admin
-    if ($user->is_admin) {
-        return redirect()->route('admin.dashboard.index');
+        return redirect()->intended($user->dashboardRoute());
     }
 
-    // ✅ Use roles for everything else
-    if ($user->hasRole('breeder')) {
-        return redirect()->route('breeder.dashboard');
-    }
-
-    if ($user->hasRole('clinic')) {
-        return redirect()->route('clinic.dashboard');
-    }
-
-    if ($user->hasRole('coach')) {
-        return redirect()->route('coach.dashboard');
-    }
-
-    // ❌ Default fallback: unknown role
-    Auth::logout();
-    return redirect()->route('login')->withErrors(['role' => 'شما به هیچ داشبوردی دسترسی ندارید.']);
-}
-
-
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

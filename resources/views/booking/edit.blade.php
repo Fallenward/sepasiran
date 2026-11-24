@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layout')
 
 @section('template_title')
     {{ __('Update') }} Booking
@@ -14,7 +14,8 @@
                         <span class="card-title">{{ __('Update') }} Booking</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('bookings.update', $booking->id) }}"  role="form" enctype="multipart/form-data">
+                        <a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.bookings.index') }}">بازگشت</a>
+                        <form method="POST" action="{{ route('admin.bookings.update', $booking->id) }}"  role="form" enctype="multipart/form-data">
                             {{ method_field('PATCH') }}
                             @csrf
 

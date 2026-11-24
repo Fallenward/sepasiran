@@ -17,7 +17,10 @@ class TransactionController extends Controller
      */
     public function index(Request $request): View
     {
-        $transactions = Transaction::paginate();
+        $transactions = Transaction::query()
+            ->with('user:id,name,family,email,phone')
+            ->latest()
+            ->paginate();
 
         return view('admin.transaction.index', compact('transactions'))
             ->with('i', ($request->input('page', 1) - 1) * $transactions->perPage());
@@ -49,7 +52,9 @@ class TransactionController extends Controller
      */
     public function show($id): View
     {
-        $transaction = Transaction::find($id);
+        $transaction = Transaction::query()
+            ->with('user:id,name,family,email,phone')
+            ->findOrFail($id);
 
         return view('admin.transaction.show', compact('transaction'));
     }
@@ -59,7 +64,7 @@ class TransactionController extends Controller
      */
     public function edit($id): View
     {
-        $transaction = Transaction::find($id);
+        $transaction = Transaction::query()->findOrFail($id);
 
         return view('admin.transaction.edit', compact('transaction'));
     }

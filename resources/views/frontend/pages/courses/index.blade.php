@@ -1,197 +1,55 @@
-@extends('frontend.layouts.app')
+@extends('layouts.app')
 
-@section('title', $title)
+@section('title', $title ?? 'دوره‌ها')
 
 @section('content')
+<section class="sp-listing-hero">
+    <div class="sp-listing-hero__bg" aria-hidden="true">
+        <img src="{{ asset('images/demo/hero/hero-02.jpg') }}" alt="">
+    </div>
+    <div class="wrap sp-listing-hero__inner">
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>دوره‌ها</span>
+        </nav>
+        <div class="sp-listing-hero__title-row">
+            <span class="sp-section-head__icon" aria-hidden="true"><x-sp-icon name="course" /></span>
+            <h1>دوره‌ها</h1>
+        </div>
+        <p class="sp-listing-hero__lede">جستجو در عنوان و دسته‌بندی — دوره‌های آموزشی سپاسیران.</p>
+    </div>
+</section>
 
+<div class="wrap sp-listing" style="padding-top:28px;padding-bottom:56px">
+    <div class="sp-listing__layout">
+        <div class="sp-listing__filters">
+            <x-filter-form :filters="$filters" search-placeholder="عنوان یا دسته را بنویسید" search-icon="course" />
+        </div>
 
-<div class="container">
-    <x-section-header title="لیست دوره ها" buttonText="" link="#"/>
-</div>
-
-<div class="container mt-5">
-    <!-- Mobile filter button -->
-    <button id="course-filterButton" class="d-md-none btn btn-secondary course-fixed-bottom" data-toggle="tooltip" data-placement="top" title="فیلترها">
-        فیلترها <i class="fas fa-filter"></i>
-    </button>
-
-    <!-- Filters section -->
-    <div id="course-filters" class="row">
-        <div id="filter-status" class="col-12 mb-2">
-            <div class="alert alert-primary p-2 m-0" role="alert">
-                <p class="mb-0" id="filter-status-text">در حال بارگذاری...</p>
+        <div class="sp-listing__results">
+            <div class="grid grid-3">
+                @forelse($courses as $course)
+                    <div class="sp-listing-card">
+                        <x-course-card :item="$course" />
+                    </div>
+                @empty
+                    <div class="panel" style="grid-column:1/-1;text-align:center">
+                        <p style="margin:0;color:var(--sp-text-muted)">دوره‌ای یافت نشد. عبارت جستجو یا فیلترها را تغییر دهید.</p>
+                    </div>
+                @endforelse
             </div>
-        </div>
 
-        <div class="col-12 col-md-4">
-            <x-field-text
-                id="searchItem"
-                label="جستجو"
-                placeholder="نام درس، نام استاد، دسته بندی ..."
-                value="">
-            </x-field-text>
-        </div>
-
-        <div class="col-6 col-md-4">
-            <x-field-select2 :fields="$levels" label="پایه تحصیلی" id="level_id" :multiple="true"/>
-        </div>
-
-        <div class="col-6 col-md-4">
-            <x-field-select2 :fields="$categories" label="دسته بندی" id="category_id" :multiple="true"/>
-        </div>
-
-        <div class="col-6 col-md-4">
-            <x-field-select2 :fields="$teachers" label="استاد" id="user_id" :multiple="true"/>
-        </div>
-
-        <div class="col-6 col-md-4">
-            <x-field-select2 :fields="$paymentTypes" label="قیمت" id="price" :multiple="true"/>
+            @if(method_exists($courses, 'hasPages') && $courses->hasPages())
+                <nav class="sp-listing__pager" aria-label="صفحه‌بندی">
+                    <div class="sp-pagination">
+                        {{ $courses->onEachSide(1)->links('pagination::bootstrap-5') }}
+                    </div>
+                </nav>
+            @endif
         </div>
     </div>
 </div>
 
-<div class="normal-divider"></div>
-
-<!-- Loading spinner -->
-<div id="loadingSpinner" class="text-center my-4 container" style="display: none;">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-2 text-center">در حال بارگذاری...</p>
-</div>
-
-<!-- No results alert -->
-<div id="noResultsAlert" class="alert alert-warning text-center my-4" style="display: none;">
-    موردی یافت نشد!
-</div>
-
-<!-- Courses container -->
-<div class="row">
-    @foreach ($courses as $course)
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 course-item">
-            <div class="card h-100">
-                <img src="{{ asset('storage/' . ($course->thumbnail ?? 'default-course.png')) }}" class="card-img-top" alt="{{ $course->title }}">
-
-                <div class="card-body d-flex flex-column justify-content-between">
-                    <div class="card-title d-flex justify-content-between">
-                        <h5>{{ $course->title }}</h5>
-                        <span class="btn btn-outline-primary course-credit text-muted">
-                            {{ $course->price == 0 ? 'رایگان' : 'پولی' }}
-                        </span>
-                    </div>
-
-                    <div class="card-text mb-2">
-                        {{ $course->category->name ?? 'بدون دسته بندی' }}
-                    </div>
-
-                    <div class="card-text">
-                        <div class="course-price">
-                            قیمت: {{ number_format($course->price) }} تومان
-                        </div>
-                        <a href="{{ route('frontend.courses.show', $course->slug) }}" class="btn btn-primary w-100 mt-2">مشاهده پکیج</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
-</div>
-
-<div class="d-flex justify-content-center mt-4">
-    {{ $courses->links() }}
-</div>
-
-@endsection
-
-@section('scripts')
-<script type="text/javascript">
-$(document).ready(function () {
-    var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-    function fetchFilteredCourses(page = 1) {
-        $('#loadingSpinner').show();
-        $('#filter-status-text').text('در حال بارگذاری...');
-        $('#noResultsAlert').hide();
-
-        var level_id = $('#level_id').val();
-        var category_id = $('#category_id').val();
-        var user_id = $('#user_id').val();
-        var price = $('#price').val();
-        var searchItem = $('#searchItem').val();
-
-        $.ajax({
-            url: '{{ route('frontend.courses.filter') }}',
-            method: 'GET',
-            data: {
-                level_id: level_id,
-                category_id: category_id,
-                user_id: user_id,
-                price: price,
-                searchItem: searchItem,
-                page: page
-            },
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            success: function (response) {
-                $('#courses-container').html(response);
-
-                var resultCount = $('#courses-container .course-item').length;
-
-                if (resultCount === 0) {
-                    $('#filter-status-text').text('هیچ موردی یافت نشد.');
-                    $('#noResultsAlert').show();
-                } else {
-                    $('#filter-status-text').text(resultCount + ' مورد یافت شد.');
-                    $('#noResultsAlert').hide();
-                }
-            },
-            complete: function () {
-                $('#loadingSpinner').hide();
-            },
-            error: function () {
-                $('#courses-container').html('<p class="text-danger text-center">خطا در بارگذاری داده‌ها.</p>');
-                $('#filter-status-text').text('خطا در بارگذاری داده‌ها.');
-                $('#loadingSpinner').hide();
-            }
-        });
-    }
-
-    // Initial load
-    fetchFilteredCourses();
-
-    // Filters change event
-    $('#level_id, #category_id, #user_id, #price, #searchItem').on('change input', function () {
-        fetchFilteredCourses();
-    });
-
-    // Pagination links event (delegated)
-    $(document).on('click', '#courses-container .pagination a', function (e) {
-        e.preventDefault();
-        var url = $(this).attr('href');
-        var page = url.split('page=')[1];
-        if (page) {
-            fetchFilteredCourses(page);
-            // Scroll to top of courses on page change
-            $('html, body').animate({ scrollTop: $('#courses-container').offset().top - 100 }, 500);
-        }
-    });
-
-    // Mobile filter sidebar toggle
-    const filterButton = document.getElementById("course-filterButton");
-    const filtersSection = document.getElementById("course-filters");
-    const overlay = document.createElement("div");
-    overlay.classList.add("course-overlay");
-    document.body.appendChild(overlay);
-
-    filterButton.addEventListener("click", function() {
-        filtersSection.classList.add("open");
-        overlay.classList.add("active");
-    });
-
-    overlay.addEventListener("click", function() {
-        filtersSection.classList.remove("open");
-        overlay.classList.remove("active");
-    });
-});
-</script>
+<x-scripts.filter-submit />
 @endsection

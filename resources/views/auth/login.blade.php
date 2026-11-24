@@ -1,43 +1,69 @@
 @extends('layouts.auth')
 
-@section('title', 'ورود به حساب کاربری')
+@section('title', 'ورود')
 
 @section('main')
+@php $redirect = $redirect ?? request('redirect', ''); @endphp
 <div class="auth-shell">
-    <aside class="auth-brand">
+    <aside class="auth-brand" aria-hidden="true">
         <div>
             <p class="sp-brand__en latin" style="margin:0 0 8px">Sepasiran</p>
-            <h1 class="sp-brand__fa" style="font-size:3rem;margin:0 0 12px">سپاسیران</h1>
-            <p style="color:var(--sp-text-muted);max-width:20rem;margin:0">ورود امن با حس برند — نه اسکین AdminLTE.</p>
+            <h1 class="sp-brand__fa" style="font-size:clamp(2.4rem,4vw,3.2rem);margin:0 0 14px">سپاسیران</h1>
+            <p style="color:var(--sp-text-muted);max-width:22rem;margin:0;line-height:1.8">
+                ورود به حساب برای رزرو خدمت، مدیریت سگ‌ها و پیگیری درخواست‌ها.
+            </p>
         </div>
     </aside>
 
     <div class="auth-form">
-        <form class="panel" style="width:min(100%,400px)" action="{{ route('new-login') }}" method="POST">
+        <form class="panel auth-card" action="{{ route('login.store') }}" method="POST" novalidate>
             @csrf
-            <h1 style="margin:0 0 8px;font-size:1.5rem">ورود</h1>
-            <p style="margin:0 0 20px;color:var(--sp-text-subtle);font-size:0.9rem">ایمیل و رمز عبور حساب خود را وارد کنید</p>
+            @if($redirect)
+                <input type="hidden" name="redirect" value="{{ $redirect }}">
+            @endif
+
+            <div class="auth-card__tabs" role="tablist">
+                <span class="is-active">ورود</span>
+                <a href="{{ route('register', $redirect ? ['redirect' => $redirect] : []) }}">ثبت‌نام</a>
+            </div>
+
+            <h1 class="auth-card__title">خوش آمدید</h1>
+            <p class="auth-card__lede">ایمیل یا شماره موبایل و رمز عبور را وارد کنید.</p>
+
+            @if ($errors->any())
+                <div class="auth-alert" role="alert">
+                    {{ $errors->first() }}
+                </div>
+            @endif
 
             <div class="field">
-                <label for="email">ایمیل</label>
-                <input id="email" class="num" type="email" name="email" value="{{ old('email') }}"
-                       placeholder="name@example.com" autocomplete="username" required>
-                @error('email')
-                    <div style="color:var(--sp-danger);font-size:0.8rem;margin-top:6px">{{ $message }}</div>
-                @enderror
+                <label for="login">ایمیل یا موبایل</label>
+                <input id="login" class="num" type="text" name="login" value="{{ old('login', old('email')) }}"
+                       placeholder="09xxxxxxxxx یا name@email.com" autocomplete="username" required autofocus>
             </div>
 
             <div class="field">
                 <label for="password">رمز عبور</label>
                 <input id="password" type="password" name="password" autocomplete="current-password" required>
-                @error('password')
-                    <div style="color:var(--sp-danger);font-size:0.8rem;margin-top:6px">{{ $message }}</div>
-                @enderror
+            </div>
+
+            <div class="auth-card__row">
+                <label class="auth-check">
+                    <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
+                    <span>مرا به خاطر بسپار</span>
+                </label>
+                @if (Route::has('password.request'))
+                    <a class="auth-link" href="{{ route('password.request') }}">فراموشی رمز</a>
+                @endif
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">ورود به حساب</button>
-            <p style="margin:16px 0 0;text-align:center;font-size:0.85rem;color:var(--sp-text-subtle)">
-                <a href="{{ route('frontend.home') }}">بازگشت به خانه</a>
+
+            <p class="auth-card__foot">
+                حساب ندارید؟
+                <a href="{{ route('register', $redirect ? ['redirect' => $redirect] : []) }}">ثبت‌نام کنید</a>
+                ·
+                <a href="{{ route('frontend.home') }}">خانه</a>
             </p>
         </form>
     </div>

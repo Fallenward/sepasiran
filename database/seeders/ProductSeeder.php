@@ -2,67 +2,51 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Models\Product;
 
 class ProductSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Optional: Clear the products table first to avoid duplicates
-        DB::table('products')->truncate();
+        $userId = DB::table('users')->value('id') ?? 1;
+        $categoryId = DB::table('categories')->value('id') ?? 1;
 
-        $faker = \Faker\Factory::create();
+        DB::table('products')->delete();
 
-        // Create 10 products with unique slugs using factory if you have it
-        for ($i = 0; $i < 10; $i++) {
-            $title = $faker->unique()->word;
+        $items = [
+            ['title' => 'غذای خشک سگ بالغ', 'price' => 890000, 'discount' => 790000, 'thumb' => 'images/demo/products/product-01.jpg', 'desc' => 'فرمول متعادل پروتئین برای سگ‌های بالغ.'],
+            ['title' => 'اسباب‌بازی طنابی', 'price' => 185000, 'discount' => null, 'thumb' => 'images/demo/products/product-02.jpg', 'desc' => 'مقاوم برای جویدن و بازی تعاملی.'],
+            ['title' => 'قلاده و بند چرمی', 'price' => 320000, 'discount' => 275000, 'thumb' => 'images/demo/products/product-03.jpg', 'desc' => 'طراحی راحت برای پیاده‌روی روزانه.'],
+            ['title' => 'بستر نرم سگ', 'price' => 1250000, 'discount' => null, 'thumb' => 'images/demo/products/product-04.jpg', 'desc' => 'استراحت آرام با روکش قابل شستشو.'],
+            ['title' => 'کوله حمل حیوان', 'price' => 980000, 'discount' => 850000, 'thumb' => 'images/demo/products/product-05.jpg', 'desc' => 'مناسب رفت‌وآمد شهری و سفر کوتاه.'],
+            ['title' => 'شامپوی ملایم سگ', 'price' => 210000, 'discount' => null, 'thumb' => 'images/demo/products/product-06.jpg', 'desc' => 'مراقبت پوست و موی حساس.'],
+            ['title' => 'ظرف آب و غذا دوقلو', 'price' => 165000, 'discount' => 145000, 'thumb' => 'images/demo/products/product-01.jpg', 'desc' => 'استیل ضدزنگ با پایه ضدلغزش.'],
+            ['title' => 'توپ تمرینی هوشمند', 'price' => 240000, 'discount' => null, 'thumb' => 'images/demo/products/product-02.jpg', 'desc' => 'برای تخلیه انرژی و بازی روزانه.'],
+        ];
 
-            $slug = $this->uniqueSlug(Str::slug($title));
-
-            Product::factory()->create([
-                'title' => $title,
-                'slug' => $slug,
-                'user_id' => 1,
-                'category_id' => 1,
-                'created_by' => 1,
-                'updated_by' => 1,
-                // You can add more fields here if needed
-            ]);
+        foreach ($items as $i => $item) {
+            $slug = Str::slug($item['title']) ?: 'product-' . ($i + 1);
+            Product::query()->updateOrCreate(
+                ['slug' => $slug . '-' . ($i + 1)],
+                [
+                    'title' => $item['title'],
+                    'description' => $item['desc'],
+                    'price' => $item['price'],
+                    'discount_price' => $item['discount'],
+                    'stock' => rand(8, 40),
+                    'is_active' => true,
+                    'is_featured' => $i < 4,
+                    'sku' => 'SP-' . str_pad((string) ($i + 1), 4, '0', STR_PAD_LEFT),
+                    'user_id' => $userId,
+                    'category_id' => $categoryId,
+                    'thumbnail' => $item['thumb'],
+                    'created_by' => $userId,
+                    'updated_by' => $userId,
+                ]
+            );
         }
-
-        // Create a manual sample product with unique slug
-        $sampleTitle = 'Sample Product';
-        $sampleSlug = $this->uniqueSlug(Str::slug($sampleTitle));
-
-        Product::create([
-            'title' => $sampleTitle,
-            'description' => 'Description here',
-            'slug' => $sampleSlug,
-            'price' => 100,
-            'discount_price' => 90,
-            'user_id' => 1,
-            'stock' => 20,
-            'is_active' => true,
-            'category_id' => 1,
-            'created_by' => 1,
-            'updated_by' => 1,
-            // add other fields as needed
-        ]);
-    }
-
-    private function uniqueSlug(string $base): string
-    {
-        $slug = $base;
-        $count = 1;
-
-        while (DB::table('products')->where('slug', $slug)->exists()) {
-            $slug = "{$base}-{$count}";
-            $count++;
-        }
-
-        return $slug;
     }
 }

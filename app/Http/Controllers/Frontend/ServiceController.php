@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Service;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class ServiceController extends Controller
 {
-    public function index()
+    /**
+     * Former /services listing — content now lives on the home page.
+     */
+    public function index(): RedirectResponse
     {
-        $services = Service::all();
-        return view('frontend.pages.services.index', compact('services'));
+        return redirect()->to(route('frontend.home').'#services');
     }
 }

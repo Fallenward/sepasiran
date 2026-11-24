@@ -1,76 +1,43 @@
 @extends('admin.layout')
-
-@section('template_title')
-    Coaches
-@endsection
-
+@section('title', 'مربی‌ها')
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span id="card_title">
-                                {{ __('Coaches') }}
-                            </span>
+@include('admin.components.page-header', [
+    'title' => 'مربی‌ها',
+    'subtitle' => 'کاربرانی که نقش مربی دارند.',
+    'createUrl' => route('admin.coaches.create'),
+    'createLabel' => 'مربی جدید',
+])
+@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
-                            <div class="float-right">
-                                <a href="{{ route('admin.coaches.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                    {{ __('Create New Coach') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+<form method="get" class="mb-3" style="display:flex;gap:8px;flex-wrap:wrap;max-width:520px">
+    <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="جستجو نام، ایمیل، تلفن…">
+    <button class="btn btn-outline-secondary" type="submit">جستجو</button>
+</form>
 
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success m-4">
-                            <p>{{ $message }}</p>
-                        </div>
-                    @endif
-
-                    <div class="card-body bg-white">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>City</th>
-                                    <th>Breed</th>
-                                    <th>Specialty</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @php
-                                    $i = 1; // مقداردهی اولیه به $i
-                                @endphp
-                                @foreach ($coaches as $coach)
-                                    <tr>
-                                        <td>{{ ++$i }}</td>
-                                        <td>{{ $coach->name }}</td>
-                                        <td>{{ $coach->city->name }}</td> <!-- Assuming a city relationship -->
-                                        <td>{{ $coach->breed->name }}</td> <!-- Assuming a breed relationship -->
-                                        <td>{{ $coach->specialty->name }}</td> <!-- Assuming a specialty relationship -->
-                                        <td>
-                                            <form action="{{ route('admin.coaches.destroy', $coach->id) }}" method="POST">
-                                                <a class="btn btn-sm btn-primary" href="{{ route('admin.coaches.show', $coach->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                <a class="btn btn-sm btn-success" href="{{ route('admin.coaches.edit', $coach->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {!! $coaches->withQueryString()->links() !!}
-            </div>
-        </div>
-    </div>
+<div class="card sp-admin-card"><div class="card-body">
+<div class="table-responsive"><table class="table table-hover sp-admin-table">
+<thead><tr><th>#</th><th>نام</th><th>ایمیل</th><th>تلفن</th><th>شهر</th><th></th></tr></thead>
+<tbody>
+@forelse($coaches as $coach)
+@php $fullName = trim(($coach->name ?? '').' '.($coach->family ?? '')); @endphp
+<tr>
+<td class="num">{{ $coach->id }}</td>
+<td><strong>{{ $fullName !== '' ? $fullName : '—' }}</strong></td>
+<td>{{ $coach->email ?: '—' }}</td>
+<td class="num">{{ $coach->phone ?: '—' }}</td>
+<td>{{ optional($coach->city)->name ?: '—' }}</td>
+<td class="sp-admin-actions">
+<a class="btn btn-sm btn-primary" href="{{ route('admin.coaches.show', $coach) }}">نمایش</a>
+<a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.coaches.edit', $coach) }}">ویرایش</a>
+<form action="{{ route('admin.coaches.destroy', $coach) }}" method="POST" onsubmit="return confirm('نقش مربی برداشته شود؟')">@csrf @method('DELETE')
+<button type="submit" class="btn btn-sm btn-outline-danger">حذف نقش</button></form>
+</td>
+</tr>
+@empty
+<tr><td colspan="6" class="text-center text-muted py-4">مربی‌ای ثبت نشده.</td></tr>
+@endforelse
+</tbody></table></div>
+{{ $coaches->links() }}
+</div></div>
 @endsection

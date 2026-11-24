@@ -1,377 +1,235 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
-
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title') - {{ config('app.name') }}</title>
-{{--    <link rel="icon" href="{{ asset($settings->fav_icon) }}">--}}
+    <title>@yield('title', 'پنل مدیریت') — {{ config('app.name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/fav.png') }}">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    @vite(['resources/css/app.css'])
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/persian-datepicker.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/toastr.min.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
-
-@section('styles')
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5.min.css" rel="stylesheet" />
-@endsection
-
-@section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Bootstrap Bundle شامل Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- یا اگر از AdminLTE استفاده می‌کنی: -->
-    <script src="{{ asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
-@endsection
-
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Select2 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini layout-fixed sp-admin">
+@php
+    $user = auth()->user();
+    $navGroups = [
+        [
+            'label' => 'عملیات',
+            'items' => [
+                ['route' => 'admin.dashboard.index', 'match' => 'admin.dashboard.*', 'icon' => 'fas fa-gauge-high', 'text' => 'داشبورد'],
+                ['route' => 'admin.support-tickets.index', 'match' => 'admin.support-tickets.*', 'icon' => 'fas fa-headset', 'text' => 'تیکت‌های پشتیبانی'],
+                ['route' => 'admin.support-messages.index', 'match' => 'admin.support-messages.*', 'icon' => 'fas fa-inbox', 'text' => 'پیام‌های تماس/پناهگاه'],
+                ['route' => 'admin.bookings.index', 'match' => 'admin.bookings.*', 'icon' => 'fas fa-calendar-check', 'text' => 'رزروها'],
+                ['route' => 'admin.transactions.index', 'match' => 'admin.transactions.*', 'icon' => 'fas fa-money-bill-wave', 'text' => 'تراکنش‌ها'],
+            ],
+        ],
+        [
+            'label' => 'کاتالوگ',
+            'items' => [
+                ['route' => 'admin.dogs.index', 'match' => 'admin.dogs.*', 'icon' => 'fas fa-dog', 'text' => 'سگ‌ها'],
+                ['route' => 'admin.products.index', 'match' => 'admin.products.*', 'icon' => 'fas fa-store', 'text' => 'محصولات'],
+                ['route' => 'admin.courses.index', 'match' => 'admin.courses.*', 'icon' => 'fas fa-book', 'text' => 'دوره‌ها'],
+                ['route' => 'admin.insurances.index', 'match' => 'admin.insurances.*', 'icon' => 'fas fa-shield-alt', 'text' => 'بیمه'],
+                ['route' => 'admin.breeds.index', 'match' => 'admin.breeds.*', 'icon' => 'fas fa-paw', 'text' => 'نژادها'],
+            ],
+        ],
+        [
+            'label' => 'افراد',
+            'items' => [
+                ['route' => 'admin.users.index', 'match' => 'admin.users.*', 'icon' => 'fas fa-users', 'text' => 'کاربران'],
+                ['route' => 'admin.coaches.index', 'match' => 'admin.coaches.*', 'icon' => 'fas fa-chalkboard-teacher', 'text' => 'مربی‌ها'],
+                ['route' => 'admin.clinics.index', 'match' => 'admin.clinics.*', 'icon' => 'fas fa-clinic-medical', 'text' => 'کلینیک‌ها'],
+                ['route' => 'admin.breeders.index', 'match' => 'admin.breeders.*', 'icon' => 'fas fa-home', 'text' => 'پرورش‌دهنده‌ها'],
+                ['route' => 'admin.roles.index', 'match' => 'admin.roles.*', 'icon' => 'fas fa-user-shield', 'text' => 'نقش‌ها'],
+                ['route' => 'admin.permissions.index', 'match' => 'admin.permissions.*', 'icon' => 'fas fa-key', 'text' => 'مجوزها'],
+            ],
+        ],
+        [
+            'label' => 'محتوا',
+            'items' => [
+                ['route' => 'admin.blogs.index', 'match' => 'admin.blogs.*', 'icon' => 'fas fa-blog', 'text' => 'وبلاگ'],
+                ['route' => 'admin.sliders.index', 'match' => 'admin.sliders.*', 'icon' => 'fas fa-images', 'text' => 'اسلایدرها'],
+            ],
+        ],
+    ];
+@endphp
 <div class="wrapper">
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                        <i class="fas fa-bars"></i>
-                    </a>
-                </li>
+    <nav class="main-header navbar navbar-expand navbar-dark sp-admin-topbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="منو"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-md-inline-block">
+                <a href="{{ route('admin.dashboard.index') }}" class="nav-link">داشبورد</a>
+            </li>
+        </ul>
 
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ route('admin.dashboard.index') }}" class="nav-link">داشبورد</a>
-                </li>
-            </ul>
+        <form class="form-inline ml-3 d-none d-lg-flex sp-admin-search" action="{{ route('admin.support-tickets.index') }}" method="get" role="search">
+            <div class="input-group input-group-sm">
+                <input class="form-control form-control-navbar" type="search" name="q" placeholder="جستجوی تیکت…" value="{{ request('q') }}" aria-label="جستجو">
+                <div class="input-group-append">
+                    <button class="btn btn-navbar" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
 
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ms-auto">
-                <!-- Search Icon -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li>
-
-
-                <!-- User Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-                        <i class="fas fa-user"></i>
-                        @if (Auth::check())
-                            {{ Auth::user()->name }}
-                        @else
-                            Guest
-                        @endif
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="#">پروفایل</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            خروج
-                        </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                    </div>
-                </li>
-
-                <!-- Fullscreen -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('frontend.home') }}" target="_blank" title="مشاهده سایت"><i class="fas fa-external-link-alt"></i></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.support-tickets.index') }}" title="تیکت‌ها" id="admin-support-alarm">
+                    <i class="fas fa-headset"></i>
+                    <span class="badge badge-danger navbar-badge" id="admin-support-badge" style="display:none">0</span>
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="adminUserMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="d-none d-sm-inline">{{ $user?->name ?? 'مدیر' }}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminUserMenu">
+                    <a class="dropdown-item" href="{{ route('frontend.home') }}">سایت اصلی</a>
+                    <div class="dropdown-divider"></div>
+                    <button type="button" class="dropdown-item" id="logout-button">خروج</button>
+                </div>
+            </li>
+        </ul>
     </nav>
 
-
-<!-- Sidebar (unchanged structure, only behavior improved if needed) -->
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <a href="{{ url('/') }}" class="brand-link">
-        <img src="{{ asset('images/fav.png') }}"
-             alt="{{ config('app.name') }}"
-             class="img-fluid w-50 me-2">
-    </a>
-
-    <div class="sidebar">
-        <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                @php
-                    $menus = [
-                        ['route' => 'admin.dashboard.index',    'icon' => 'fas fa-tachometer-alt',   'text' => __('داشبورد')],
-                        ['route' => 'admin.transactions.index', 'icon' => 'fas fa-money-bill-wave',  'text' => __('تراکنش‌ها')],
-                        ['route' => 'admin.products.index',              'icon' => 'fas fa-store',            'text' => __('فروشگاه')],
-                        ['route' => 'admin.dogs.index',         'icon' => 'fas fa-dog',              'text' => __('سگ‌ها')],
-                        ['route' => 'admin.permissions.index',              'icon' => 'fas fa-paw',              'text' => __('role permission')],
-                        ['route' => 'admin.roles.index',              'icon' => 'fas fa-user-friends',     'text' => __('پرورش‌دهنده‌ها')],
-                        ['route' => 'admin.coaches.index',      'icon' => 'fas fa-chalkboard-teacher','text' => __('مربی‌ها')],
-                        ['route' => 'admin.courses.index',      'icon' => 'fas fa-book',             'text' => __('دوره‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-headset',          'text' => __('پشتیبانی و تیکت‌ها')],
-                        ['route' => 'admin.blogs.index',        'icon' => 'fas fa-blog',             'text' => __('وبلاگ‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-newspaper',        'text' => __('اخبار')],
-                        ['route' => 'admin.sliders.index',      'icon' => 'fas fa-sliders-h',        'text' => __('اسلایدرها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-shield-alt',       'text' => __('بیمه حیوانات')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-clinic-medical',   'text' => __('کلینیک‌ها')],
-                        ['route' => 'coming.soon',              'icon' => 'fas fa-home',             'text' => __('پناهگاه‌ها')],
-                    ];
-                @endphp
-
-                @foreach ($menus as $menu)
-                    @if (\App\Helpers\GeneralHelpers::shouldShowMenu($menu['route'], auth()->user()))
-                        <li class="nav-item">
-                            <a href="{{ route($menu['route']) }}" class="nav-link {{ request()->routeIs($menu['route']) ? 'active' : '' }}">
-                                <i class="nav-icon {{ $menu['icon'] }}"></i>
-                                <p>{{ $menu['text'] }}</p>
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
-
-                <li class="nav-item mt-3">
-                    <a href="javascript:void(0);" id="logout-button" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>{{ __('خروج') }}</p>
-                    </a>
-                    <form id="logout-form" class="d-none" action="#" method="POST">
-                        @csrf
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</aside>
-
+    <aside class="main-sidebar sidebar-dark-primary elevation-4 sp-admin-sidebar">
+        <a href="{{ route('admin.dashboard.index') }}" class="brand-link text-center">
+            <img src="{{ asset('images/fav.png') }}" alt="{{ config('app.name') }}" class="brand-image" style="max-height:36px;opacity:1">
+            <span class="brand-text font-weight-bold">سپاسیران ادمین</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    @foreach($navGroups as $group)
+                        <li class="nav-header">{{ $group['label'] }}</li>
+                        @foreach($group['items'] as $item)
+                            @if(\App\Helpers\GeneralHelpers::shouldShowMenu($item['route'], $user))
+                                <li class="nav-item">
+                                    <a href="{{ route($item['route']) }}" class="nav-link {{ request()->routeIs($item['match']) ? 'active' : '' }}">
+                                        <i class="nav-icon {{ $item['icon'] }}"></i>
+                                        <p>{{ $item['text'] }}</p>
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
+                    @endforeach
+                    <li class="nav-header">حساب</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link" id="sidebar-logout">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>خروج</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
 
     <div class="content-wrapper">
         <div class="content">
-            <div class="container-fluid">
-                <div class="mt-5"></div>
+            <div class="container-fluid sp-admin-content">
+                @if(session('success'))
+                    <div class="alert alert-success sp-admin-flash" id="success-alert">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger sp-admin-flash">{{ session('error') }}</div>
+                @endif
                 @yield('content')
             </div>
         </div>
     </div>
 
-    <footer class="main-footer">
-        <strong>Copyright &copy; 2024 <a
-                href="{{ route('admin.dashboard.index') }}">{{ config('app.name') }}</a>.</strong>
-        <span>{{ __('All rights reserved.') }}</span>
+    <footer class="main-footer sp-admin-footer">
+        <strong>{{ config('app.name') }}</strong>
+        <span class="text-muted">پنل مدیریت</span>
     </footer>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('notificationToggle');
-        const menu = document.getElementById('notificationsMenu');
+<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
 
-        // رویداد کلیک روی دکمه آیکن زنگوله
-        toggle.addEventListener('click', function(event) {
-            event.preventDefault(); // جلوگیری از باز شدن لینک به #
-            // اگر منو پنهان است، نمایش داده شود؛ و اگر نمایش داده شده، بسته شود
-            if (menu.style.display === 'none' || menu.style.display === '') {
-                menu.style.display = 'block';
-            } else {
-                menu.style.display = 'none';
-            }
-        });
-
-        // بستن منو در صورت کلیک بیرون از Dropdown
-        document.addEventListener('click', function(e) {
-            // اگر کلیک روی خود دکمه یا درون منو نبود:
-            if (!toggle.contains(e.target) && !menu.contains(e.target)) {
-                menu.style.display = 'none';
-            }
-        });
-    });
-</script>
+<script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
+<script src="{{ asset('assets/js/select2.min.js') }}"></script>
+<script src="{{ asset('assets/js/persian-date.min.js') }}"></script>
+<script src="{{ asset('assets/js/persian-datepicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/ckeditor.js') }}"></script>
+<script src="{{ asset('assets/js/sweetalert2@11.js') }}"></script>
+<script src="{{ asset('assets/js/toastr.min.js') }}"></script>
 
 <script>
-    window.jQuery = null;
-    window.$ = null;
-</script>
-
-@vite(['resources/js/app.js'])
-
-<!-- jQuery first -->
-<script src="{{asset('assets/js/jquery-3.6.0.min.js')}}"></script>
-<script src="{{asset('assets/js/jquery-ui.min.js')}}"></script>
-
-
-
-<!-- Clockpicker and select2 -->
-<link href="{{asset('assets/css/bootstrap-clockpicker.min.css')}}" rel="stylesheet"/>
-<script src="{{asset('assets/js/bootstrap-clockpicker.min.js')}}"></script>
-<link href="{{asset('assets/css/select2.min.css')}}" rel="stylesheet"/>
-<script src="{{asset('assets/js/select2.min.js')}}"></script>
-
-
-<!-- Persian Datepicker -->
-<link rel="stylesheet" href="{{asset('assets/css/persian-datepicker.min.css')}}">
-<script src="{{asset('assets/js/persian-date.min.js')}}"></script>
-<script src="{{asset('assets/js/persian-datepicker.min.js')}}"></script>
-
-
-<!-- CKEditor -->
-<script src="{{asset('assets/js/ckeditor.js')}}"></script>
-<script src="{{asset('assets/js/sweetalert2@11.js')}}"></script>
-
-
-
-
-
-
-@push('scripts')
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("logout-button").addEventListener("click", function () {
-                Swal.fire({
-                    title: "خروج از حساب",
-                    text: "آیا مطمئن هستید که می‌خواهید از حساب خود خارج شوید؟",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    cancelButtonColor: "#3085d6",
-                    confirmButtonText: "بله، خروج",
-                    cancelButtonText: "لغو"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById("logout-form").submit();
-                    }
-                });
-            });
-        });
-    </script>
-@endpush
-
-
-
-<script>
-    if (document.querySelector('.editor')) {
-        ClassicEditor
-            .create(document.querySelector('.editor'), {
-                toolbar: [
-                    'undo', 'redo', '|', 'bold', 'italic', 'underline', 'strikethrough', '|',
-                    'link', 'bulletedList', 'numberedList', 'blockQuote', '|', 'alignment', '|',
-                    'heading', 'imageUpload', 'insertTable', 'mediaEmbed', 'codeBlock', '|', 'fontSize', 'fontFamily', 'fontColor', 'highlight', 'code', '|', 'undo', 'redo'
-                ],
-                language: 'fa', // Set to 'fa' for Persian language
-                image: {
-                    toolbar: ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side', '|', 'imageResize:25', 'imageResize:50', 'imageResize:75']
-                },
-                simpleUpload: {
-                    uploadUrl: '/upload-image', // Your upload image endpoint
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel security
-                    }
-                },
-                table: {
-                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
+document.addEventListener('DOMContentLoaded', function () {
+  const logoutForm = document.getElementById('logout-form');
+  function confirmLogout(e) {
+    e.preventDefault();
+    if (!logoutForm) return;
+    if (window.Swal) {
+      Swal.fire({
+        title: 'خروج از حساب',
+        text: 'مطمئن هستید؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'بله، خروج',
+        cancelButtonText: 'لغو',
+        confirmButtonColor: '#d33'
+      }).then((r) => { if (r.isConfirmed) logoutForm.submit(); });
+    } else {
+      logoutForm.submit();
     }
-    $(document).ready(function() {
-        setTimeout(function() {
-            $("#success-alert").fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 3000); // ناپدید شدن بعد از 3 ثانیه
+  }
+  document.getElementById('logout-button')?.addEventListener('click', confirmLogout);
+  document.getElementById('sidebar-logout')?.addEventListener('click', confirmLogout);
 
-        $(".datepicker").pDatepicker({
-            format: 'YYYY/MM/DD',
-            observer: true,
-            autoClose: true,
-            initialValueType: 'gregorian'
-        });
+  if (window.jQuery) {
+    $('.select2').select2({ placeholder: 'انتخاب کنید', width: '100%', dir: 'rtl', allowClear: true });
+    $('.datepicker').pDatepicker({ format: 'YYYY/MM/DD', observer: true, autoClose: true, initialValueType: 'gregorian' });
+  }
 
-    });
+  if (document.querySelector('.editor') && window.ClassicEditor) {
+    ClassicEditor.create(document.querySelector('.editor'), { language: 'fa' }).catch(console.error);
+  }
 
-    function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            const preview = document.getElementById('imagePreview');
-            preview.src = reader.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(event.target.files[0]);
-    }
+  const flash = document.getElementById('success-alert');
+  if (flash) setTimeout(() => flash.remove(), 3500);
+});
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+(function () {
+  const badge = document.getElementById('admin-support-badge');
+  if (!badge) return;
+  const storageKey = 'sp-admin-support-unread';
+  let known = Number(sessionStorage.getItem(storageKey) || -1);
+  let primed = known >= 0;
+  async function poll() {
+    try {
+      const res = await fetch(@json(route('admin.support-tickets.poll')), { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+      const data = await res.json();
+      const unread = Number(data.unread || 0);
+      if (unread > 0) {
+        badge.style.display = 'inline';
+        badge.textContent = unread > 99 ? '99+' : String(unread);
+        // Only toast when unread increases after the first baseline poll.
+        if (primed && unread > known && window.toastr) {
+          toastr.options = Object.assign({}, toastr.options || {}, { timeOut: 2500, closeButton: true });
+          toastr.warning('تیکت پشتیبانی جدید', 'هشدار');
         }
-    });
-
+      } else {
+        badge.style.display = 'none';
+      }
+      known = unread;
+      primed = true;
+      sessionStorage.setItem(storageKey, String(known));
+    } catch (e) {}
+  }
+  poll();
+  setInterval(poll, 5000);
+})();
 </script>
-
-
-
-@push('scripts')
-    <script src="{{ asset('js/upload.js') }}" defer></script>
-
-@endpush
-
 @stack('scripts')
-
-<!-- ✅ jQuery (اول باید بارگذاری شود) -->
-
-
-<!-- ✅ DataTables CSS و JS -->
-<link rel="stylesheet" href="{{asset('assets/css/jquery.dataTables.min.css')}}">
-<script src="{{asset('assets/js/jquery.dataTables.min.js')}}"></script>
-
-
-<!-- Toastr -->
-<link rel="stylesheet" href="{{asset('assets/css/toastr.min.css')}}">
-<script src="{{asset('assets/js/toastr.min.js')}}"></script>
-
-<!-- Persian Datepicker -->
-
-
 </body>
-
-
-
 </html>
-
-

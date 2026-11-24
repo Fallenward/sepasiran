@@ -35,11 +35,13 @@
 
     @include('frontend.layouts.footer')
     @include('frontend.layouts.bottom-nav')
+    @include('frontend.partials.support-chat-widget')
 
     <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
     <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet"/>
     <script src="{{ asset('assets/js/select2.min.js') }}"></script>
-    @vite(['resources/js/app-front.js'])
+    @vite(['resources/js/app-front.js', 'resources/js/vue/main.js'])
+    @stack('scripts')
     @yield('scripts')
 </body>
 </html>

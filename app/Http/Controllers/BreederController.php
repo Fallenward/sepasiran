@@ -15,54 +15,50 @@ class BreederController extends Controller
 {
 public function index(Request $request)
 {
-
-    \Illuminate\Support\Facades\DB::listen(function ($query) {
-    logger($query->sql);
-    logger($query->bindings);
-});
-    // Sidebar filters
     $filters = [
-        'cities' => City::orderBy('name')->get(),
-        'breeds' => Breed::orderBy('name')->get(),
-        'sizes' => [
-            'mini' => 'کوچک (Mini)',
-            'medium' => 'متوسط (Medium)',
-            'large' => 'بزرگ (Large)',
+        'city' => City::orderBy('name')->get(['id', 'name']),
+        'breed' => Breed::orderBy('name')->get(['id', 'name']),
+        'size' => [
+            ['id' => 'small', 'name' => 'کوچک'],
+            ['id' => 'medium', 'name' => 'متوسط'],
+            ['id' => 'large', 'name' => 'بزرگ'],
         ],
     ];
 
-    // Base query for breeders
     $query = \App\Models\User::select('users.*')
         ->join('role_user', 'users.id', '=', 'role_user.user_id')
         ->join('roles', 'roles.id', '=', 'role_user.role_id')
         ->where('roles.name', 'breeder')
-        ->with(['city', 'speciality']);
+        ->with(['city', 'speciality'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings');
 
-    // ✅ Filter: city (city_id)
-    if ($request->has('city')) {
+    if ($request->filled('q')) {
+        $term = '%' . trim((string) $request->q) . '%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('users.name', 'like', $term)
+                ->orWhere('users.family', 'like', $term)
+                ->orWhere('users.bio', 'like', $term)
+                ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term));
+        });
+    }
+
+    if ($request->filled('city')) {
         $query->whereIn('users.city_id', (array) $request->input('city'));
     }
 
-    // ✅ Filter: breed (adjust column if different)
-    if ($request->has('breed')) {
+    if ($request->filled('breed')) {
         $query->whereIn('users.breed_id', (array) $request->input('breed'));
     }
 
-    // ✅ Filter: size
-    if ($request->has('size')) {
+    if ($request->filled('size')) {
         $query->whereIn('users.size', (array) $request->input('size'));
     }
 
-    // Paginate results
-    $breeders = $query->paginate(12);
+    $breeders = $query->paginate(9)->appends($request->query());
 
     return view('breeders.index', compact('filters', 'breeders'));
 }
-
-
-
-
-
 
 public function dogsListing(Request $request)
 {
@@ -129,45 +125,55 @@ public function store(Request $request)
 
     Dog::create($validated);
 
-    return redirect()->route('breeders.dashboard')->with('success', 'سگ با موفقیت ثبت شد.');
+    return redirect()->route('breeder.dashboard')->with('success', 'سگ با موفقیت ثبت شد.');
 }
 
 
 
 public function show($id)
 {
-    $trainer = \App\Models\User::select('users.*')
-        ->join('role_user', 'users.id', '=', 'role_user.user_id')
-        ->join('roles', 'roles.id', '=', 'role_user.role_id')
-        ->where('roles.name', 'breeder')
+    $trainer = \App\Models\User::query()
         ->where('users.id', $id)
-        ->with(['city', 'speciality', 'dogs']) // assuming 'dogs' relationship exists
+        ->whereHas('roles', fn ($q) => $q->where('name', 'breeder'))
+        ->with(['city', 'speciality', 'ratings'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings')
         ->firstOrFail();
 
-    $dogsPending = $trainer->dogs()->where('status', 'pending')->get();
-    $dogsReady = $trainer->dogs()->where('status', 'ready')->get();
+    $dogsQuery = \App\Models\Dog::query()->where('user_id', $id);
+    $dogsCount = (clone $dogsQuery)->count();
+    $dogs = $dogsQuery->with('breed')->latest()->take(12)->get();
 
-    // Example statistics (you can modify this dynamically)
-    $statistics = [
-        ['title' => 'سگ‌های آماده', 'counter' => $dogsReady->count()],
-        ['title' => 'سگ‌های در انتظار', 'counter' => $dogsPending->count()],
-        ['title' => 'تجربه (سال)', 'counter' => $trainer->experience_years ?? 0],
-        ['title' => 'مشتریان راضی', 'counter' => 120], // Example static number
-    ];
+    $specialties = $trainer->speciality ?? collect();
+    $address = trim((string) ($trainer->address ?? ''));
+    $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
+    $profile = \App\Support\ProviderPublicProfile::summarize($trainer, $sessionResume['total']);
+    $cityName = $profile['city_name'];
 
-    $medals = [
-        ['title' => 'مدال طلا', 'description' => 'بهترین مربی سال 2024', 'progress' => 80],
-        ['title' => 'مدال نقره', 'description' => 'پرورش‌دهنده برتر منطقه', 'progress' => 60],
-        ['title' => 'مدال برنز', 'description' => 'تلاش مداوم در آموزش سگ‌ها', 'progress' => 25],
-        ['title' => 'مدال پلاتین', 'description' => 'رضایت مشتریان بالا', 'progress' => 90],
-        ['title' => 'مدال الماس', 'description' => 'نوآوری در تربیت سگ‌ها', 'progress' => 95],
-        ['title' => 'مدال یاقوت', 'description' => 'خدمات برجسته به جامعه', 'progress' => 50],
-    ];
+    $facts = array_values(array_filter([
+        $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'امتیاز', 'value' => $profile['rating_count'] > 0 ? number_format($profile['rating_avg'], 1) : '—', 'num' => true],
+        ['label' => 'آگهی سگ', 'value' => (string) $dogsCount, 'num' => true],
+        ['label' => 'جلسات تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
+        $address !== '' ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
+    ]));
 
+    $bookUrl = route('frontend.booking.index', array_filter([
+        'type' => 'breeder',
+        'provider' => (int) $trainer->id,
+        'city_id' => $trainer->city_id ?: null,
+    ]));
 
-    $comments = [];
-
-    return view('breeders.show', compact('trainer', 'dogsPending', 'dogsReady', 'medals', 'comments', 'statistics'));
+    return view('breeders.show', [
+        'trainer' => $trainer,
+        'dogs' => $dogs,
+        'specialties' => $specialties,
+        'cityName' => $cityName,
+        'facts' => $facts,
+        'bookUrl' => $bookUrl,
+        'sessionResume' => $sessionResume,
+        'profile' => $profile,
+    ]);
 }
 
     public function edit()

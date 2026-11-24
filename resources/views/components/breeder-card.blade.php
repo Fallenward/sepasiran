@@ -1,23 +1,37 @@
 @php
-    $imageUrl = $item->profile_picture
-        ? asset('storage/' . $item->profile_picture)
-        : asset('images/default-breeder.png');
-    $fullName = trim($item->name . ' ' . $item->family);
-    $cityName = $item->city->name ?? 'نامشخص';
-    $bio = $item->bio ?? 'بدون توضیح';
+    $summary = \App\Support\ProviderPublicProfile::summarize($item, (int) ($item->completed_sessions_count ?? 0));
+    $imageUrl = method_exists($item, 'avatarUrl') && $item->avatarUrl()
+        ? $item->avatarUrl()
+        : asset('images/demo/dogs/dog-03.jpg');
 @endphp
-
-<div class="card h-100 position-relative">
-    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $fullName }}" style="height: 200px; object-fit: cover;">
-
-    <div class="card-body d-flex flex-column">
-        <h5 class="fw-bold">{{ $fullName }}</h5>
-        <p class="text-muted flex-grow-1">{{ Str::limit($bio, 100) }}</p>
-        <small class="text-muted">{{ $cityName }}</small>
-    </div>
-
-    <a href="{{ route('frontend.breeders.show', $item->id) }}"
-       class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2">
-        مشاهده
+<article class="sp-card sp-card--person sp-card--provider">
+    <a class="sp-card__link" href="{{ route('frontend.breeders.show', $item->id) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $summary['full_name'] }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <div class="sp-card__identity">
+                <h3 class="sp-card__title">{{ $summary['full_name'] }}</h3>
+                <span class="sp-card__role">پرورش‌دهنده</span>
+            </div>
+            <x-provider-rating :avg="$summary['rating_avg']" :count="$summary['rating_count']" />
+            <p class="sp-card__meta">
+                @if($summary['city_name'])
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{ $summary['city_name'] }}
+                @endif
+                @if($summary['is_verified'])
+                    · <i class="fas fa-shield-alt" aria-hidden="true"></i> احراز هویت
+                @endif
+            </p>
+            @if($summary['specialties']->isNotEmpty())
+                <div class="sp-card__tags">
+                    @foreach($summary['specialties']->take(3) as $spec)
+                        <span class="sp-card__tag">{{ $spec }}</span>
+                    @endforeach
+                </div>
+            @else
+                <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($summary['bio'] ?? 'پرورش‌دهنده سپاس‌ایران'), 70) }}</p>
+            @endif
+        </div>
     </a>
-</div>
+</article>

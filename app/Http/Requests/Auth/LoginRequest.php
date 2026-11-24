@@ -2,62 +2,52 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
-     */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
+            'redirect' => ['nullable', 'string', 'max:500'],
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+    public function messages(): array
+    {
+        return [
+            'login.required' => 'ایمیل یا شماره موبایل الزامی است.',
+            'password.required' => 'رمز عبور الزامی است.',
+        ];
+    }
+
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        $user = \App\Models\User::where('email', $this->email)->first();
+        $login = trim((string) $this->input('login'));
+        $user = $this->findUser($login);
 
-        if (! $user) {
+        if (!$user || !Hash::check((string) $this->input('password'), (string) $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'شماره ایمیل وارد شده در سیستم ثبت نشده است.',
-            ]);
-        }
-
-        if (! Hash::check($this->password, $user->password)) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'password' => 'رمز عبور اشتباه است. لطفاً دوباره تلاش کنید.',
+                'login' => 'اطلاعات ورود صحیح نیست.',
             ]);
         }
 
@@ -65,37 +55,44 @@ class LoginRequest extends FormRequest
         RateLimiter::clear($this->throttleKey());
     }
 
+    private function findUser(string $login): ?User
+    {
+        if (str_contains($login, '@')) {
+            return User::query()->where('email', $login)->first();
+        }
 
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+        $digits = preg_replace('/\D+/', '', $login);
+
+        return User::query()
+            ->where(function ($q) use ($login, $digits) {
+                $q->where('phone', $login)
+                    ->orWhere('email', $login);
+                if ($digits !== '') {
+                    $q->orWhere('phone', $digits)
+                        ->orWhere('phone', 'like', '%'.$digits);
+                }
+            })
+            ->first();
+    }
+
     public function ensureIsNotRateLimited(): void
     {
         $maxAttempts = (int) config('rate_limiting.login.max_attempts', 5);
 
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $maxAttempts)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), $maxAttempts)) {
             return;
         }
 
         event(new Lockout($this));
-
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => "تعداد دفعات ورود بیش از حد مجاز است. لطفاً تا {$seconds} ثانیه دیگر صبر کنید.",
+            'login' => "تعداد دفعات ورود بیش از حد مجاز است. لطفاً تا {$seconds} ثانیه دیگر صبر کنید.",
         ]);
     }
 
-
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
-
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
     }
-
 }

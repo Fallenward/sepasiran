@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DogController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProviderUserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -22,10 +23,17 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ClinicInsuranceController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\DogOrderController;
 use App\Http\Controllers\DogSupplyController;
+use App\Http\Controllers\Frontend\BookingController as FrontendBookingController;
+use App\Http\Controllers\Frontend\BookingApiController as FrontendBookingApiController;
+use App\Http\Controllers\Frontend\OpenSessionController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ServiceController as FrontendServiceController;
 use App\Http\Controllers\Frontend\SupportController;
+use App\Http\Controllers\Frontend\SupportTicketController;
+use App\Http\Controllers\Admin\SupportTicketController as AdminSupportTicketController;
+use App\Http\Controllers\Admin\SupportMessageController as AdminSupportMessageController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\MenuController;
@@ -37,6 +45,14 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\Account\ProfileController;
+use App\Http\Controllers\Account\NotificationController;
+use App\Http\Controllers\Account\BookingHubController;
+use App\Http\Controllers\Account\OwnedDogController;
+use App\Http\Controllers\Account\CoachCourseController;
+use App\Http\Controllers\Account\ProviderServicePriceController;
+use App\Http\Controllers\Account\ProviderServiceController;
+use App\Http\Controllers\Account\ProviderAvailabilityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +64,11 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
     ->name('admin.')
     ->group(function () {
         // Dashboard
+        Route::redirect('/', '/admin/dashboard');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+        Route::get('support-messages', [AdminSupportMessageController::class, 'index'])->name('support-messages.index');
+        Route::delete('support-messages/{support_message}', [AdminSupportMessageController::class, 'destroy'])->name('support-messages.destroy');
 
         // Resource controllers
         Route::resources([
@@ -74,24 +94,27 @@ Route::middleware(['auth', 'is_admin', 'throttle.mutations:admin-mutations'])
         // Products CRUD routes
         Route::resource('products', AdminProductController::class);
 
+        Route::get('support-tickets/poll', [AdminSupportTicketController::class, 'poll'])->name('support-tickets.poll');
+        Route::get('support-tickets', [AdminSupportTicketController::class, 'index'])->name('support-tickets.index');
+        Route::get('support-tickets/{support_ticket}', [AdminSupportTicketController::class, 'show'])->name('support-tickets.show');
+        Route::patch('support-tickets/{support_ticket}/status', [AdminSupportTicketController::class, 'updateStatus'])->name('support-tickets.status');
+        Route::post('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'reply'])->name('support-tickets.reply');
+        Route::get('support-tickets/{support_ticket}/messages', [AdminSupportTicketController::class, 'messages'])->name('support-tickets.messages');
+
         // Permissions & Roles
         Route::resource('permissions', PermissionController::class);
         Route::resource('roles', RoleController::class);
 
-        // Clinics wallet under admin prefix
-        Route::prefix('clinics')->group(function () {
-            Route::get('wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
-        });
+        // Provider role directories (clinics / breeders) + clinic wallet
+        Route::get('clinics/wallet', [ClinicController::class, 'clinicwallet'])->name('clinics.wallet');
+        Route::resource('clinics', ProviderUserController::class)->whereNumber(['clinic']);
+        Route::resource('breeders', ProviderUserController::class)->whereNumber(['breeder']);
     });
 
 // ----------------------------------------------
 // Guest routes
 // ----------------------------------------------
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:login');
-});
+// Guest auth routes live in routes/auth.php (login, register, password reset).
 
 Route::middleware('throttle:otp')->prefix('otp')->name('otp.')->group(function () {
     Route::post('/send', [OtpController::class, 'send'])->name('send');
@@ -101,13 +124,18 @@ Route::middleware('throttle:otp')->prefix('otp')->name('otp.')->group(function (
 // ----------------------------------------------
 // Authenticated routes
 // ----------------------------------------------
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::match(['get', 'post'], '/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
 
 Route::middleware('auth')->group(function () {
     // Wallet / checkout-adjacent
     Route::get('/wallet', [AdminWalletController::class, 'index'])
         ->middleware('throttle:payment')
         ->name('wallet.index');
+    Route::post('/wallet/deposit', [AdminWalletController::class, 'deposit'])
+        ->middleware('throttle:payment')
+        ->name('wallet.deposit');
 
     // Breeder routes
     Route::prefix('breeder')->name('breeder.')->group(function () {
@@ -117,6 +145,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/dashboard/store', [BreederController::class, 'store'])->name('dashboard-store');
         Route::get('/profile/edit', [BreederController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [BreederController::class, 'update'])->name('profile.update');
+        Route::get('/reservations', [BookingHubController::class, 'inbox'])->middleware('role:breeder')->name('reservations');
     });
 
     // Coach profile
@@ -125,7 +154,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/profile', [CoachController::class, 'updateProfile'])->name('profile.update');
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:coach')->name('dashboard');
         Route::get('/wallet', [CoachController::class, 'coachWallet'])->name('wallet');
-        Route::get('/coach/listing', [CoachController::class, 'listing'])->name('listing');
+        Route::get('/listing', [CoachController::class, 'listing'])->name('listing');
+        Route::get('/courses', [CoachCourseController::class, 'index'])->middleware('role:coach')->name('courses.index');
+        Route::get('/courses/create', [CoachCourseController::class, 'create'])->middleware('role:coach')->name('courses.create');
+        Route::post('/courses', [CoachCourseController::class, 'store'])->middleware('role:coach')->name('courses.store');
+        Route::get('/courses/{course}/edit', [CoachCourseController::class, 'edit'])->middleware('role:coach')->name('courses.edit');
+        Route::put('/courses/{course}', [CoachCourseController::class, 'update'])->middleware('role:coach')->name('courses.update');
+        Route::delete('/courses/{course}', [CoachCourseController::class, 'destroy'])->middleware('role:coach')->name('courses.destroy');
+        Route::get('/reservations', [BookingHubController::class, 'inbox'])->middleware('role:coach')->name('reservations');
 
 
     });
@@ -140,10 +176,45 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile/edit', [ClinicController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [ClinicController::class, 'update'])->name('profile.update');
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:clinic')->name('dashboard');
+        Route::get('/reservations', [BookingHubController::class, 'inbox'])->middleware('role:clinic')->name('reservations');
     });
 
-    // User dashboard with role:user
-    Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
+
+    // Shared account profile + notifications
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::get('/insurance-licenses', [ClinicInsuranceController::class, 'myLicenses'])->name('insurance-licenses.index');
+        Route::get('/course-enrollments', [OnlineCourseController::class, 'myEnrollments'])->name('course-enrollments.index');
+        Route::get('/bookings', [BookingHubController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingHubController::class, 'show'])->name('bookings.show');
+        Route::patch('/bookings/{booking}/status', [BookingHubController::class, 'updateStatus'])->name('bookings.status');
+        Route::get('/reservations', [BookingHubController::class, 'inbox'])->name('reservations.index');
+        Route::get('/dogs', [OwnedDogController::class, 'index'])->name('dogs.index');
+        Route::get('/dogs/create', [OwnedDogController::class, 'create'])->name('dogs.create');
+        Route::post('/dogs', [OwnedDogController::class, 'store'])->name('dogs.store');
+        Route::get('/dogs/{dog}/edit', [OwnedDogController::class, 'edit'])->name('dogs.edit');
+        Route::put('/dogs/{dog}', [OwnedDogController::class, 'update'])->name('dogs.update');
+        Route::delete('/dogs/{dog}', [OwnedDogController::class, 'destroy'])->name('dogs.destroy');
+        Route::get('/service-prices', [ProviderServicePriceController::class, 'edit'])->name('service-prices.edit');
+        Route::post('/service-prices', [ProviderServicePriceController::class, 'update'])->name('service-prices.update');
+        Route::get('/services', [ProviderServiceController::class, 'index'])->name('services.index');
+        Route::post('/services', [ProviderServiceController::class, 'store'])->name('services.store');
+        Route::put('/services/{service}', [ProviderServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ProviderServiceController::class, 'destroy'])->name('services.destroy');
+        Route::get('/availability', [ProviderAvailabilityController::class, 'edit'])->name('availability.edit');
+        Route::post('/availability/settings', [ProviderAvailabilityController::class, 'updateSettings'])->name('availability.settings');
+        Route::post('/availability/rules', [ProviderAvailabilityController::class, 'storeRule'])->name('availability.rules.store');
+        Route::delete('/availability/rules/{rule}', [ProviderAvailabilityController::class, 'destroyRule'])->name('availability.rules.destroy');
+        Route::post('/availability/exceptions', [ProviderAvailabilityController::class, 'storeException'])->name('availability.exceptions.store');
+        Route::delete('/availability/exceptions/{exception}', [ProviderAvailabilityController::class, 'destroyException'])->name('availability.exceptions.destroy');
+    });
+
+    // User / customer account hub (any authenticated user)
+    Route::prefix('user')->name('user.')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     });
 
@@ -164,27 +235,54 @@ Route::name('frontend.')->group(function () {
 
     Route::prefix('support')->name('support.')->group(function () {
         Route::get('/', [SupportController::class, 'index'])->name('index');
+        Route::get('/api/bootstrap', [SupportTicketController::class, 'bootstrap'])->name('api.bootstrap');
+        Route::middleware('auth')->group(function () {
+            Route::get('/api/tickets', [SupportTicketController::class, 'index'])->name('api.tickets');
+            Route::post('/api/tickets', [SupportTicketController::class, 'store'])->middleware('throttle:20,1')->name('api.tickets.store');
+            Route::get('/api/tickets/{ticket}', [SupportTicketController::class, 'show'])->name('api.tickets.show');
+            Route::get('/api/tickets/{ticket}/messages', [SupportTicketController::class, 'messages'])->name('api.tickets.messages');
+            Route::post('/api/tickets/{ticket}/messages', [SupportTicketController::class, 'reply'])->middleware('throttle:60,1')->name('api.tickets.reply');
+        });
     });
 
     Route::get('/dog-supply', [DogSupplyController::class, 'index'])->name('dog.supply.index');
+    Route::get('/dog-supply/suggest', [DogSupplyController::class, 'suggest'])->name('dog.supply.suggest');
     Route::get('/dog/{id}', [DogSupplyController::class, 'show'])->name('dog-supply.show');
+    Route::post('/dog/{id}/order', [DogOrderController::class, 'store'])
+        ->middleware('auth')
+        ->name('dog.order.store');
+    Route::post('/dog/{id}/order/{order}/pay', [DogOrderController::class, 'pay'])
+        ->middleware(['auth', 'throttle:payment'])
+        ->name('dog.order.pay');
+    Route::match(['get', 'post'], '/dog-order/{order}/callback', [DogOrderController::class, 'callback'])
+        ->middleware('throttle:payment')
+        ->name('dog.order.callback');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
-    Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/blog', [BlogController::class, 'showById'])->name('blogs.index');
 
     Route::prefix('course')->group(function () {
         Route::get('/', [OnlineCourseController::class, 'index'])->name('online.courses');
-        Route::get('/{slug}', [OnlineCourseController::class, 'showCourse'])->name('courses.show');
         Route::get('/filter', [OnlineCourseController::class, 'filter'])->name('courses.filter');
+        Route::post('/{slug}/purchase', [OnlineCourseController::class, 'purchase'])
+            ->middleware(['auth', 'throttle:payment'])
+            ->name('courses.purchase');
+        Route::get('/{slug}', [OnlineCourseController::class, 'showCourse'])->name('courses.show');
     });
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
+    Route::post('/shelter', [ShelterController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('shelter.store');
 
     Route::get('/coaches', [CoachController::class, 'indexFront'])->name('coaches.index');
     Route::get('/coaches/{id}', [CoachController::class, 'showById'])->name('coaches.show');
 
     Route::get('/clinic-insurance', [ClinicInsuranceController::class, 'index'])->name('clinic.insurance.index');
     Route::get('clinic/insurances/{insurance}', [ClinicInsuranceController::class, 'show'])->name('clinic.insurance.show');
+    Route::post('clinic/insurances/{insurance}/purchase', [ClinicInsuranceController::class, 'purchase'])
+        ->middleware(['auth', 'throttle:payment'])
+        ->name('clinic.insurance.purchase');
 
     Route::get('/blogs/{slug}', [BlogController::class, 'showBlog'])->name('blogs.show');
     Route::post('/blog/comment/store', [BlogController::class, 'storeComment'])->name('blogs.store.comment');
@@ -193,7 +291,7 @@ Route::name('frontend.')->group(function () {
         ->middleware('throttle:payment')
         ->name('cart.show');
 
-    Route::get('/support-web', [AboutController::class, 'support'])->name('support-web.index');
+    Route::redirect('/support-web', '/support')->name('support-web.index');
     Route::post('/support-web', [AboutController::class, 'storeSupport'])->name('support-web.store');
 
     Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');
@@ -212,23 +310,85 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
-    // Services
-    Route::get('/services', [FrontendServiceController::class, 'index'])->name('services.index');
+    // Services listing lives on the home page (#services); keep /services as a redirect.
+    Route::get('/services', function () {
+        return redirect()->to(route('frontend.home').'#services');
+    })->name('services.index');
     Route::get('/service/{slug}', [FrontendServiceController::class, 'show'])->name('services.show');
     Route::get('/service/category/{slug}', [FrontendServiceController::class, 'showServiceCategory'])->name('services.show.category');
     Route::post('/service/store-comment', [FrontendServiceController::class, 'storeComment'])->name('services.store.comment');
     Route::post('/service/{serviceId}/rate', [FrontendServiceController::class, 'rateService']);
+
+    // Public reservation / booking
+    Route::get('/booking', [FrontendBookingController::class, 'index'])->name('booking.index');
+
+    // Provider-created open sessions (Flow B)
+    Route::get('/open-sessions', [OpenSessionController::class, 'index'])->name('open-sessions.index');
+    Route::get('/open-sessions/mine', [OpenSessionController::class, 'mine'])->middleware('auth')->name('open-sessions.mine');
+    Route::get('/open-sessions/create', [OpenSessionController::class, 'create'])->middleware('auth')->name('open-sessions.create');
+    Route::post('/open-sessions', [OpenSessionController::class, 'store'])->middleware('auth')->name('open-sessions.store');
+    Route::get('/open-sessions/{openSession}', [OpenSessionController::class, 'show'])->name('open-sessions.show');
+    Route::post('/open-sessions/{openSession}/publish', [OpenSessionController::class, 'publish'])->middleware('auth')->name('open-sessions.publish');
+    Route::post('/open-sessions/{openSession}/pause', [OpenSessionController::class, 'pause'])->middleware('auth')->name('open-sessions.pause');
+    Route::post('/open-sessions/{openSession}/apply', [OpenSessionController::class, 'apply'])->middleware('auth')->name('open-sessions.apply');
+    Route::get('/open-session-applications/{application}', [OpenSessionController::class, 'application'])->middleware('auth')->name('open-sessions.application');
+    Route::post('/open-session-applications/{application}/propose', [OpenSessionController::class, 'propose'])->middleware('auth')->name('open-sessions.propose');
+    Route::post('/open-session-applications/{application}/offers/{offer}/accept', [OpenSessionController::class, 'acceptOffer'])->middleware('auth')->name('open-sessions.accept-offer');
+    Route::post('/booking', [FrontendBookingController::class, 'store'])
+        ->middleware('auth')
+        ->name('booking.store');
+    Route::get('/booking/open', [FrontendBookingController::class, 'openBoard'])->name('booking.open');
+    Route::get('/booking/open/{code}', [FrontendBookingController::class, 'openShow'])->name('booking.open.show');
+    Route::get('/booking/success/{code}', [FrontendBookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/pay/{code}', [FrontendBookingController::class, 'pay'])
+        ->middleware('auth')
+        ->name('booking.pay');
+    Route::post('/booking/pay/{code}', [FrontendBookingController::class, 'processPay'])
+        ->middleware('auth')
+        ->name('booking.pay.process');
+    // Gateways (and the local driver) may return via GET redirect or POST form.
+    Route::match(['get', 'post'], '/booking/pay/{code}/callback', [FrontendBookingController::class, 'payCallback'])
+        ->middleware('throttle:payment')
+        ->name('booking.pay.callback');
+    Route::get('/booking/providers', [FrontendBookingController::class, 'providersShim'])->name('booking.providers');
+
+    Route::prefix('booking/api')->name('booking.api.')->group(function () {
+        Route::get('/meta', [FrontendBookingApiController::class, 'meta'])->name('meta');
+        Route::get('/cities', [FrontendBookingApiController::class, 'cities'])->name('cities');
+        Route::get('/breeds', [FrontendBookingApiController::class, 'breeds'])->name('breeds');
+        Route::get('/providers', [FrontendBookingApiController::class, 'providers'])->name('providers');
+        Route::get('/provider-services', [FrontendBookingApiController::class, 'providerServices'])->name('provider-services');
+        Route::get('/slots', [FrontendBookingApiController::class, 'slots'])->name('slots');
+
+        Route::middleware('auth')->group(function () {
+            Route::get('/my-dogs', [FrontendBookingApiController::class, 'myDogs'])->name('my-dogs');
+            Route::post('/my-dogs', [FrontendBookingApiController::class, 'storeMyDog'])->name('my-dogs.store');
+            Route::post('/quote', [FrontendBookingApiController::class, 'quote'])->name('quote');
+            Route::post('/', [FrontendBookingApiController::class, 'store'])->name('store');
+            Route::get('/inbox/open', [FrontendBookingApiController::class, 'openInbox'])->name('inbox.open');
+            Route::get('/{booking_code}/offers', [FrontendBookingApiController::class, 'listOffers'])->name('offers.index');
+            Route::post('/{booking_code}/offers', [FrontendBookingApiController::class, 'storeOffer'])->name('offers.store');
+            Route::post('/{booking_code}/offers/{offer_id}/accept', [FrontendBookingApiController::class, 'acceptOffer'])->name('offers.accept');
+            Route::post('/{booking_code}/offers/{offer_id}/reject', [FrontendBookingApiController::class, 'rejectOffer'])->name('offers.reject');
+            Route::post('/{booking_code}/respond', [FrontendBookingApiController::class, 'respond'])->name('respond');
+            Route::get('/{booking_code}/threads', [FrontendBookingApiController::class, 'threads'])->name('threads');
+            Route::get('/{booking_code}/messages', [FrontendBookingApiController::class, 'messages'])->name('messages.index');
+            Route::post('/{booking_code}/messages', [FrontendBookingApiController::class, 'storeMessage'])->name('messages.store');
+            Route::post('/{booking_code}/cancel', [FrontendBookingApiController::class, 'cancel'])->name('cancel');
+            Route::get('/{booking_code}', [FrontendBookingApiController::class, 'show'])->name('show');
+        });
+    });
 });
 
 // Misc public routes
 Route::view('/admin/coming-soon', 'coming-soon')->name('coming.soon');
 
 Route::middleware('throttle:payment')->group(function () {
-    Route::get('/order-summary', [FrontendController::class, 'myOrder'])->name('order.summary');
-    Route::get('/summary', [FrontendController::class, 'summary']);
+    Route::redirect('/order-summary', '/booking')->name('order.summary');
+    Route::redirect('/summary', '/booking');
 });
 
-Route::get('/proposals', [FrontendController::class, 'proposals']);
-Route::get('/select-time', [FrontendController::class, 'selectTime']);
-Route::get('/select-breed', [FrontendController::class, 'selectBreed']);
-Route::get('/select-trainer-type', [FrontendController::class, 'selectTrainerType']);
+Route::redirect('/proposals', '/booking');
+Route::redirect('/select-time', '/booking');
+Route::redirect('/select-breed', '/booking');
+Route::redirect('/select-trainer-type', '/booking');

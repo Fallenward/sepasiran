@@ -1,98 +1,74 @@
 @extends('layouts.app')
 
-@section('template_title')
-    وبلاگ
-@endsection
+@section('title', 'وبلاگ')
 
 @section('content')
-<div class="container py-4">
-
-<!-- بخش عنوان و نوار مسیریابی -->
-<x-page-header
-    title=" بلاگ ها"
-    :breadcrumbs="[
-        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-        ['label' => 'بلاگ ها', 'route' => route('frontend.dog.supply.index')]
-    ]"
-    extraClasses="text-align-center"
-    bgColor="#0d47a1"
-/>
-
-    <!-- Most Reviewed Blogs -->
-    <div class="mt-5">
-        <div class="d-flex align-items-center mb-4">
-            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-            <h5 class="fw-bold mb-0 ms-3">● پربیننده‌ترین‌ها</h5>
-            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
+<section class="sp-listing-hero">
+    <div class="sp-listing-hero__bg" aria-hidden="true">
+        <img src="{{ asset('images/demo/blogs/blog-02.jpg') }}" alt="">
+    </div>
+    <div class="wrap sp-listing-hero__inner">
+        <p class="sp-editorial__brand latin">Sepasiran</p>
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>وبلاگ</span>
+        </nav>
+        <div class="sp-listing-hero__title-row">
+            <h1>وبلاگ سپاسیران</h1>
         </div>
+        <p class="sp-listing-hero__lede">راهنماها و مقاله‌های کاربردی برای نگهداری، آموزش و زندگی بهتر با سگ.</p>
+        <div class="sp-editorial__actions">
+            <a class="sp-btn sp-btn--primary" href="{{ route('frontend.blogs.index') }}">مقاله‌ها</a>
+            <a class="sp-btn sp-btn--ghost" href="{{ route('frontend.news.index') }}">اخبار</a>
+        </div>
+    </div>
+</section>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4 text-end">
-            @foreach($mostReviewedBlogs as $blog)
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm d-flex flex-column">
-                        <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                             class="card-img-top"
-                             alt="{{ $blog->title }}"
-                             style="object-fit: cover; height: 180px;">
-                        <div class="card-body text-center d-flex flex-column justify-content-between" style="min-height: 190px;">
-                            <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                            <p class="card-text text-muted small"
-                               style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                            </p>
-                            <a href="{{ route('frontend.blog.show', $blog->slug) }}" class="btn btn-outline-primary btn-sm mt-2">
-                                بیشتر بخوانید
-                            </a>
+<section class="section sp-editorial">
+    <div class="wrap">
+        @if($mostReviewedBlogs->isNotEmpty())
+            <h2 class="sp-story-section-title">پربیننده‌ترین‌ها</h2>
+            <div class="sp-editorial__grid" style="margin-bottom:34px">
+                @foreach($mostReviewedBlogs as $blog)
+                    <a class="sp-story-tile" href="{{ route('frontend.blogs.show', $blog->slug) }}">
+                        <div class="sp-story-tile__media" aria-hidden="true">
+                            <img src="{{ $blog->imageUrl() }}" alt="">
                         </div>
-                        <div style="border-bottom: 4px solid #0d47a1;"></div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    <!-- Divider -->
-    <div class="position-relative text-center my-5">
-        <hr>
-        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">ادامه مطالب</span>
-    </div>
-
-    <!-- Latest Blogs -->
-    <div class="mb-5">
-        <div class="d-flex align-items-center mb-4">
-            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-            <h5 class="fw-bold mb-0 ms-3">● آخرین مطالب</h5>
-            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
-        </div>
-
-        <div class="row row-cols-1 row-cols-md-3 g-4 text-end">
-            @foreach($latestBlogs as $blog)
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm d-flex flex-column">
-                        <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                             class="card-img-top"
-                             alt="{{ $blog->title }}"
-                             style="object-fit: cover; height: 180px;">
-                        <div class="card-body text-center d-flex flex-column justify-content-between" style="min-height: 190px;">
-                            <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                            <p class="card-text text-muted small"
-                               style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                            </p>
-                            <a href="{{ route('frontend.blog.show', $blog->slug) }}" class="btn btn-outline-primary btn-sm mt-2">
-                                بیشتر بخوانید
-                            </a>
+                        <div class="sp-story-tile__body">
+                            <p class="sp-story-tile__kicker">مقاله · {{ number_format((int) ($blog->views ?? 0)) }} بازدید</p>
+                            <h3>{{ \Illuminate\Support\Str::limit($blog->title, 72) }}</h3>
+                            <p>{{ \Illuminate\Support\Str::limit(strip_tags((string) ($blog->description ?: $blog->content)), 110) }}</p>
                         </div>
-                        <div style="border-bottom: 4px solid #0d47a1;"></div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
 
-    <!-- See More Button -->
-    <div class="text-center mt-4">
-        <a href="{{ route('frontend.blog.index') }}" class="btn btn-outline-primary">مشاهده بیشتر</a>
+        <h2 class="sp-story-section-title">تازه‌ترین مقالات</h2>
+        <div class="sp-editorial__grid">
+            @forelse($latestBlogs as $blog)
+                <a class="sp-story-tile" href="{{ route('frontend.blogs.show', $blog->slug) }}">
+                    <div class="sp-story-tile__media" aria-hidden="true">
+                        <img src="{{ $blog->imageUrl() }}" alt="">
+                    </div>
+                    <div class="sp-story-tile__body">
+                        <p class="sp-story-tile__kicker">
+                            @if($blog->created_at)
+                                {{ optional($blog->created_at)->timezone(config('app.timezone'))->format('Y/m/d') }}
+                            @else
+                                مقاله
+                            @endif
+                        </p>
+                        <h3>{{ \Illuminate\Support\Str::limit($blog->title, 72) }}</h3>
+                        <p>{{ \Illuminate\Support\Str::limit(strip_tags((string) ($blog->description ?: $blog->content)), 110) }}</p>
+                    </div>
+                </a>
+            @empty
+                <p style="color:var(--sp-text-muted)">مقاله‌ای برای نمایش نیست.</p>
+            @endforelse
+        </div>
+        <div style="margin-top:28px">{{ $latestBlogs->withQueryString()->links() }}</div>
     </div>
-</div>
+</section>
 @endsection

@@ -10,35 +10,37 @@ class CitiesTableSeeder extends Seeder
     public function run(): void
     {
         $cities = [
-            'Tehran',
-            'Mashhad',
-            'Isfahan',
-            'Karaj',
-            'Shiraz',
-            'Tabriz',
-            'Qom',
-            'Ahvaz',
-            'Kermanshah',
-            'Urmia',
-            'Rasht',
-            'Zahedan',
-            'Kerman',
-            'Arak',
-            'Hamedan',
-            'Yazd',
-            'Bandar Abbas',
-            'Sanandaj',
-            'Khorramabad',
-            'Gorgan'
+            'تهران',
+            'مشهد',
+            'اصفهان',
+            'کرج',
+            'شیراز',
+            'تبریز',
+            'قم',
+            'اهواز',
+            'کرمانشاه',
+            'ارومیه',
+            'رشت',
+            'زاهدان',
+            'کرمان',
+            'اراک',
+            'همدان',
+            'یزد',
+            'بندرعباس',
+            'سنندج',
+            'خرم‌آباد',
+            'گرگان',
         ];
 
         foreach ($cities as $city) {
-            DB::table('cities')->insert([
-                'name' => $city,
-                'user_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('cities')->updateOrInsert(
+                ['name' => $city],
+                [
+                    'user_id' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
     }
 }

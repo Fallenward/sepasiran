@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
-use App\Models\Comment;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -11,44 +11,52 @@ class StoreController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with('user')
-            ->latest()
-            ->paginate(12)
-            ->through(function ($product) {
-                $product->type = 'product';
+        $query = Product::query()->with('user')->where('is_active', true);
 
-                return $product;
+        if ($request->filled('q')) {
+            $term = '%' . trim((string) $request->q) . '%';
+            $query->where(function ($builder) use ($term) {
+                $builder->where('title', 'like', $term)
+                    ->orWhere('description', 'like', $term)
+                    ->orWhere('sku', 'like', $term);
             });
+        }
+
+        if ($request->filled('category')) {
+            $query->whereIn('category_id', (array) $request->input('category'));
+        }
+
+        $products = $query->latest()->paginate(9)->appends($request->query());
+
+        $categories = Category::query()->orderBy('name')->get(['id', 'name']);
+        if ($categories->isEmpty()) {
+            $categories = collect([
+                (object) ['id' => 1, 'name' => 'غذا و تغذیه'],
+                (object) ['id' => 2, 'name' => 'لوازم بازی'],
+                (object) ['id' => 3, 'name' => 'مراقبت و بهداشت'],
+            ]);
+        }
 
         $filters = [
-            'size' => ['mini' => 'کوچک', 'medium' => 'متوسط', 'large' => 'بزرگ'],
-            'category' => [
-                'entertainment' => 'لوازم سرگرمی سگ',
-                'training' => 'لوازم آموزشی سگ',
-                'lorem1' => 'لورم',
-                'lorem2' => 'لورم',
-            ],
+            'category' => $categories,
         ];
 
-        $blogs = Blog::where('status', 'published')->orderBy('created_at', 'desc')->take(9)->get();
-
-        return view('stores.index', compact('products', 'filters', 'blogs'));
+        return view('stores.index', compact('products', 'filters'));
     }
 
     public function show($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::query()
+            ->with(['category:id,name', 'user:id,name'])
+            ->findOrFail($id);
 
-        $recentProducts = Product::where('id', '!=', $product->id)
-            ->latest()
+        $recentProducts = Product::query()
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->latest('id')
             ->take(4)
             ->get();
 
-        $comments = Comment::with('user')
-            ->where('user_id', $product->id)
-            ->latest()
-            ->paginate(10);
-
-        return view('frontend.pages.products.show', compact('product', 'recentProducts', 'comments'));
+        return view('frontend.pages.products.show', compact('product', 'recentProducts'));
     }
 }

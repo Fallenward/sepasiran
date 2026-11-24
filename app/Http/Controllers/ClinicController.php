@@ -15,28 +15,36 @@ class ClinicController extends Controller
 {
 public function index(Request $request)
 {
-    $cities = City::all();
-    $specialties = Specialty::all();
+    $cities = City::orderBy('name')->get(['id', 'name']);
+    $specialties = Specialty::orderBy('name')->get(['id', 'name']);
 
-    // Fetch users with role 'clinic' and eager load city & specialty
-$query = \App\Models\User::select('users.*')
-    ->join('role_user', 'users.id', '=', 'role_user.user_id')
-    ->join('roles', 'roles.id', '=', 'role_user.role_id')
-    ->where('roles.name', 'clinic')
-    ->with(['city', 'speciality']);
+    $query = \App\Models\User::select('users.*')
+        ->join('role_user', 'users.id', '=', 'role_user.user_id')
+        ->join('roles', 'roles.id', '=', 'role_user.role_id')
+        ->where('roles.name', 'clinic')
+        ->with(['city', 'speciality'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings');
 
-    // Filter by city
-    if ($request->has('city') && is_array($request->input('city'))) {
-        $query->whereIn('city_id', $request->input('city'));
+    if ($request->filled('q')) {
+        $term = '%' . trim((string) $request->q) . '%';
+        $query->where(function ($builder) use ($term) {
+            $builder->where('users.name', 'like', $term)
+                ->orWhere('users.bio', 'like', $term)
+                ->orWhereHas('city', fn ($q) => $q->where('name', 'like', $term))
+                ->orWhereHas('speciality', fn ($q) => $q->where('name', 'like', $term));
+        });
     }
 
-    // Filter by specialty
-    if ($request->has('specialty') && is_array($request->input('specialty'))) {
-        $query->whereIn('specialty_id', $request->input('specialty'));
+    if ($request->filled('city')) {
+        $query->whereIn('users.city_id', (array) $request->input('city'));
     }
 
-    $clinics = $query->paginate(9);
-    $clinics->appends($request->only(['city', 'specialty']));
+    if ($request->filled('specialty')) {
+        $query->whereIn('users.specialty_id', (array) $request->input('specialty'));
+    }
+
+    $clinics = $query->paginate(9)->appends($request->query());
 
     $filters = [
         'city' => $cities,
@@ -46,36 +54,10 @@ $query = \App\Models\User::select('users.*')
     return view('clinics.index', compact('clinics', 'filters'));
 }
 
-    public function clinicwallet(){
-
-        $clinic = Auth::user(); // assuming the authenticated user is the clinic
-        $baseQuery = Transaction::where('user_id', $clinic->id);
-
-        $walletBalance = (clone $baseQuery)->sum('amount');
-
-        $monthlyIncome = (clone $baseQuery)
-            ->where('amount', '>', 0)
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('amount');
-
-        $monthlyExpense = (clone $baseQuery)
-            ->where('amount', '<', 0)
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('amount');
-
-        $netProfit = $monthlyIncome + $monthlyExpense;
-        $transactions = $baseQuery->latest()->paginate(20);
-
-        return view('admin.clinics.wallet-balance', [
-            'transactions' => $transactions,
-            'walletBalance' => $walletBalance,
-            'monthlyIncome' => $monthlyIncome,
-            'monthlyExpense' => abs($monthlyExpense),
-            'netProfit' => $netProfit,
-        ]);
-
+    public function clinicwallet()
+    {
+        return redirect()->route('wallet.index');
     }
-
 
         public function dashboard()
     {
@@ -88,31 +70,49 @@ $query = \App\Models\User::select('users.*')
 
     public function showClinicById($id)
 {
-    $clinic = \App\Models\User::select('users.*')
-        ->join('role_user', 'users.id', '=', 'role_user.user_id')
-        ->join('roles', 'roles.id', '=', 'role_user.role_id')
-        ->where('roles.name', 'clinic') // 👈 Filter by clinic role
+    $clinic = \App\Models\User::query()
         ->where('users.id', $id)
-        ->with(['city', 'speciality', 'roles']) // include roles for blade logic
+        ->whereHas('roles', fn ($q) => $q->where('name', 'clinic'))
+        ->with(['city', 'speciality', 'roles', 'ratings'])
+        ->withAvg('ratings', 'value')
+        ->withCount('ratings')
         ->firstOrFail();
 
-    // Optional: rename if needed
-    $services = [];
+    $specialties = $clinic->speciality ?? collect();
+    $sessionResume = \App\Support\ProviderBookingResume::forProvider((int) $id);
+    $profile = \App\Support\ProviderPublicProfile::summarize($clinic, $sessionResume['total']);
+    $cityName = $profile['city_name'];
 
-    $medals = [
-        ['title' => 'کلینیک برتر منطقه', 'icon' => 'medal1.png'],
-        ['title' => 'تجهیزات مدرن', 'icon' => 'medal2.png'],
-        ['title' => 'بیشترین بازدید', 'icon' => 'medal3.png'],
-        ['title' => 'پیشنهاد کاربران', 'icon' => 'medal4.png'],
-    ];
+    $workingHours = $clinic->getAttribute('working_hours');
+    $animals = $clinic->getAttribute('animals');
+    $address = trim((string) ($clinic->address ?? ''));
+    $address = $address !== '' ? $address : null;
 
-    $comments = \App\Models\Comment::where('user_id', $id)->with('user')->get(); // assuming real comments
+    $facts = array_values(array_filter([
+        $cityName ? ['label' => 'شهر', 'value' => $cityName] : null,
+        ['label' => 'امتیاز', 'value' => $profile['rating_count'] > 0 ? number_format($profile['rating_avg'], 1) : '—', 'num' => true],
+        $address ? ['label' => 'آدرس', 'value' => \Illuminate\Support\Str::limit($address, 40)] : null,
+        $workingHours ? ['label' => 'ساعت کاری', 'value' => (string) $workingHours] : null,
+        ['label' => 'نوبت‌های تکمیل‌شده', 'value' => (string) $sessionResume['total'], 'num' => true],
+    ]));
+
+    $bookUrl = route('frontend.booking.index', array_filter([
+        'type' => 'clinic',
+        'provider' => (int) $clinic->id,
+        'city_id' => $clinic->city_id ?: null,
+    ]));
 
     return view('clinics.show', [
         'trainer' => $clinic,
-        'dogs' => [], // or pets if applicable
-        'medals' => $medals,
-        'comments' => $comments,
+        'specialties' => $specialties,
+        'cityName' => $cityName,
+        'facts' => $facts,
+        'bookUrl' => $bookUrl,
+        'workingHours' => $workingHours,
+        'animals' => $animals,
+        'address' => $address,
+        'sessionResume' => $sessionResume,
+        'profile' => $profile,
     ]);
 }
  public function edit()

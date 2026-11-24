@@ -1,53 +1,42 @@
 @extends('admin.layout')
-
+@section('title', 'نقش‌ها')
 @section('content')
-    <h1>Roles</h1>
-
-    <a href="{{ route('admin.roles.create') }}" class="btn btn-primary mb-3">Create New Role</a>
-
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if($roles->count())
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Permissions</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($roles as $role)
-                    <tr>
-                        <td>{{ $role->name }}</td>
-                        <td>
-                            @foreach($role->permissions as $permission)
-                                <span class="badge bg-secondary">{{ $permission->slug }}</span>
-                            @endforeach
-                        </td>
-                        <td>
-                            <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-sm btn-warning">Edit</a>
-
-                            <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" style="display:inline-block;">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Are you sure you want to delete this role?');">
-                                    Delete
-                                </button>
-                            </form>
-
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        {{ $roles->links() }}
-    @else
-        <p>No roles found.</p>
-    @endif
+@include('admin.components.page-header', [
+    'title' => 'نقش‌ها',
+    'subtitle' => 'نقش‌های سیستم و مجوزهای متصل.',
+    'createUrl' => route('admin.roles.create'),
+    'createLabel' => 'نقش جدید',
+])
+@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+<div class="card sp-admin-card"><div class="card-body">
+<div class="table-responsive"><table class="table table-hover sp-admin-table">
+<thead><tr><th>#</th><th>نام</th><th>مجوزها</th><th></th></tr></thead>
+<tbody>
+@forelse($roles as $role)
+<tr>
+<td class="num">{{ $role->id }}</td>
+<td><strong>{{ $role->name }}</strong></td>
+<td>
+@forelse($role->permissions->take(8) as $permission)
+<span class="sp-admin-status">{{ $permission->slug ?: $permission->name }}</span>
+@empty
+—
+@endforelse
+@if($role->permissions->count() > 8)
+<span class="text-muted small">+{{ $role->permissions->count() - 8 }}</span>
+@endif
+</td>
+<td class="sp-admin-actions">
+<a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.roles.edit', $role) }}">ویرایش</a>
+<form action="{{ route('admin.roles.destroy', $role) }}" method="POST" onsubmit="return confirm('حذف این نقش؟')">@csrf @method('DELETE')
+<button type="submit" class="btn btn-sm btn-outline-danger">حذف</button></form>
+</td>
+</tr>
+@empty
+<tr><td colspan="4" class="text-center text-muted py-4">نقشی ثبت نشده.</td></tr>
+@endforelse
+</tbody></table></div>
+{{ $roles->links() }}
+</div></div>
 @endsection

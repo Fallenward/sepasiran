@@ -1,168 +1,92 @@
-@extends('admin.layout')
+@extends('frontend.layouts.app')
 
-@section('title', $title ?? 'داشبورد کلینیک - Sepasiran')
+@section('title', ($title ?? 'داشبورد پرورش‌دهنده') . ' — سپاسیران')
 
 @section('content')
-<style>
-    body {
-        padding-bottom: 80px;
-        background-color: #f8f9fa;
-        font-family: Tahoma, sans-serif;
-    }
-    .navbar {
-        background-color: #0d47a1 !important;
-    }
-    .navbar .nav-link, .navbar-brand, .navbar .btn {
-        color: #fff !important;
-    }
-    .navbar .btn:hover {
-        color: #0d47a1 !important;
-        background-color: #fff !important;
-    }
-    .custom-header {
-        background-color: #0d47a1;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-bottom: 1px solid #ccc;
-    }
-    .shortcut-icon {
-        background-color: #0D47A1;
-        color: #fff;
-        padding: 20px;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: auto;
-    }
-    .square-card {
-        background-color: #0d47a1;
-        color: #fff;
-        border-radius: 1rem;
-        padding: 0.75rem 0.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        min-height: 140px;
-    }
-    .square-card .btn {
-        margin-top: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
-    .footer-nav {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #f8f9fa;
-        border-top: 1px solid #ccc;
-        display: flex;
-        justify-content: space-around;
-        padding: 0.5rem 0;
-    }
-    .footer-nav .nav-link {
-        text-align: center;
-        font-size: 0.85rem;
-    }
-</style>
+<div class="sp-dash sp-dash--breeder">
+    <div class="sp-dash__inner">
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
+            'user' => $user,
+            'roleLabel' => $roleLabel ?? 'پرورش‌دهنده',
+            'lede' => 'سگ‌های شما، درخواست‌های باز و ثبت آگهی جدید در یک قاب.',
+            'ctaTitle' => 'آگهی جدید',
+            'ctaHint' => 'سگ تازه را با مشخصات و وضعیت عرضه ثبت کنید.',
+            'primaryAction' => ['label' => 'افزودن سگ', 'url' => route('breeder.dashboard-create')],
+        ])
+
+        @include('frontend.partials.dashboard-metrics', [
+            'metrics' => [
+                ['label' => 'کل سگ‌ها', 'value' => number_format($totalDogs), 'hint' => 'متعلق به شما', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'آماده عرضه', 'value' => number_format($readyDogs), 'hint' => 'قابل نمایش', 'icon' => 'fas fa-check-circle', 'url' => route('breeder.dogs.listing')],
+                ['label' => 'درخواست باز', 'value' => number_format($pendingBookings), 'hint' => 'نیاز به پیگیری', 'icon' => 'fas fa-bell', 'url' => route('account.bookings.index', ['tab' => 'inbox'])],
+            ],
+        ])
+
+        
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spBreederFinanceChart',
+        ])
 
 
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
 
-{{-- Main Content --}}
-<div class="container mt-3">
+@include('frontend.partials.dashboard-actions', [
+            'actions' => [
+                ['label' => 'درخواست‌های رزرو', 'hint' => 'درخواست خرید/رزرو مشتریان', 'url' => route('account.bookings.index', ['tab' => 'inbox']), 'icon' => 'fas fa-inbox'],
+                ['label' => 'افزودن آگهی سگ', 'hint' => 'ثبت سگ برای فروش', 'url' => route('breeder.dashboard-create'), 'icon' => 'fas fa-plus'],
+                ['label' => 'لیست آگهی‌ها', 'hint' => 'مدیریت سگ‌های عرضه‌شده', 'url' => route('breeder.dogs.listing'), 'icon' => 'fas fa-list-ul'],
+                ['label' => 'سگ‌های حساب', 'hint' => 'سگ‌های شخصی حساب', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
+                ['label' => 'خدمات رزرو', 'hint' => 'قیمت، مدت، تخصص', 'url' => route('account.services.index'), 'icon' => 'fas fa-briefcase'],
+                ['label' => 'جلسات باز من', 'hint' => 'ایجاد و مدیریت جلسه باز', 'url' => route('frontend.open-sessions.mine'), 'icon' => 'fas fa-door-open'],
+                ['label' => 'زمان‌بندی', 'hint' => 'ساعات کاری و مسدودسازی', 'url' => route('account.availability.edit'), 'icon' => 'fas fa-calendar-alt'],
+                ['label' => 'قیمت خدمات', 'hint' => 'مبلغ رزرو پرورش‌دهنده', 'url' => route('account.service-prices.edit'), 'icon' => 'fas fa-tags'],
+                ['label' => 'کیف پول', 'hint' => number_format($walletBalance ?? 0) . ' تومان', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
+            ],
+        ])
 
-    {{-- User Info --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center">
-            <img src="{{ $user->logo_url ?? asset('images/default-clinic.png') }}" width="40" class="rounded-circle me-2" alt="لوگو کلینیک">
-            <div>
-                <div>{{ $user->name }}</div>
-                <small>اعتبار: {{ number_format($user->credit ?? 0) }} تومان</small>
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? $recentDogs ?? collect()])
+
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>وضعیت گله</h2>
+            </header>
+            <div class="sp-dash__stat-row">
+                <div class="sp-dash__stat-pill"><span>در انتظار تأیید</span><strong class="num">{{ number_format($pendingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>فروخته‌شده</span><strong class="num">{{ number_format($soldDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>در صف</span><strong class="num">{{ number_format($waitingDogs) }}</strong></div>
+                <div class="sp-dash__stat-pill"><span>رزرو تأییدشده</span><strong class="num">{{ number_format($openBookings) }}</strong></div>
             </div>
-        </div>
-        <div><strong>Sepasiran</strong></div>
-        <div style="font-size: 24px; cursor: pointer;">&#9776;</div>
-    </div>
+        </section>
 
-    {{-- Search Bar --}}
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="جست‌وجو..." aria-label="Search">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-    </div>
-
-    {{-- Announcement Card --}}
-    <div class="card mb-4" style="border: 20px solid #0D47A1; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div class="card-header text-white" style="background-color: #0d47a1;">
-            <strong>اطلاعیه</strong>
-        </div>
-        <div class="card-body bg-white text-dark text-left">
-            اطلاعیه ویژه مربوط به کلینیک.
-            <br>
-            <small><i class="bi bi-calendar"></i> {{ \Morilog\Jalali\Jalalian::now()->format('d F Y') }}</small>
-        </div>
-    </div>
-
-    {{-- Shortcut Icons --}}
-    <div class="row text-center mb-4">
-        @php
-            $shortcuts = [
-                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('breeder.dashboard')],
-                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('breeder.dashboard')],
-                ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('wallet.index')],
-            ];
-        @endphp
-
-        @foreach($shortcuts as $shortcut)
-            <div class="col-4 mb-3">
-                <a href="{{ $shortcut['url'] }}" class="text-decoration-none text-dark">
-                    <div class="shortcut-icon">
-                        <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>آخرین سگ‌ها</h2>
+                <a href="{{ route('breeder.dogs.listing') }}">مشاهده همه</a>
+            </header>
+            <div class="sp-dash__list">
+                @forelse($recentDogs as $dog)
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="fas fa-dog"></i></span>
+                        <div>
+                            <strong>{{ $dog->title ?? ('سگ #' . $dog->id) }}</strong>
+                            <p class="sp-dash__muted">{{ $dog->status }}</p>
+                        </div>
+                        <span class="sp-dash__chip is-active">{{ $dog->status }}</span>
+                    </article>
+                @empty
+                    <div class="sp-dash__empty">
+                        <div class="sp-dash__empty-visual" aria-hidden="true"></div>
+                        <p>هنوز سگی ثبت نکرده‌اید.</p>
+                        <a class="sp-btn sp-btn--primary" href="{{ route('breeder.dashboard-create') }}">اولین سگ را اضافه کنید</a>
                     </div>
-                    <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
-                </a>
+                @endforelse
             </div>
-        @endforeach
+        </section>
     </div>
-
-    {{-- Dashboard Cards --}}
-    <div class="row text-center g-3">
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-clipboard2-check fs-3"></i>
-                <div class="mt-2">تعداد سفارشات باز</div>
-                <div class="h4 mt-1">{{ $openBookings }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-cash-stack fs-3"></i>
-                <div class="mt-2">سفارشات در انتظار ارسال</div>
-                <div class="h4 mt-1">{{ number_format($clinicIncome) }} </div>
-                <a href="{{ route('wallet.index') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-people fs-3"></i>
-                <div class="mt-2">مبلغ کل درآم</div>
-                <div class="h4 mt-1">{{ $activeDoctors }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-    </div>
-
-    {{-- Footer Navigation --}}
-    <nav class="footer-nav">
-        <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-        <a class="nav-link" href="{{ route('breeder.dogs.listing') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
-        <a class="nav-link" href="{{ route('breeder.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
-        <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-gear"></i><br>کیف پول</a>
-        <a class="nav-link" href="{{ route('breeder.profile') }}"><i class="bi bi-person"></i><br>پروفایل</a>
-    </nav>
 </div>
 @endsection

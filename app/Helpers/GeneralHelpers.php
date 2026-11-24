@@ -36,9 +36,13 @@ class GeneralHelpers
 
     public static function shouldShowMenu($route, $user)
     {
-        $clinicHidden = ['admin.sliders.index', 'admin.transactions.index'];
-        $breederHidden = ['admin.coaches.index', 'admin.courses.index', 'coming.soon'];
-        $coachHidden = ['admin.blogs.index', 'admin.dogs.index', 'admin.coaches.index', 'admin.courses.index', 'coming.soon'];
+        $clinicHidden = ['admin.sliders.index', 'admin.transactions.index', 'admin.clinics.index', 'admin.breeders.index', 'admin.coaches.index'];
+        $breederHidden = ['admin.coaches.index', 'admin.clinics.index', 'admin.breeders.index', 'admin.courses.index', 'coming.soon'];
+        $coachHidden = ['admin.blogs.index', 'admin.dogs.index', 'admin.coaches.index', 'admin.clinics.index', 'admin.breeders.index', 'admin.courses.index', 'coming.soon'];
+
+        if (! $user) {
+            return true;
+        }
 
         if ($user->hasRole('clinic') && in_array($route, $clinicHidden)) {
             return false;

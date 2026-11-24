@@ -1,0 +1,31 @@
+@php
+    $raw = $item->thumbnail ?? null;
+    if ($raw) {
+        $imageUrl = str_starts_with($raw, 'http')
+            ? $raw
+            : (str_starts_with($raw, 'images/')
+                ? asset($raw)
+                : asset('storage/' . ltrim($raw, '/')));
+    } else {
+        $imageUrl = asset('images/demo/hero/hero-03.jpg');
+    }
+
+    $title = $item->title ?? 'دوره';
+    $categoryName = $item->category->name ?? 'بدون دسته‌بندی';
+    $price = (int) ($item->discount_price ?: $item->price ?: 0);
+    $priceLabel = $price <= 0 ? 'رایگان' : number_format($price) . ' تومان';
+    $slug = $item->slug ?? $item->id;
+@endphp
+
+<article class="sp-card sp-card--dog">
+    <a class="sp-card__link" href="{{ route('frontend.courses.show', $slug) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $title }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $title }}</h3>
+            <p class="sp-card__meta">{{ $categoryName }}</p>
+            <p class="sp-card__price num">{{ $priceLabel }}</p>
+        </div>
+    </a>
+</article>

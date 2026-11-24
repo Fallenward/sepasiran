@@ -1,100 +1,66 @@
 @extends('layouts.app')
 
+@section('title', 'اخبار')
+
 @section('content')
-
-{{-- Featured News --}}
-<div class="container my-5">
-    <div class="row align-items-center text-end" style="min-height: 350px;">
-        <div class="col-md-6 order-2 order-md-1 d-flex flex-column justify-content-center">
-            <h2 class="fw-bold mb-2">اخبار</h2>
-            <div style="height: 6px; width: 72px; background-color: #0d47a1;" class="mb-4 rounded"></div>
-
-            @if(isset($latestNews))
-                <h4 class="fw-bold mb-2">{{ $latestNews->title }}</h4>
-                <p class="text-muted">
-                    {{ \Illuminate\Support\Str::limit(strip_tags($latestNews->excerpt ?? $latestNews->content), 180) }}
-                </p>
-            @else
-                <p class="text-danger">محتوایی برای نمایش وجود ندارد.</p>
-            @endif
+<section class="sp-listing-hero">
+    <div class="sp-listing-hero__bg" aria-hidden="true">
+        <img src="{{ asset('images/demo/hero/hero-03.jpg') }}" alt="">
+    </div>
+    <div class="wrap sp-listing-hero__inner">
+        <p class="sp-editorial__brand latin">Sepasiran</p>
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>اخبار</span>
+        </nav>
+        <div class="sp-listing-hero__title-row">
+            <h1>اخبار سپاسیران</h1>
         </div>
-
-        <div class="col-md-6 order-1 order-md-2 text-center">
-            @if(isset($latestNews) && $latestNews->image)
-                <img src="{{ asset('storage/' . $latestNews->image) }}" alt="{{ $latestNews->title }}" class="img-fluid rounded shadow-sm" style="max-width: 300px;">
-            @else
-                <img src="{{ asset('images/placeholder.jpg') }}" alt="تصویر پیش‌فرض" class="img-fluid rounded shadow-sm" style="max-width: 300px;">
-            @endif
+        <p class="sp-listing-hero__lede">تازه‌ترین خبرها و اطلاع‌رسانی‌های خدمات، رویدادها و جامعه سپاسیران.</p>
+        <div class="sp-editorial__actions">
+            <a class="sp-btn sp-btn--primary" href="{{ route('frontend.news.index') }}">اخبار</a>
+            <a class="sp-btn sp-btn--ghost" href="{{ route('frontend.blogs.index') }}">وبلاگ</a>
         </div>
     </div>
-</div>
+</section>
 
-{{-- Divider Title --}}
-<div class="container my-5">
-    <div class="text-end">
-        <h3 class="fw-bold">سایر اخبار</h3>
-        <div style="height: 4px; width: 64px; background-color: #0d47a1;" class="rounded mt-2 mb-4"></div>
-    </div>
-</div>
-
-{{-- News Grid --}}
-<div class="container pb-5">
-    <div class="text-end row row-cols-1 row-cols-md-2 g-4">
-        @foreach($newsItems->take(8) as $news)
-            <div class="col">
-                <div class="card h-100 shadow-sm border-0">
-                    @if($news->image)
-                        <img src="{{ asset('storage/' . $news->image) }}" class="card-img-top" alt="{{ $news->title }}">
-                    @else
-                        <img src="{{ asset('images/placeholder.jpg') }}" class="card-img-top" alt="پیش‌فرض">
-                    @endif
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $news->title }}</h5>
-                        <p class="card-text">{{ \Illuminate\Support\Str::limit(strip_tags($news->excerpt ?? $news->content), 100) }}</p>
-                        <a href="{{ route('frontend.breeders.show', $news->id) }}" class="btn btn-primary btn-sm">مطالعه بیشتر</a>
-                    </div>
+<section class="section sp-editorial">
+    <div class="wrap">
+        @if($latestNews)
+            <a class="sp-story-feature" href="{{ route('frontend.blogs.show', $latestNews->slug) }}">
+                <div class="sp-story-feature__copy">
+                    <p class="sp-story-tile__kicker">خبر ویژه</p>
+                    <h2>{{ $latestNews->title }}</h2>
+                    <p>{{ \Illuminate\Support\Str::limit(strip_tags((string) ($latestNews->description ?: $latestNews->content)), 200) }}</p>
+                    <span class="sp-btn sp-btn--ghost" style="align-self:flex-start;pointer-events:none">ادامه مطلب</span>
                 </div>
-            </div>
-        @endforeach
-    </div>
+                <div class="sp-story-feature__media" aria-hidden="true">
+                    <img src="{{ $latestNews->imageUrl() }}" alt="">
+                </div>
+            </a>
+        @endif
 
-    @if($newsItems->count() > 8)
-        {{-- See More Button --}}
-        <div class="text-center mt-4">
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#moreNews" aria-expanded="false" aria-controls="moreNews">
-                مشاهده بیشتر
-            </button>
-        </div>
-
-        {{-- Collapsible Extra News --}}
-        <div class="collapse mt-4" id="moreNews">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 text-end">
-                @foreach($newsItems->slice(8) as $news)
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-0">
-                            @if($news->image)
-                                <img src="{{ asset('storage/' . $news->image) }}" class="card-img-top" alt="{{ $news->title }}">
-                            @else
-                                <img src="{{ asset('images/placeholder.jpg') }}" class="card-img-top" alt="پیش‌فرض">
-                            @endif
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $news->title }}</h5>
-                                <p class="card-text">{{ \Illuminate\Support\Str::limit(strip_tags($news->excerpt ?? $news->content), 100) }}</p>
-                                <a href="{{ route('frontend.blogs.show', $news->id) }}" class="btn btn-primary btn-sm">مطالعه بیشتر</a>
-                            </div>
-                        </div>
+        <h2 class="sp-story-section-title">سایر اخبار</h2>
+        <div class="sp-editorial__grid">
+            @forelse($newsItems as $news)
+                <a class="sp-story-tile" href="{{ route('frontend.blogs.show', $news->slug) }}">
+                    <div class="sp-story-tile__media" aria-hidden="true">
+                        <img src="{{ $news->imageUrl() }}" alt="">
                     </div>
-                @endforeach
-            </div>
+                    <div class="sp-story-tile__body">
+                        <p class="sp-story-tile__kicker">
+                            {{ optional($news->created_at)->timezone(config('app.timezone'))->format('Y/m/d') ?: 'خبر' }}
+                        </p>
+                        <h3>{{ \Illuminate\Support\Str::limit($news->title, 72) }}</h3>
+                        <p>{{ \Illuminate\Support\Str::limit(strip_tags((string) ($news->description ?: $news->content)), 110) }}</p>
+                    </div>
+                </a>
+            @empty
+                <p style="color:var(--sp-text-muted)">خبری برای نمایش نیست.</p>
+            @endforelse
         </div>
-    @endif
-
-    @if($newsItems->isEmpty())
-        <div class="text-center text-danger mt-4">
-            هیچ خبری برای نمایش وجود ندارد.
-        </div>
-    @endif
-</div>
-
-
+        <div style="margin-top:28px">{{ $newsItems->withQueryString()->links() }}</div>
+    </div>
+</section>
 @endsection

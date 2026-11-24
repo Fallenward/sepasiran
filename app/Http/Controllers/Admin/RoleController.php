@@ -12,7 +12,7 @@ class RoleController extends Controller
     // Show list of roles
     public function index()
     {
-        $roles = Role::orderBy('name')->paginate(15);
+        $roles = Role::with('permissions')->orderBy('name')->paginate(15);
         return view('admin.roles.index', compact('roles'));
     }
 

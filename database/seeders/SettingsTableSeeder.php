@@ -25,10 +25,10 @@ class SettingsTableSeeder extends Seeder
 
 
         DB::table('settings')->insert([
-            'color_setting_primary' => '#0D47A1',
-            'color_setting_secondary' => '#A9C52F',
-            'color_setting_third' => '#EEEEEE',
-            'color_setting_fourth' => '#212529',
+            'color_setting_primary' => '#4FBF78',
+            'color_setting_secondary' => '#D4B56A',
+            'color_setting_third' => '#E8F0EB',
+            'color_setting_fourth' => '#0C1210',
             'sms_setting_username' => '',
             'sms_setting_password' => '',
             'footer_setting_social_twitter' => '',

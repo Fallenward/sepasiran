@@ -10,6 +10,7 @@ return Application::configure(basePath: dirname(__DIR__))
             __DIR__ . '/../routes/web.php',
             __DIR__ . '/../routes/auth.php',
         ],
+        channels: __DIR__ . '/../routes/channels.php',
         // Uncomment if you have an API route file
         // api: __DIR__ . '/../routes/api.php',
         health: '/up',
@@ -20,6 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
             'role'     => \App\Http\Middleware\RoleMiddleware::class,
             'throttle.mutations' => \App\Http\Middleware\ThrottleMutations::class,
+        ]);
+
+        // Payment gateways POST back without a CSRF token.
+        // Logout is safe to skip: users must be able to leave even with a stale CSRF/session.
+        $middleware->validateCsrfTokens(except: [
+            'logout',
+            'booking/pay/*/callback',
+            'dog-order/*/callback',
         ]);
 
         // Optionally add middleware to groups

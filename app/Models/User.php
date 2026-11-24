@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-    use Illuminate\Contracts\Auth\MustVerifyEmail;
     use Illuminate\Database\Eloquent\Factories\HasFactory;
     use Illuminate\Database\Eloquent\Model;
     use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,7 +20,7 @@ namespace App\Models;
      * @property $created_at
      * @property $updated_at
      */
-    class User extends Authenticatable implements MustVerifyEmail
+    class User extends Authenticatable
     {
         protected $perPage = 20;
 
@@ -34,11 +33,17 @@ namespace App\Models;
          * @var array<int, string>
          */
         protected $fillable = [
-            'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet',
+            'name', 'family', 'email', 'password', 'is_admin', 'phone', 'city_id', 'wallet', 'address', 'bio', 'profile_picture', 'photo',
         ];
 
-        public function city(){
-            return $this->hasOne(City::class);
+        public function city()
+        {
+            return $this->belongsTo(City::class, 'city_id');
+        }
+
+        public function ratings()
+        {
+            return $this->morphMany(Rating::class, 'rateable');
         }
 
 
@@ -117,6 +122,79 @@ namespace App\Models;
          * اینجا باید روابط واقعی مدل‌ها قرار گیرد.
          * به عنوان مثال، اگر مدل Blog وجود دارد و کاربر می‌تواند چندین وبلاگ داشته باشد:
          */
+/**
+         * Preferred account hub for this user (provider roles beat customer).
+         */
+        
+        public function avatarUrl(): ?string
+        {
+            $path = $this->profile_picture ?: $this->photo;
+            if (! $path) {
+                return null;
+            }
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+                $url = $path;
+            } else {
+                $url = asset('storage/' . ltrim($path, '/'));
+            }
+
+            // Bust browser/CDN cache when profile photo or user row changes.
+            $version = optional($this->updated_at)->getTimestamp() ?: time();
+            $sep = str_contains($url, '?') ? '&' : '?';
+
+            return $url.$sep.'v='.$version;
+        }
+
+        protected static function booted(): void
+        {
+            static::saved(function (self $user) {
+                if ($user->wasChanged(['name', 'family', 'profile_picture', 'photo'])) {
+                    \App\Support\AppCache::forgetUserHeader((int) $user->id);
+                }
+            });
+        }
+
+        public function profileEditRoute(): string
+        {
+            return route('account.profile.edit');
+        }
+
+        public function dashboardRoute(): string
+        {
+            if (!empty($this->is_admin) || $this->hasRole('admin') || $this->hasRole('administrator')) {
+                return route('admin.dashboard.index');
+            }
+            if ($this->hasRole('breeder')) {
+                return route('breeder.dashboard');
+            }
+            if ($this->hasRole('coach')) {
+                return route('coaches.dashboard');
+            }
+            if ($this->hasRole('clinic')) {
+                return route('clinic.dashboard');
+            }
+
+            return route('user.dashboard');
+        }
+
+        public function primaryRoleLabel(): string
+        {
+            if (!empty($this->is_admin) || $this->hasRole('admin') || $this->hasRole('administrator')) {
+                return 'مدیر';
+            }
+            if ($this->hasRole('breeder')) {
+                return 'پرورش‌دهنده';
+            }
+            if ($this->hasRole('coach')) {
+                return 'مربی';
+            }
+            if ($this->hasRole('clinic')) {
+                return 'کلینیک';
+            }
+
+            return 'مشتری';
+        }
+
         public function blogs()
         {
             return $this->hasMany(\App\Models\Blog::class, 'author_id', 'id');

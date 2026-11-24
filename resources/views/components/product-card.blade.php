@@ -1,27 +1,30 @@
 @php
-    $imageUrl = $item->thumbnail
-        ? asset('storage/products/' . $item->thumbnail)
-        : asset('images/default-product.jpg');
+    $raw = $item->thumbnail ?? null;
+    if ($raw) {
+        $imageUrl = str_starts_with($raw, 'http')
+            ? $raw
+            : (str_starts_with($raw, 'images/')
+                ? asset($raw)
+                : asset('storage/products/' . ltrim($raw, '/')));
+    } else {
+        $imageUrl = asset('images/demo/products/product-01.jpg');
+    }
 
     $name = $item->title ?? 'بدون نام';
-    $description = $item->description ?? '';
-    $price = $item->price ?? $item->sale_price ?? null;
+    $price = $item->discount_price ?: ($item->price ?? null);
     $showRoute = $showRoute ?? 'frontend.products.show';
 @endphp
 
-<article class="tile h-100">
-    <a class="tile-link" href="{{ route($showRoute, ['id' => $item->id]) }}">
-        <div class="tile__media tile__media--square">
-            <img src="{{ $imageUrl }}" alt="{{ $name }}">
+<article class="sp-card sp-card--product">
+    <a class="sp-card__link" href="{{ route($showRoute, ['id' => $item->id]) }}">
+        <div class="sp-card__media sp-card__media--square">
+            <img src="{{ $imageUrl }}" alt="{{ $name }}" loading="lazy">
         </div>
-        <div class="tile__body">
-            <h3>{{ $name }}</h3>
-            <div class="tile__meta">
-                <span>{{ Str::limit(strip_tags($description), 40) }}</span>
-                @if($price !== null)
-                    <span class="tile__price num">{{ number_format((float) $price) }}</span>
-                @endif
-            </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $name }}</h3>
+            @if($price !== null)
+                <p class="sp-card__price num">{{ number_format((float) $price) }} تومان</p>
+            @endif
         </div>
     </a>
 </article>

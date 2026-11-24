@@ -1,51 +1,29 @@
 @extends('admin.layout')
-
-@section('template_title')
-    {{ $coach->name ?? "Coach Details" }}
-@endsection
-
+@section('title', trim(($coach->name ?? '').' '.($coach->family ?? '')) ?: 'مربی')
 @section('content')
-    <section class="content container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow-lg rounded-lg">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Coach Details</h5>
-                        <a href="{{ route('admin.coaches.index') }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-                    </div>
-
-                    <div class="card-body bg-light">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Name:</strong>
-                                <span class="text-dark">{{ $coach->name }}</span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">City:</strong>
-                                <span class="text-dark">{{ $coach->city->name }}</span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Breed:</strong>
-                                <span class="text-dark">{{ $coach->breed->name }}</span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <strong class="d-block text-muted">Specialty:</strong>
-                                <span class="text-dark">{{ $coach->specialty->name }}</span>
-                            </div>
-
-                            <div class="col-md-12">
-                                <strong class="d-block text-muted">Description:</strong>
-                                <p class="text-dark">{{ $coach->description }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+@include('admin.components.page-header', [
+    'title' => trim(($coach->name ?? '').' '.($coach->family ?? '')) ?: 'مربی',
+    'subtitle' => $coach->email,
+])
+<div class="mb-3" style="display:flex;gap:8px;flex-wrap:wrap">
+<a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.coaches.index') }}">بازگشت</a>
+<a class="btn btn-primary btn-sm" href="{{ route('admin.coaches.edit', $coach) }}">ویرایش</a>
+</div>
+<div class="card sp-admin-card"><div class="card-body"><dl class="sp-admin-kv">
+<dt>نام</dt><dd>{{ $coach->name ?: '—' }}</dd>
+<dt>نام خانوادگی</dt><dd>{{ $coach->family ?: '—' }}</dd>
+<dt>ایمیل</dt><dd>{{ $coach->email ?: '—' }}</dd>
+<dt>تلفن</dt><dd class="num">{{ $coach->phone ?: '—' }}</dd>
+<dt>شهر</dt><dd>{{ optional($coach->city)->name ?: '—' }}</dd>
+<dt>نقش‌ها</dt>
+<dd>
+@forelse($coach->roles as $role)
+<span class="sp-admin-status is-open">{{ $role->name }}</span>
+@empty
+—
+@endforelse
+</dd>
+<dt>عضویت</dt><dd class="num">{{ optional($coach->created_at)->timezone(config('app.timezone'))->format('Y/m/d H:i') }}</dd>
+<dt>بیو</dt><dd>{{ $coach->bio ?: '—' }}</dd>
+</dl></div></div>
 @endsection

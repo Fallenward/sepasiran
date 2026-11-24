@@ -1,112 +1,95 @@
 @extends('layouts.app')
 
+@section('title', 'تماس با ما')
+
 @section('content')
+@php
+    $phone = optional($settings ?? null)->contact_phone
+        ?? optional($settings ?? null)->footer_setting_phone
+        ?? '۰۹۱۲۰۰۰۰۰۰۰';
+    $email = optional($settings ?? null)->contact_email
+        ?? optional($settings ?? null)->footer_setting_email
+        ?? 'hello@sepasiran.test';
+    $address = optional($settings ?? null)->contact_address
+        ?? optional($settings ?? null)->footer_setting_address
+        ?? 'تهران';
+@endphp
 
-<x-page-header
-    title="تماس با ما"
-    :breadcrumbs="[
-        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-        ['label' => 'مربیان', 'route' => route('frontend.coaches.index')],
-    ]"
-    bgColor="linear-gradient(90deg, #0D47A1 0%, #051A3B 100%)"
-/>
-
-<div class="container py-5">
-    <div class="row g-5 align-items-center">
-        <!-- اطلاعات تماس و تصویر -->
-    <div class="col-md-6 text-center">
-        <img src="{{ asset('images/Contact.png') }}" alt="تماس با ما" class="img-fluid mb-4" style="max-height: 250px;">
-        <div class="text-muted">
-            <p>آدرس دفتر: تهران، خیابان مثال</p>
-            <p>تلفن: 09111111111</p>
-            <p>ایمیل: example@gmail.com</p>
-        </div>
+<section class="sp-listing-hero">
+    <div class="sp-listing-hero__bg" aria-hidden="true">
+        <img src="{{ asset('images/demo/hero/hero-02.jpg') }}" alt="">
     </div>
+    <div class="wrap sp-listing-hero__inner">
+        <nav class="sp-breadcrumb" aria-label="مسیر صفحه">
+            <a href="{{ route('frontend.home') }}">خانه</a>
+            <span class="sp-breadcrumb__sep">/</span>
+            <span>تماس با ما</span>
+        </nav>
+        <h1>تماس با ما</h1>
+        <p>پیام بگذارید یا از پشتیبانی زنده استفاده کنید — پاسخ شفاف و سریع.</p>
+    </div>
+</section>
 
-        <!-- فرم تماس -->
-        <div class="col-md-6">
-            <style>
-                .form-wrapper {
-                    border-radius: 1rem;
-                    padding: 2rem;
-                    background-color: #f8f9fa;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-                }
+<section class="section">
+    <div class="wrap">
+        @if(session('success'))
+            <div class="sp-provider__panel" style="margin-bottom:20px;border-color:rgba(126,200,160,.45)">{{ session('success') }}</div>
+        @endif
 
-                .blue-border {
-                    border: 2px solid #007bff !important;
-                    border-radius: 0.5rem;
-                }
-
-                .blue-border:focus {
-                    border-color: #0056b3 !important;
-                    box-shadow: none !important;
-                }
-
-                .btn-block {
-                    display: block;
-                    width: 100%;
-                    border-radius: 0.5rem;
-                }
-            </style>
-
-            <div class="form-wrapper">
-                <form method="POST" action="{{ route('frontend.contact.store') }}">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label class="form-label float-end">نام و نام خانوادگی</label>
-                        <input type="text" name="name" class="form-control blue-border @error('name') is-invalid @enderror">
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label float-end">ایمیل</label>
-                        <input type="email" name="email" class="form-control blue-border @error('email') is-invalid @enderror">
-                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label float-end">شماره تماس</label>
-                        <input type="text" name="phone" class="form-control blue-border @error('phone') is-invalid @enderror">
-                        @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label float-end">پیام شما</label>
-                        <textarea name="message" rows="4" class="form-control blue-border @error('message') is-invalid @enderror"></textarea>
-                        @error('message') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block">ارسال</button>
-                </form>
+        <div class="sp-dog-show__layout">
+            <div class="sp-dog-show__main">
+                <section class="sp-provider__panel">
+                    <h2>ارسال پیام</h2>
+                    <p class="sp-provider__cta-note">برای پیگیری زنده، چت پشتیبانی را باز کنید؛ این فرم برای پیام‌های عمومی است.</p>
+                    <form method="POST" action="{{ route('frontend.contact.store') }}" class="sp-contact-form" style="display:grid;gap:14px;margin-top:16px">
+                        @csrf
+                        <div class="field" style="margin:0">
+                            <label for="name">نام و نام خانوادگی</label>
+                            <input id="name" type="text" name="name" value="{{ old('name') }}" required>
+                            @error('name')<p class="sp-support__hint">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label for="email">ایمیل</label>
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" required>
+                            @error('email')<p class="sp-support__hint">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label for="phone">شماره تماس</label>
+                            <input id="phone" type="text" name="phone" value="{{ old('phone') }}" required class="num">
+                            @error('phone')<p class="sp-support__hint">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label for="message">پیام شما</label>
+                            <textarea id="message" name="message" rows="5" required>{{ old('message') }}</textarea>
+                            @error('message')<p class="sp-support__hint">{{ $message }}</p>@enderror
+                        </div>
+                        <button type="submit" class="sp-btn sp-btn--primary">ارسال پیام</button>
+                    </form>
+                </section>
             </div>
+
+            <aside class="sp-dog-show__aside">
+                <div class="sp-provider__panel sp-provider__cta">
+                    <h2 style="margin:0">راه‌های ارتباطی</h2>
+                    <div class="sp-provider__facts" style="margin-top:12px">
+                        <div class="sp-provider__fact">
+                            <span>تلفن</span>
+                            <strong class="num">{{ $phone }}</strong>
+                        </div>
+                        <div class="sp-provider__fact">
+                            <span>ایمیل</span>
+                            <strong>{{ $email }}</strong>
+                        </div>
+                        <div class="sp-provider__fact">
+                            <span>آدرس</span>
+                            <strong>{{ $address }}</strong>
+                        </div>
+                    </div>
+                    <a class="sp-btn sp-btn--ghost" style="width:100%;margin-top:12px" href="{{ route('frontend.support.index') }}">پشتیبانی زنده</a>
+                    <button type="button" class="sp-btn sp-btn--primary" style="width:100%;margin-top:8px" data-sp-support-open>باز کردن چت</button>
+                </div>
+            </aside>
         </div>
     </div>
-</div>
-
-
-
-<style>
-.custom-blue-sides {
-    border-left: 3px solid #007bff;
-    border-right: 3px solid #007bff;
-    border-top: 1px solid #ced4da;
-    border-bottom: 1px solid #ced4da;
-    border-radius: 0.375rem;
-}
-
-.blue-border {
-    border: 2px solid #007bff !important; /* Bootstrap's primary blue */
-    border-radius: 0.375rem; /* Match Bootstrap rounding */
-}
-
-.blue-border:focus {
-    border-color: #0056b3 !important; /* Darker blue on focus */
-    box-shadow: none; /* Optional: remove Bootstrap's default glow */
-}
-
-
-
-</style>
+</section>
 @endsection

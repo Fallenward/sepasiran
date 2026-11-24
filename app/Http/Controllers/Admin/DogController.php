@@ -61,10 +61,10 @@ class DogController extends Controller
     public function show($id)
     {
         $dog = Dog::with([
-            'city', 'breed',
+            'city', 'breed', 'owner', 'media',
             'fatherBreed', 'motherBreed',
             'maternalGrandmotherBreed', 'maternalGrandfatherBreed',
-            'paternalGrandmotherBreed', 'paternalGrandfatherBreed'
+            'paternalGrandmotherBreed', 'paternalGrandfatherBreed',
         ])->findOrFail($id);
 
         return view('admin.dogs.show', compact('dog'));

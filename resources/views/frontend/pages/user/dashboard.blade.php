@@ -1,238 +1,101 @@
-@extends('admin.layout')
+@extends('frontend.layouts.app')
 
-@section('title', $title ?? 'داشبورد کاربر - Sepasiran')
+@section('title', 'داشبورد من — سپاسیران')
 
 @section('content')
-<style>
-    body {
-        padding-bottom: 80px;
-        background-color: #f8f9fa;
-        font-family: Tahoma, sans-serif;
-    }
-    .navbar {
-        background-color: #0d47a1 !important;
-    }
-    .navbar .nav-link, .navbar-brand, .navbar .btn {
-        color: #fff !important;
-    }
-    .navbar .btn:hover {
-        color: #0d47a1 !important;
-        background-color: #fff !important;
-    }
-    .custom-header {
-        background-color: #0d47a1;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-bottom: 1px solid #ccc;
-    }
-    .shortcut-icon {
-        background-color: #0D47A1;
-        color: #fff;
-        padding: 20px;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: auto;
-    }
-    .square-card {
-        background-color: #0d47a1;
-        color: #fff;
-        border-radius: 1rem;
-        padding: 0.75rem 0.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        min-height: 140px;
-    }
-    .square-card .btn {
-        margin-top: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
-    .footer-nav {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #f8f9fa;
-        border-top: 1px solid #ccc;
-        display: flex;
-        justify-content: space-around;
-        padding: 0.5rem 0;
-    }
-    .footer-nav .nav-link {
-        text-align: center;
-        font-size: 0.85rem;
-    }
-   .
-   
+@php
+    $statusMap = [
+        'PENDING' => ['در انتظار', 'is-pending'],
+        'OPEN' => ['باز', 'is-pending'],
+        'QUOTED' => ['پیشنهاد شده', 'is-pending'],
+        'CONFIRMED' => ['تأیید شده', 'is-active'],
+        'COMPLETED' => ['انجام شده', 'is-done'],
+        'CANCELLED' => ['لغو شده', 'is-danger'],
+        'CANCELED' => ['لغو شده', 'is-danger'],
+        'REJECTED' => ['رد شده', 'is-danger'],
+        'ACCEPTED' => ['پذیرفته', 'is-active'],
+    ];
+@endphp
+<div class="sp-dash sp-dash--customer">
+    <div class="sp-dash__inner">
+                @include('frontend.partials.dashboard-nav')
+@include('frontend.partials.dashboard-hero', [
+            'user' => $user,
+            'roleLabel' => $roleLabel,
+            'lede' => 'رزروها، سگ‌ها و کیف پول‌تان را از یک صفحه مدیریت کنید.',
+            'ctaTitle' => 'رزرو خدمت',
+            'ctaHint' => 'مربی، کلینیک یا خدمات دیگر را در چند قدم رزرو کنید.',
+            'primaryAction' => ['label' => 'رزرو جدید', 'url' => route('frontend.booking.index')],
+        ])
 
-        .clinic-card {
-    border: 1.5px solid #5472d3; /* lighter shade of #0d47a1 */
-    border-radius: 8px;
-    padding: 15px;
-    background-color: #f8fafd; /* very light blue-ish background */
-    box-shadow: 0 2px 5px rgba(13, 71, 161, 0.1); /* subtle shadow */
-    transition: box-shadow 0.3s ease;
-}
+        @include('frontend.partials.dashboard-metrics', [
+            'metrics' => [
+                ['label' => 'موجودی کیف پول', 'value' => number_format($stats['wallet']) . ' ت', 'hint' => 'قابل استفاده در رزرو', 'icon' => 'fas fa-wallet', 'url' => route('wallet.index')],
+                ['label' => 'رزروهای فعال', 'value' => number_format($stats['upcoming']), 'hint' => 'در صف پیگیری', 'icon' => 'far fa-calendar-check', 'url' => route('account.bookings.index')],
+                ['label' => 'سگ‌های من', 'value' => number_format($stats['dogs']), 'hint' => 'ثبت‌شده در حساب', 'icon' => 'fas fa-paw', 'url' => route('account.dogs.index')],
+                ['label' => 'مجوز بیمه فعال', 'value' => number_format($stats['insurance'] ?? 0), 'hint' => 'پوشش جاری', 'icon' => 'fas fa-shield-alt', 'url' => route('account.insurance-licenses.index')],
+                ['label' => 'دوره‌های من', 'value' => number_format($stats['courses'] ?? 0), 'hint' => 'دسترسی فعال', 'icon' => 'fas fa-graduation-cap', 'url' => route('account.course-enrollments.index')],
+            ],
+        ])
 
-.clinic-card:hover {
-    box-shadow: 0 4px 12px rgba(13, 71, 161, 0.25);
-}
+        @include('frontend.partials.dashboard-finance-chart', [
+            'financeChart' => $financeChart,
+            'chartTitle' => 'نمودار تراکنش‌های مالی',
+            'chartId' => 'spCustomerFinanceChart',
+        ])
 
-.clinic-photo {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
+        
+        @include('frontend.partials.dashboard-notifications', [
+            'dashNotifications' => $dashNotifications ?? collect(),
+        ])
 
-.clinic-info {
-    color: #0d47a1;
-}
+@include('frontend.partials.dashboard-actions', [
+            'actions' => [
+                ['label' => 'رزروهای من', 'hint' => 'پیگیری درخواست‌های رزرو', 'url' => route('account.bookings.index'), 'icon' => 'far fa-calendar-alt'],
+                ['label' => 'درخواست‌های باز', 'hint' => 'تابلوی درخواست مشتری', 'url' => route('frontend.booking.open'), 'icon' => 'fas fa-bullhorn'],
+                ['label' => 'سگ‌های من', 'hint' => 'افزودن و مدیریت سگ', 'url' => route('account.dogs.index'), 'icon' => 'fas fa-paw'],
+                ['label' => 'رزرو جدید', 'hint' => 'مربی، کلینیک و بیشتر', 'url' => route('frontend.booking.index'), 'icon' => 'far fa-calendar-plus'],
+                ['label' => 'جلسات باز', 'hint' => 'بازار جلسات ارائه‌دهندگان', 'url' => route('frontend.open-sessions.index'), 'icon' => 'fas fa-door-open'],
+                ['label' => 'جلسات باز من', 'hint' => 'ایجاد / اپلای‌ها', 'url' => route('frontend.open-sessions.mine'), 'icon' => 'fas fa-comments'],
+                ['label' => 'کیف پول', 'hint' => 'موجودی و تراکنش‌ها', 'url' => route('wallet.index'), 'icon' => 'fas fa-wallet'],
+                ['label' => 'ویرایش پروفایل', 'hint' => 'تصویر و اطلاعات حساب', 'url' => route('account.profile.edit'), 'icon' => 'far fa-user'],
+                ['label' => 'مجوزهای بیمه', 'hint' => 'پوشش و اعتبار مجوزها', 'url' => route('account.insurance-licenses.index'), 'icon' => 'fas fa-shield-alt'],
+                ['label' => 'خرید بیمه', 'hint' => 'طرح و مدت پوشش', 'url' => route('frontend.clinic.insurance.index'), 'icon' => 'fas fa-file-medical'],
+                ['label' => 'دوره‌های من', 'hint' => 'دسترسی به درس‌ها', 'url' => route('account.course-enrollments.index'), 'icon' => 'fas fa-play-circle'],
+                ['label' => 'خرید دوره', 'hint' => 'فهرست دوره‌های آموزشی', 'url' => route('frontend.online.courses'), 'icon' => 'fas fa-graduation-cap'],
+            ],
+        ])
 
-.clinic-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-}
+        @include('frontend.partials.dashboard-insurance-licenses', ['insuranceLicenses' => $insuranceLicenses ?? collect()])
 
-.clinic-address {
-    font-size: 0.9rem;
-    color: #555;
-}
+        @include('frontend.partials.dashboard-course-enrollments', ['courseEnrollments' => $courseEnrollments ?? collect()])
 
-    }
-</style>
+        @include('frontend.partials.dashboard-my-dogs', ['myDogs' => $myDogs ?? collect()])
 
-<div class="container mt-3">
-
-    {{-- User Info --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center">
-            <img src="{{ $users->profile_picture ?? asset('images/default-user.png') }}" width="40" class="rounded-circle me-2" alt="User Picture">
-            <div>
-                <div>{{ $users->name }}</div>
-                <small>اعتبار: {{ number_format($users->wallet ?? 0) }} تومان</small>
-            </div>
-        </div>
-        <div><strong>Sepasiran</strong></div>
-        <div style="font-size: 24px; cursor: pointer;">&#9776;</div>
-    </div>
-
-    {{-- Search Bar --}}
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="جست‌وجو..." aria-label="Search">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-    </div>
-
-    {{-- Announcement Card --}}
-    <div class="card mb-4" style="border: 20px solid #0D47A1; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div class="card-header text-white" style="background-color: #0d47a1;">
-            <strong>اطلاعیه</strong>
-        </div>
-        <div class="card-body bg-white text-dark text-left">
-            اطلاعیه ویژه مربوط به کلینیک.
-            <br>
-            <small><i class="bi bi-calendar"></i> {{ \Morilog\Jalali\Jalalian::now()->format('d F Y') }}</small>
-        </div>
-    </div>
-
-    {{-- Shortcut Icons --}}
-    <div class="row text-center mb-4">
-        @php
-            $shortcuts = [
-                ['icon' => 'bi-activity', 'label' => 'پیش‌نویس گزارش', 'url' => route('breeder.dashboard')],
-                ['icon' => 'bi-journal-medical', 'label' => 'سابقه ویزیت', 'url' => route('breeder.dashboard')],
-                ['icon' => 'bi-cash-coin', 'label' => 'تسویه حساب‌ها', 'url' => route('wallet.index')],
-            ];
-        @endphp
-
-        @foreach($shortcuts as $shortcut)
-            <div class="col-4 mb-3">
-                <a href="{{ $shortcut['url'] }}" class="text-decoration-none text-dark">
-                    <div class="shortcut-icon">
-                        <i class="bi {{ $shortcut['icon'] }} fs-4"></i>
-                    </div>
-                    <div class="shortcut-label mt-2">{{ $shortcut['label'] }}</div>
-                </a>
-            </div>
-        @endforeach
-    </div>
-
-    {{-- Dashboard Cards --}}
-    <div class="row text-center g-3 mb-4">
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-clipboard2-check fs-3"></i>
-                <div class="mt-2">تعداد سفارشات باز</div>
-                <div class="h4 mt-1">{{ $openBookings ?? 0 }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-cash-stack fs-3"></i>
-                <div class="mt-2">سفارشات در انتظار ارسال</div>
-                <div class="h4 mt-1">{{ number_format($clinicIncome ?? 0) }}</div>
-                <a href="{{ route('wallet.index') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="square-card">
-                <i class="bi bi-people fs-3"></i>
-                <div class="mt-2">مبلغ کل درآمد</div>
-                <div class="h4 mt-1">{{ $activeDoctors ?? 0 }}</div>
-                <a href="{{ route('breeder.dashboard') }}" class="btn btn-light btn-sm">مشاهده</a>
-            </div>
-        </div>
-    </div>
-{{-- Nearby Clinics Card --}}
-<div class="card mb-4">
-    <div class="card-header text-white" style="background-color: #0d47a1;">
-        <strong>کلینیک‌های نزدیک شما</strong>
-    </div>
-    <div class="card-body">
-        @if($nearbyClinics->isEmpty())
-            <p>کلینیکی در نزدیکی شما یافت نشد.</p>
-        @else
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                @foreach($nearbyClinics as $clinic)
-                    <div class="col">
-                        <div class="clinic-card h-100">
-                            <img
-                                src="{{ $clinic->profile_picture ?? asset('images/default-clinic.png') }}"
-                                alt="{{ $clinic->name }}"
-                                class="clinic-photo"
-                            >
-                            <div class="clinic-info">
-                                <p class="clinic-name">{{ $clinic->name }} {{ $clinic->family }}</p>
-                                <p class="clinic-address">{{ $clinic->address ?? 'آدرس ثبت نشده' }}</p>
-                            </div>
+        <section class="sp-dash__panel">
+            <header class="sp-dash__panel-head">
+                <h2>درخواست‌های رزرو من</h2>
+                <a href="{{ route('account.bookings.index') }}">مشاهده همه</a>
+            </header>
+            <div class="sp-dash__list">
+                @forelse($upcomingBookings as $booking)
+                    @php [$stLabel, $stClass] = $statusMap[$booking->status] ?? [$booking->status, 'is-pending']; @endphp
+                    <article class="sp-dash__row">
+                        <span class="sp-dash__row-icon"><i class="far fa-clock"></i></span>
+                        <div>
+                            <strong>{{ $booking->service_type }}</strong>
+                            <p class="sp-dash__muted">{{ $booking->booking_code }}</p>
                         </div>
-                    </div>
-                @endforeach
+                        <div class="sp-dash__row-meta">
+                            <span class="sp-dash__chip {{ $stClass }}">{{ $stLabel }}</span>
+                            <span class="sp-dash__muted">{{ optional($booking->appointment_date ?? $booking->preferred_date)->format('Y/m/d') ?? '—' }}</span>
+                        </div>
+                    </article>
+                @empty
+                    <p class="sp-dash__empty-inline">موردی برای نمایش نیست.</p>
+                @endforelse
             </div>
-        @endif
+        </section>
     </div>
-</div>
-
-
-    {{-- Footer Navigation --}}
-    <nav class="footer-nav">
-        <a class="nav-link" href="#"><i class="bi bi-house"></i><br>خانه</a>
-        <a class="nav-link" href="{{ route('breeder.dogs.listing') }}"><i class="bi bi-journal-text"></i><br>سگ ها</a>
-        <a class="nav-link" href="{{ route('breeders.dashboard-create') }}"><i class="bi bi-plus-circle"></i><br>افزودن</a>
-        <a class="nav-link" href="{{ route('wallet.index') }}"><i class="bi bi-gear"></i><br>کیف پول</a>
-        <a class="nav-link" href="{{ route('breeder.profile') }}"><i class="bi bi-person"></i><br>پروفایل</a>
-    </nav>
-
 </div>
 @endsection
-
-

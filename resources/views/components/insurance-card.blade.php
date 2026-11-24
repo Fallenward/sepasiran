@@ -1,28 +1,38 @@
 @php
-    $imageUrl = $item->logo ? asset('storage/' . $item->logo) : asset('images/dogPicture.jpg');
-    $name = $item->name ?? 'بدون نام';
-    $description = $item->description ?? '';
-    $cityName = $item->city->name ?? 'نامشخص';
+    $name = $item->name ?? 'بیمه';
+    $description = $item->description ?? 'پوشش بیمه حیوانات خانگی';
+    $imageUrl = method_exists($item, 'logoUrl')
+        ? $item->logoUrl()
+        : asset('images/demo/hero/hero-03.jpg');
 
-    $showRoute = $routeName ?? 'frontend.clinic.insurance.show';
+    $fromPrice = null;
+    if (isset($item->activePlans) && $item->activePlans->isNotEmpty()) {
+        $fromPrice = (int) $item->activePlans->min('price');
+    } elseif (isset($item->plans) && $item->plans->isNotEmpty()) {
+        $fromPrice = (int) $item->plans->min('price');
+    }
 
+    $metaBits = [];
+    if (! empty($item->city?->name)) {
+        $metaBits[] = $item->city->name;
+    }
+    if ($item->is_featured ?? false) {
+        $metaBits[] = 'ویژه';
+    }
+    $meta = $metaBits !== [] ? implode(' · ', $metaBits) : \Illuminate\Support\Str::limit(strip_tags($description), 48);
 @endphp
 
-<div class="card h-100 position-relative shadow-sm">
-    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $name }}">
-
-    <div class="card-body d-flex flex-column">
-        <h6 class="fw-bold mb-2">{{ $name }}</h6>
-
-        @if($description)
-            <small class="text-muted d-block mb-3">{{ Str::limit($description, 80) }}</small>
-        @endif
-
-        <small class="text-muted d-block">{{ $cityName }}</small>
-    </div>
-
-    <a href="{{ route('frontend.clinic.insurance.show', $item->id) }}"
-       class="btn btn-primary btn-sm position-absolute start-0 bottom-0 m-2">
-        مشاهده
+<article class="sp-card sp-card--dog">
+    <a class="sp-card__link" href="{{ route('frontend.clinic.insurance.show', $item->id) }}">
+        <div class="sp-card__media">
+            <img src="{{ $imageUrl }}" alt="{{ $name }}" loading="lazy">
+        </div>
+        <div class="sp-card__body">
+            <h3 class="sp-card__title">{{ $name }}</h3>
+            <p class="sp-card__meta">{{ $meta }}</p>
+            @if($fromPrice)
+                <p class="sp-card__price num">از {{ number_format($fromPrice) }} تومان</p>
+            @endif
+        </div>
     </a>
-</div>
+</article>

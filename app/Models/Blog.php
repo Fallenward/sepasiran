@@ -133,4 +133,25 @@ class Blog extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    public function imageUrl(): string
+    {
+        $image = (string) ($this->image ?? '');
+        if ($image === '') {
+            return asset('images/demo/blogs/blog-01.jpg');
+        }
+        if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
+            return $image;
+        }
+        if (str_starts_with($image, 'images/') || str_starts_with($image, 'storage/')) {
+            return asset($image);
+        }
+
+        return asset('storage/'.$image);
+    }
+
+    public function isNews(): bool
+    {
+        return ($this->type ?? '') === 'news';
+    }
 }

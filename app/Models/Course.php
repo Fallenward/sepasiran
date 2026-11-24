@@ -42,7 +42,7 @@ namespace App\Models;
          *
          * @var array<int, string>
          */
-        protected $fillable = ['title', 'slug', 'short_description', 'description', 'thumbnail', 'instructor_id', 'category_id', 'level_id', 'price', 'discount_price', 'status', 'is_featured', 'has_certificate', 'language', 'video_demo_url', 'duration', 'view_count', 'is_active'];
+        protected $fillable = ['title', 'slug', 'short_description', 'description', 'thumbnail', 'user_id', 'instructor_id', 'category_id', 'level_id', 'price', 'discount_price', 'status', 'is_featured', 'has_certificate', 'language', 'video_demo_url', 'duration', 'view_count', 'is_active'];
 
 
         // Course.php (Model)
@@ -57,6 +57,21 @@ namespace App\Models;
     // }
     public function users(){
         return $this->belongsTo(User::class,'user_id');
+    }
+
+    public function parts()
+    {
+        return $this->hasMany(CoursePart::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function lessons()
+    {
+        return $this->hasMany(CourseLesson::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(CourseEnrollment::class);
     }
 
 
