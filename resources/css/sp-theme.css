@@ -1872,6 +1872,39 @@ body.sp-body {
   }
 }
 
+.sp-service-lanes--compact {
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .sp-service-lanes--compact {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+.sp-service-lanes--compact .sp-service-lane {
+  padding: 14px 14px 12px;
+}
+
+.sp-service-lanes--compact .sp-service-lane h3 {
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+}
+
+.sp-service-lanes--compact .sp-service-lane p {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sp-service-lanes--compact .sp-service-lane__media {
+  display: none;
+}
+
 .sp-service-lane {
   display: block;
   padding: 20px 18px;

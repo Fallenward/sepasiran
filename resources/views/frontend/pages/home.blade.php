@@ -99,33 +99,35 @@
         <div class="wrap">
             <x-sp-section-head
                 title="خدمات"
-                subtitle="جستجو بین مربی، کلینیک، فروشگاه، پرورش‌دهنده و دوره‌ها."
+                subtitle="مربی، کلینیک، فروشگاه و دوره — فشرده و سریع."
                 icon="services"
             />
-            <div class="grid grid-3">
+            <div class="sp-service-lanes sp-service-lanes--compact">
                 @forelse(($services ?? collect()) as $service)
-                    <article class="sp-card sp-card--person">
-                        <a class="sp-card__link" href="{{ $service->route_link }}">
-                            <div class="sp-card__media">
-                                <img src="{{ $service->image_url }}" alt="{{ $service->title }}" loading="lazy">
-                            </div>
-                            <div class="sp-card__body">
-                                <h3 class="sp-card__title">{{ $service->title }}</h3>
-                                <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 80) }}</p>
-                            </div>
-                        </a>
-                    </article>
+                    @php
+                        $serviceIcon = match ($service->slug) {
+                            'antkhab-mrby' => 'coach',
+                            'thyh-sg' => 'dogs',
+                            'dorh-hay-anlayn' => 'course',
+                            'froshgah-ha' => 'store',
+                            'klynyk-ha-o-bymh-hyoanat' => 'clinic',
+                            'prorsh-dhndh' => 'dogs',
+                            default => 'services',
+                        };
+                    @endphp
+                    <a class="sp-service-lane" href="{{ $service->route_link }}">
+                        <span class="sp-service-lane__icon">
+                            <x-sp-icon :name="$serviceIcon" />
+                        </span>
+                        <h3>{{ $service->title }}</h3>
+                        <p>{{ \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 48) }}</p>
+                    </a>
                 @empty
                     @foreach(($servicePillars ?? []) as $pillar)
                         <a class="sp-service-lane" href="{{ $pillar['href'] }}">
                             <span class="sp-service-lane__icon">
                                 <x-sp-icon :name="$pillar['icon'] ?? 'spark'" />
                             </span>
-                            @if(!empty($pillar['image']))
-                                <div class="sp-service-lane__media">
-                                    <img src="{{ $pillar['image'] }}" alt="{{ $pillar['title'] }}" loading="lazy">
-                                </div>
-                            @endif
                             <h3>{{ $pillar['title'] }}</h3>
                             <p>{{ $pillar['text'] }}</p>
                         </a>
