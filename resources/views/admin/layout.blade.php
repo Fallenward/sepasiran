@@ -200,7 +200,9 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
   const badge = document.getElementById('admin-support-badge');
   if (!badge) return;
-  let known = 0;
+  const storageKey = 'sp-admin-support-unread';
+  let known = Number(sessionStorage.getItem(storageKey) || -1);
+  let primed = known >= 0;
   async function poll() {
     try {
       const res = await fetch(@json(route('admin.support-tickets.poll')), { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
@@ -209,11 +211,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (unread > 0) {
         badge.style.display = 'inline';
         badge.textContent = unread > 99 ? '99+' : String(unread);
-        if (unread > known && window.toastr) toastr.warning('تیکت پشتیبانی جدید', 'هشدار');
+        // Only toast when unread increases after the first baseline poll.
+        if (primed && unread > known && window.toastr) {
+          toastr.options = Object.assign({}, toastr.options || {}, { timeOut: 2500, closeButton: true });
+          toastr.warning('تیکت پشتیبانی جدید', 'هشدار');
+        }
       } else {
         badge.style.display = 'none';
       }
       known = unread;
+      primed = true;
+      sessionStorage.setItem(storageKey, String(known));
     } catch (e) {}
   }
   poll();

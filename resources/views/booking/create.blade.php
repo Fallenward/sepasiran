@@ -14,7 +14,8 @@
                         <span class="card-title">{{ __('Create') }} Booking</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('bookings.store') }}"  role="form" enctype="multipart/form-data">
+                        <a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.bookings.index') }}">بازگشت</a>
+                        <form method="POST" action="{{ route('admin.bookings.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
                             @include('booking.form')

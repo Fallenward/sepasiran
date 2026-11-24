@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'داشبورد')
 
@@ -29,11 +29,11 @@
 
 <div class="sp-admin-shortcuts mb-4">
     <a class="btn btn-primary btn-sm" href="{{ route('admin.support-tickets.index') }}">پاسخ تیکت‌ها</a>
-    <a class="btn btn-outline-light btn-sm" href="{{ route('admin.support-messages.index') }}">صندوق پیام</a>
-    <a class="btn btn-outline-light btn-sm" href="{{ route('admin.dogs.create') }}">سگ جدید</a>
-    <a class="btn btn-outline-light btn-sm" href="{{ route('admin.courses.create') }}">دوره جدید</a>
-    <a class="btn btn-outline-light btn-sm" href="{{ route('admin.products.create') }}">محصول جدید</a>
-    <a class="btn btn-outline-light btn-sm" href="{{ route('frontend.shelter.index') }}" target="_blank">پناهگاه سایت</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.support-messages.index') }}">صندوق پیام</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.dogs.create') }}">سگ جدید</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.courses.create') }}">دوره جدید</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.products.create') }}">محصول جدید</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('frontend.shelter.index') }}" target="_blank">پناهگاه سایت</a>
 </div>
 
 <div class="row gy-4">
@@ -50,7 +50,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">آخرین تراکنش‌ها</h5>
-                    <a href="{{ route('admin.transactions.index') }}" class="btn btn-sm btn-outline-light">همه</a>
+                    <a href="{{ route('admin.transactions.index') }}" class="btn btn-sm btn-outline-secondary">همه</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-hover sp-admin-table">
@@ -87,7 +87,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-3">
                     <h5 class="card-title mb-0">تیکت‌های اخیر</h5>
-                    <a class="btn btn-sm btn-outline-light" href="{{ route('admin.support-tickets.index') }}">میز تیکت</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.support-tickets.index') }}">میز تیکت</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-hover sp-admin-table">
@@ -114,7 +114,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-3">
                     <h5 class="card-title mb-0">پیام‌های تازه</h5>
-                    <a class="btn btn-sm btn-outline-light" href="{{ route('admin.support-messages.index') }}">صندوق</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.support-messages.index') }}">صندوق</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-hover sp-admin-table">

@@ -1,42 +1,44 @@
 @extends('admin.layout')
 
-@section('template_title')
-    نمایش سگ
-@endsection
+@section('title', 'سگ: '.($dog->title ?? $dog->id))
 
 @section('content')
-<div class="container-fluid">
-    <h2 class="mb-4">جزئیات سگ: {{ $dog->title }}</h2>
+@include('admin.components.page-header', [
+    'title' => $dog->title ?: 'جزئیات سگ',
+    'subtitle' => 'وضعیت: '.($dog->status ?: '—'),
+])
 
-    <ul class="nav nav-tabs" id="dogInfoTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">اطلاعات عمومی</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="mother-tab" data-bs-toggle="tab" data-bs-target="#mother" type="button" role="tab">اطلاعات مادر</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="father-tab" data-bs-toggle="tab" data-bs-target="#father" type="button" role="tab">اطلاعات پدر</button>
-        </li>
-    </ul>
+<div class="mb-3" style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.dogs.index') }}">بازگشت</a>
+    <a class="btn btn-primary btn-sm" href="{{ route('admin.dogs.edit', $dog) }}">ویرایش</a>
+</div>
 
-    <div class="tab-content mt-3">
-        <!-- General Info -->
-        <div class="tab-pane fade show active" id="general" role="tabpanel">
-            @include('admin.dogs.partials.general-info')
-        </div>
-
-        <!-- Mother Info -->
-        <div class="tab-pane fade" id="mother" role="tabpanel">
-            @include('admin.dogs.partials.mother-info')
-        </div>
-
-        <!-- Father Info -->
-        <div class="tab-pane fade" id="father" role="tabpanel">
-            @include('admin.dogs.partials.father-info')
+<div class="card sp-admin-card">
+    <div class="card-header p-0">
+        <ul class="nav nav-tabs" id="dogInfoTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab">اطلاعات عمومی</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="mother-tab" data-toggle="tab" href="#mother" role="tab">مادر</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="father-tab" data-toggle="tab" href="#father" role="tab">پدر</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+                @include('admin.dogs.partials.general-info')
+            </div>
+            <div class="tab-pane fade" id="mother" role="tabpanel">
+                @include('admin.dogs.partials.mother-info')
+            </div>
+            <div class="tab-pane fade" id="father" role="tabpanel">
+                @include('admin.dogs.partials.father-info')
+            </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

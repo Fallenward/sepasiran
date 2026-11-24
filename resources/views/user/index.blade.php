@@ -1,73 +1,61 @@
 @extends('admin.layout')
 
-@section('template_title')
-    Users
-@endsection
+@section('title', 'کاربران')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+@include('admin.components.page-header', [
+    'title' => 'کاربران',
+    'subtitle' => 'حساب‌ها، نقش ادمین و تماس.',
+    'createUrl' => route('admin.users.create'),
+    'createLabel' => 'کاربر جدید',
+])
 
-                            <span id="card_title">
-                                {{ __('Users') }}
-                            </span>
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
-                             <div class="float-right">
-                                <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
-                                </a>
-                              </div>
-                        </div>
-                    </div>
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success m-4">
-                            <p>{{ $message }}</p>
-                        </div>
-                    @endif
-
-                    <div class="card-body bg-white">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                    <tr>
-                                        <th>No</th>
-                                        
-									<th >Name</th>
-									<th >Email</th>
-
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($users as $user)
-                                        <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $user->name }}</td>
-										<td >{{ $user->email }}</td>
-
-                                            <td>
-                                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('admin.users.show', $user->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('admin.users.edit', $user->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {!! $users->withQueryString()->links() !!}
-            </div>
+<div class="card sp-admin-card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover sp-admin-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>نام</th>
+                    <th>ایمیل</th>
+                    <th>تلفن</th>
+                    <th>کیف پول</th>
+                    <th>ادمین</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @forelse($users as $user)
+                    <tr>
+                        <td class="num">{{ $user->id }}</td>
+                        <td>{{ trim($user->name.' '.($user->family ?? '')) }}</td>
+                        <td>{{ $user->email }}</td>
+                        <td class="num">{{ $user->phone ?: '—' }}</td>
+                        <td class="num">{{ number_format((int) ($user->wallet ?? 0)) }}</td>
+                        <td>
+                            @if($user->is_admin)
+                                <span class="sp-admin-status is-ok">بله</span>
+                            @else
+                                <span class="sp-admin-status">خیر</span>
+                            @endif
+                        </td>
+                        <td class="sp-admin-actions">
+                            <a class="btn btn-sm btn-primary" href="{{ route('admin.users.show', $user) }}">نمایش</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.users.edit', $user) }}">ویرایش</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="7" class="text-center text-muted py-4">کاربری نیست.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
         </div>
+        {{ $users->withQueryString()->links() }}
     </div>
+</div>
 @endsection
