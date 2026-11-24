@@ -264,6 +264,9 @@ Route::name('frontend.')->group(function () {
     });
 
     Route::get('/shelter', [ShelterController::class, 'index'])->name('shelter.index');
+    Route::post('/shelter', [ShelterController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('shelter.store');
 
     Route::get('/coaches', [CoachController::class, 'indexFront'])->name('coaches.index');
     Route::get('/coaches/{id}', [CoachController::class, 'showById'])->name('coaches.show');
