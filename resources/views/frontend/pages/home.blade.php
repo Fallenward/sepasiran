@@ -120,7 +120,6 @@
                             <x-sp-icon :name="$serviceIcon" />
                         </span>
                         <h3>{{ $service->title }}</h3>
-                        <p>{{ \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 48) }}</p>
                     </a>
                 @empty
                     @foreach(($servicePillars ?? []) as $pillar)
@@ -129,7 +128,6 @@
                                 <x-sp-icon :name="$pillar['icon'] ?? 'spark'" />
                             </span>
                             <h3>{{ $pillar['title'] }}</h3>
-                            <p>{{ $pillar['text'] }}</p>
                         </a>
                     @endforeach
                 @endforelse

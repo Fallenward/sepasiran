@@ -1889,16 +1889,7 @@ body.sp-body {
 
 .sp-service-lanes--compact .sp-service-lane h3 {
   font-size: 0.98rem;
-  margin-bottom: 4px;
-}
-
-.sp-service-lanes--compact .sp-service-lane p {
-  font-size: 0.82rem;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin: 0;
 }
 
 .sp-service-lanes--compact .sp-service-lane__media {
