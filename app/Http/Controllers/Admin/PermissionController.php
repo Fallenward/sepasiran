@@ -34,7 +34,7 @@ class PermissionController extends Controller
             'slug' => $request->slug,
         ]);
 
-        return redirect()->route('permissions.index')->with('success', 'Permission created successfully.');
+        return redirect()->route('admin.permissions.index')->with('success', 'Permission created successfully.');
     }
 
     // Show edit form
@@ -56,7 +56,7 @@ class PermissionController extends Controller
             'slug' => $request->slug,
         ]);
 
-        return redirect()->route('permissions.index')->with('success', 'Permission updated successfully.');
+        return redirect()->route('admin.permissions.index')->with('success', 'Permission updated successfully.');
     }
 
     // Delete permission
@@ -64,7 +64,7 @@ class PermissionController extends Controller
     {
         $permission->delete();
 
-        return redirect()->route('permissions.index')->with('success', 'Permission deleted successfully.');
+        return redirect()->route('admin.permissions.index')->with('success', 'Permission deleted successfully.');
     }
 }
     

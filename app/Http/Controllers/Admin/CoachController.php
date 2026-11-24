@@ -21,92 +21,132 @@ use Illuminate\Support\Facades\Hash;
 
 class CoachController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $coaches = Coach::with(['city', 'breed', 'specialty'])->paginate(10);
+        $coaches = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+            ->with(['city', 'roles'])
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%' . trim((string) $request->q) . '%';
+                $query->where(function ($builder) use ($term) {
+                    $builder->where('name', 'like', $term)
+                        ->orWhere('family', 'like', $term)
+                        ->orWhere('email', 'like', $term)
+                        ->orWhere('phone', 'like', $term);
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
         return view('admin.coaches.index', compact('coaches'));
     }
 
     public function create()
     {
-        $cities = City::all();
-        $breeds = Breed::all();
-        $specialties = Specialty::all();
-        return view('admin.coaches.create', compact('cities', 'breeds', 'specialties'));
+        $cities = City::orderBy('name')->get();
+        $coach = new User();
+
+        return view('admin.coaches.create', compact('cities', 'coach'));
     }
 
     public function store(Request $request)
     {
-        // اعتبارسنجی ورودی‌ها
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id', // اطمینان از اینکه city_id در جدول cities موجود است
-            'breed_id' => 'required|exists:breeds,id', // اطمینان از اینکه breed_id در جدول breeds موجود است
-            'specialty_id' => 'required|exists:specialties,id', // اطمینان از اینکه specialty_id در جدول specialties موجود است
-            'description' => 'required|string',
+            'family' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:30',
+            'password' => 'required|string|min:6|confirmed',
+            'city_id' => 'nullable|exists:cities,id',
+            'bio' => 'nullable|string',
         ]);
 
-        // ذخیره داده‌ها
-        $coach = new Coach();
-        $coach->name = $validated['name'];
-        $coach->city_id = $validated['city_id'];
-        $coach->breed_id = $validated['breed_id'];
-        $coach->specialty_id = $validated['specialty_id'];
-        $coach->description = $validated['description'];
-        $coach->save();
+        $coach = User::create([
+            'name' => $validated['name'],
+            'family' => $validated['family'] ?? null,
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'password' => Hash::make($validated['password']),
+            'city_id' => $validated['city_id'] ?? null,
+            'bio' => $validated['bio'] ?? null,
+            'is_admin' => false,
+        ]);
 
-        // بازگشت به صفحه اصلی با پیام موفقیت
-        return redirect()->route('admin.coaches.index')->with('success', 'Coach created successfully');
+        $coachRoleId = DB::table('roles')->where('name', 'coach')->value('id');
+        if ($coachRoleId) {
+            $coach->roles()->syncWithoutDetaching([$coachRoleId]);
+        }
+
+        return redirect()->route('admin.coaches.index')->with('success', 'مربی با موفقیت ایجاد شد.');
     }
-
 
     public function show($id)
     {
-        $coach = Coach::findOrFail($id);
+        $coach = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+            ->with(['city', 'roles'])
+            ->findOrFail($id);
+
         return view('admin.coaches.show', compact('coach'));
     }
 
     public function edit($id)
     {
-        $coach = Coach::findOrFail($id);
-        $cities = City::all();
-        $breeds = Breed::all();
-        $specialties = Specialty::all();
-        return view('admin.coaches.edit', compact('coach', 'cities', 'breeds', 'specialties'));
+        $coach = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+            ->findOrFail($id);
+        $cities = City::orderBy('name')->get();
+
+        return view('admin.coaches.edit', compact('coach', 'cities'));
     }
 
     public function update(Request $request, $id)
     {
-        // اعتبارسنجی ورودی‌ها
+        $coach = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+            ->findOrFail($id);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id',
-            'breed_id' => 'required|exists:breeds,id',
-            'specialty_id' => 'required|exists:specialties,id',
-            'description' => 'required|string',
+            'family' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $coach->id,
+            'phone' => 'nullable|string|max:30',
+            'password' => 'nullable|string|min:6|confirmed',
+            'city_id' => 'nullable|exists:cities,id',
+            'bio' => 'nullable|string',
         ]);
 
-        // پیدا کردن مربی با شناسه $id
-        $coach = Coach::findOrFail($id);
+        $coach->fill([
+            'name' => $validated['name'],
+            'family' => $validated['family'] ?? null,
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'city_id' => $validated['city_id'] ?? null,
+            'bio' => $validated['bio'] ?? null,
+        ]);
 
-        // به‌روزرسانی داده‌ها
-        $coach->name = $validated['name'];
-        $coach->city_id = $validated['city_id'];
-        $coach->breed_id = $validated['breed_id'];
-        $coach->specialty_id = $validated['specialty_id'];
-        $coach->description = $validated['description'];
+        if (! empty($validated['password'])) {
+            $coach->password = Hash::make($validated['password']);
+        }
+
         $coach->save();
 
-        // بازگشت به صفحه اصلی با پیام موفقیت
-        return redirect()->route('admin.coaches.index')->with('success', 'Coach updated successfully');
+        return redirect()->route('admin.coaches.index')->with('success', 'مربی به‌روزرسانی شد.');
     }
-
 
     public function destroy($id)
     {
-        $coach = Coach::findOrFail($id);
-        $coach->delete();
-        return redirect()->route('admin.coaches.index')->with('success', 'Coach deleted successfully');
+        $coach = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'coach'))
+            ->findOrFail($id);
+
+        $coachRoleId = DB::table('roles')->where('name', 'coach')->value('id');
+        if ($coachRoleId) {
+            $coach->roles()->detach($coachRoleId);
+        }
+
+        return redirect()->route('admin.coaches.index')->with('success', 'نقش مربی از کاربر برداشته شد.');
     }
 
 
@@ -321,7 +361,7 @@ public function storeList(Request $request)
         'role_id' => $coachRoleId,
     ]);
 
-    return redirect()->route('coaches.index')->with('success', 'Coach created successfully');
+    return redirect()->route('admin.coaches.index')->with('success', 'Coach created successfully');
 }
 
     // Delete a coach
@@ -331,12 +371,12 @@ public function destroyList($id)
 
     // Optional: check if user has coach role before deleting
     if (!$user->roles()->where('name', 'coach')->exists()) {
-        return redirect()->route('coaches.index')->with('error', 'This user is not a coach.');
+        return redirect()->route('admin.coaches.index')->with('error', 'This user is not a coach.');
     }
 
     $user->delete();
 
-    return redirect()->route('coaches.index')->with('success', 'Coach deleted successfully');
+    return redirect()->route('admin.coaches.index')->with('success', 'Coach deleted successfully');
 }
 
 

@@ -1,28 +1,12 @@
 @extends('admin.layout')
-
-@section('template_title')
-    {{ __('Update') }} Coach
-@endsection
-
+@section('title', 'ویرایش مربی')
 @section('content')
-    <section class="content container-fluid">
-        <div class="">
-            <div class="col-md-12">
-                <div class="card card-default">
-                    <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Coach</span>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('admin.coaches.update', $coach->id) }}" role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
-                            @csrf
-
-                            @include('admin.coaches.form') <!-- include form for coach details -->
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+@include('admin.components.page-header', [
+    'title' => 'ویرایش مربی',
+    'subtitle' => trim(($coach->name ?? '').' '.($coach->family ?? '')),
+])
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.coaches.index') }}">بازگشت</a>
+<div class="card sp-admin-card"><div class="card-body">
+<form method="POST" action="{{ route('admin.coaches.update', $coach) }}">@csrf @method('PUT') @include('admin.coaches.form')</form>
+</div></div>
 @endsection
