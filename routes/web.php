@@ -281,7 +281,7 @@ Route::name('frontend.')->group(function () {
         ->middleware('throttle:payment')
         ->name('cart.show');
 
-    Route::get('/support-web', [AboutController::class, 'support'])->name('support-web.index');
+    Route::redirect('/support-web', '/support')->name('support-web.index');
     Route::post('/support-web', [AboutController::class, 'storeSupport'])->name('support-web.store');
 
     Route::get('/contact', [AboutController::class, 'contact'])->name('contact.index');

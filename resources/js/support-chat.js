@@ -29,6 +29,7 @@ export function initSupportChat() {
     auth: false,
     pollTimer: null,
     echo: null,
+    draft: { subject: '', body: '' },
   };
 
   const root = el(`
@@ -138,6 +139,8 @@ export function initSupportChat() {
       </form>`;
     const form = body.querySelector('form');
     const hint = body.querySelector('.sp-support__hint');
+    if (state.draft.subject) form.subject.value = state.draft.subject;
+    if (state.draft.body) form.body.value = state.draft.body;
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       hint.textContent = 'در حال ارسال…';
@@ -147,6 +150,7 @@ export function initSupportChat() {
         state.tickets = [data.ticket, ...state.tickets.filter((t) => t.id !== data.ticket.id)];
         state.activeId = data.ticket.id;
         state.messages = data.messages || [];
+        state.draft = { subject: '', body: '' };
         state.view = 'chat';
         subscribeTicket(data.ticket.id);
         render();
@@ -324,8 +328,21 @@ export function initSupportChat() {
   document.addEventListener('click', (e) => {
     const opener = e.target.closest('[data-sp-support-open]');
     if (!opener) return;
+    const ticketId = Number(opener.getAttribute('data-sp-support-ticket') || 0);
+    const subject = opener.getAttribute('data-sp-support-subject') || '';
+    const draftBody = opener.getAttribute('data-sp-support-body') || '';
+    const view = opener.getAttribute('data-sp-support-view') || '';
     state.open = true;
     panel.hidden = false;
+    if (ticketId && state.auth) {
+      openTicket(ticketId);
+      return;
+    }
+    if (subject || draftBody || view === 'new') {
+      state.draft = { subject, body: draftBody };
+      state.view = 'new';
+      state.activeId = null;
+    }
     render();
   });
 

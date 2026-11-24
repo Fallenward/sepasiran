@@ -46,15 +46,17 @@ class SupportTicketingTest extends TestCase
     {
         $this->get(route('frontend.support.index'))
             ->assertOk()
-            ->assertSee('پشتیبانی زنده', false)
-            ->assertSee('ورود برای ارسال تیکت', false);
+            ->assertSee('میز پشتیبانی', false)
+            ->assertSee('ورود برای ارسال تیکت', false)
+            ->assertSee('موضوع سریع', false);
 
         $user = $this->customer();
         $this->actingAs($user)
             ->get(route('frontend.support.index'))
             ->assertOk()
             ->assertSee('data-sp-support-open', false)
-            ->assertSee('باز کردن چت پشتیبانی', false);
+            ->assertSee('میز تیکت‌ها', false)
+            ->assertSee('تیکت جدید', false);
     }
 
     public function test_bootstrap_guest_and_auth(): void
