@@ -34,7 +34,7 @@
             'title' => 'همه‌چیز برای همراه چهارپای شما',
             'lede' => 'بازار سگ، مربی، کلینیک و فروشگاه — مینیمال، مطمئن، فارسی.',
             'dogsUrl' => route('frontend.dog.supply.index'),
-            'servicesUrl' => route('frontend.services.index'),
+            'servicesUrl' => route('frontend.home').'#services',
             'bookingUrl' => route('frontend.booking.index'),
             'heroImage' => $heroImage,
         ];
@@ -56,7 +56,7 @@
                         <p>لیست نژاد، شهر و مشخصات</p>
                     </div>
                 </a>
-                <a class="path" href="{{ route('frontend.services.index') }}">
+                <a class="path" href="{{ route('frontend.home') }}#services">
                     <span class="path__icon"><x-sp-icon name="services" /></span>
                     <div>
                         <h3>خدمات</h3>
@@ -95,28 +95,42 @@
         </section>
     @endif
 
-    <section class="section" style="padding-top:0">
+    <section id="services" class="section" style="padding-top:0">
         <div class="wrap">
             <x-sp-section-head
                 title="خدمات"
-                subtitle="مربی، کلینیک، بیمه و دوره — متن‌محور و سریع."
+                subtitle="جستجو بین مربی، کلینیک، فروشگاه، پرورش‌دهنده و دوره‌ها."
                 icon="services"
             />
-            <div class="sp-service-lanes">
-                @foreach(($servicePillars ?? []) as $pillar)
-                    <a class="sp-service-lane" href="{{ $pillar['href'] }}">
-                        <span class="sp-service-lane__icon">
-                            <x-sp-icon :name="$pillar['icon'] ?? 'spark'" />
-                        </span>
-                        @if(!empty($pillar['image']))
-                            <div class="sp-service-lane__media">
-                                <img src="{{ $pillar['image'] }}" alt="{{ $pillar['title'] }}" loading="lazy">
+            <div class="grid grid-3">
+                @forelse(($services ?? collect()) as $service)
+                    <article class="sp-card sp-card--person">
+                        <a class="sp-card__link" href="{{ $service->route_link }}">
+                            <div class="sp-card__media">
+                                <img src="{{ $service->image_url }}" alt="{{ $service->title }}" loading="lazy">
                             </div>
-                        @endif
-                        <h3>{{ $pillar['title'] }}</h3>
-                        <p>{{ $pillar['text'] }}</p>
-                    </a>
-                @endforeach
+                            <div class="sp-card__body">
+                                <h3 class="sp-card__title">{{ $service->title }}</h3>
+                                <p class="sp-card__meta">{{ \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 80) }}</p>
+                            </div>
+                        </a>
+                    </article>
+                @empty
+                    @foreach(($servicePillars ?? []) as $pillar)
+                        <a class="sp-service-lane" href="{{ $pillar['href'] }}">
+                            <span class="sp-service-lane__icon">
+                                <x-sp-icon :name="$pillar['icon'] ?? 'spark'" />
+                            </span>
+                            @if(!empty($pillar['image']))
+                                <div class="sp-service-lane__media">
+                                    <img src="{{ $pillar['image'] }}" alt="{{ $pillar['title'] }}" loading="lazy">
+                                </div>
+                            @endif
+                            <h3>{{ $pillar['title'] }}</h3>
+                            <p>{{ $pillar['text'] }}</p>
+                        </a>
+                    @endforeach
+                @endforelse
             </div>
         </div>
     </section>

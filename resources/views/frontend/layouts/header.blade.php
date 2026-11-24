@@ -69,8 +69,8 @@
             <li class="sp-menu__item">
                 <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.services.*', 'frontend.booking.*', 'frontend.clinic.insurance.*', 'frontend.online.courses', 'frontend.courses.*') ? 'is-active' : '' }}" aria-haspopup="true">خدمات</button>
                 <div class="sp-menu__dropdown" role="menu">
-                    <a href="{{ route('frontend.services.index') }}"
-                       class="{{ request()->routeIs('frontend.services.*') ? 'is-active' : '' }}">همه خدمات</a>
+                    <a href="{{ route('frontend.home') }}#services"
+                       class="{{ request()->routeIs('frontend.home') ? 'is-active' : '' }}">همه خدمات</a>
                     <a href="{{ route('frontend.booking.index') }}"
                        class="{{ request()->routeIs('frontend.booking.index', 'frontend.booking.store', 'frontend.booking.success') ? 'is-active' : '' }}">رزرو خدمت</a>
                     <a href="{{ route('frontend.booking.open') }}"
@@ -218,7 +218,7 @@
 
             <section class="sp-sheet__group">
                 <h3>خدمات</h3>
-                <a href="{{ route('frontend.services.index') }}">همه خدمات</a>
+                <a href="{{ route('frontend.home') }}#services">همه خدمات</a>
                 <a href="{{ route('frontend.booking.index') }}">رزرو خدمت</a>
                 <a href="{{ route('frontend.booking.open') }}">درخواست‌های باز</a>
                 <a href="{{ route('frontend.clinic.insurance.index') }}">بیمه</a>

@@ -7,8 +7,8 @@
        class="{{ request()->routeIs('frontend.coaches.*', 'frontend.breeders.*', 'frontend.clinics.*') ? 'is-active' : '' }}">
         <span><i class="fas fa-users"></i></span>کاربران
     </a>
-    <a href="{{ route('frontend.services.index') }}"
-       class="{{ request()->routeIs('frontend.services.*', 'frontend.booking.*') ? 'is-active' : '' }}">
+    <a href="{{ route('frontend.home') }}#services"
+       class="{{ request()->routeIs('frontend.home', 'frontend.booking.*') ? 'is-active' : '' }}">
         <span><i class="fas fa-concierge-bell"></i></span>خدمات
     </a>
     <a href="{{ route('frontend.stores.index') }}"

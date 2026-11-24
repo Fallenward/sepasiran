@@ -21,7 +21,7 @@ class HomeController extends Controller
         $payload = AppCache::remember(AppCache::HOME_KEY, 600, function () {
             $sliders = Slider::query()->latest()->get();
 
-            $services = Service::query()->get()->map(function ($service) {
+            $services = Service::query()->latest('id')->get()->map(function ($service) {
                 $service->route_link = match ($service->slug) {
                     'antkhab-mrby' => route('frontend.coaches.index'),
                     'thyh-sg' => route('frontend.dog.supply.index'),
@@ -29,8 +29,14 @@ class HomeController extends Controller
                     'froshgah-ha' => route('frontend.stores.index'),
                     'klynyk-ha-o-bymh-hyoanat' => route('frontend.clinics.index'),
                     'prorsh-dhndh' => route('frontend.breeders.index'),
-                    default => route('frontend.services.index'),
+                    default => route('frontend.booking.index'),
                 };
+
+                if ($service->image && ! str_starts_with($service->image, 'http')) {
+                    $service->image_url = asset(ltrim($service->image, '/'));
+                } else {
+                    $service->image_url = $service->image ?: asset('images/demo/hero/hero-02.jpg');
+                }
 
                 return $service;
             });

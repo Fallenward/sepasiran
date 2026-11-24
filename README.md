@@ -54,7 +54,8 @@ php artisan db:seed --class=CourseDemoSeeder
 
 | Path | Purpose |
 |------|---------|
-| `/` | Home |
+| / | Home (includes services section #services) |
+| /services | Redirects to /#services |
 | `/dog-supply`, `/dog/{id}` | Dog marketplace |
 | `/booking` | Service booking |
 | `/coaches`, `/clinics`, `/breeders` | Provider directories |

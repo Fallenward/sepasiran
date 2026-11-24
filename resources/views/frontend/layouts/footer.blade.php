@@ -13,7 +13,7 @@
                 <li><a href="{{ route('frontend.dog.supply.index') }}">سگ‌ها</a></li>
                 <li><a href="{{ route('frontend.stores.index') }}">فروشگاه</a></li>
                 <li><a href="{{ route('frontend.booking.index') }}">رزرو خدمت</a></li>
-                <li><a href="{{ route('frontend.services.index') }}">خدمات</a></li>
+                <li><a href="{{ route('frontend.home') }}#services">خدمات</a></li>
             </ul>
         </div>
         <div class="sp-footer__col">

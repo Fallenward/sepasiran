@@ -284,8 +284,10 @@ Route::name('frontend.')->group(function () {
 
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
-    // Services
-    Route::get('/services', [FrontendServiceController::class, 'index'])->name('services.index');
+    // Services listing lives on the home page (#services); keep /services as a redirect.
+    Route::get('/services', function () {
+        return redirect()->to(route('frontend.home').'#services');
+    })->name('services.index');
     Route::get('/service/{slug}', [FrontendServiceController::class, 'show'])->name('services.show');
     Route::get('/service/category/{slug}', [FrontendServiceController::class, 'showServiceCategory'])->name('services.show.category');
     Route::post('/service/store-comment', [FrontendServiceController::class, 'storeComment'])->name('services.store.comment');
