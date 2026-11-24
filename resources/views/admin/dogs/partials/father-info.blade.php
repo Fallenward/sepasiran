@@ -1,28 +1,28 @@
-<div class="row p-1">
-    <div class="col-md-12">
-        <div class="form-group mb-2">
-            <label>نام پدر:</label>
-            <p class="form-control">{{ $dog->father_name ?? 'نامشخص' }}</p>
+<div class="row gy-3">
+    <div class="col-md-6">
+        <div class="sp-admin-panel">
+            <h3 class="h6 mb-3">پدر</h3>
+            <dl class="sp-admin-kv mb-0">
+                <dt>نام</dt><dd>{{ $dog->father_name ?: '—' }}</dd>
+                <dt>نژاد</dt><dd>{{ optional($dog->fatherBreed)->name ?: '—' }}</dd>
+            </dl>
         </div>
-        <div class="form-group mb-2">
-            <label>نژاد پدر:</label>
-            <p class="form-control">{{ optional($dog->fatherBreed)->name ?? 'نامشخص' }}</p>
-        </div>
-        <div class="form-group mb-2">
-            <label>پدربزرگ پدری:</label>
-            <p class="form-control">{{ $dog->paternal_grandfather_name ?? 'نامشخص' }}</p>
-        </div>
-        <div class="form-group mb-2">
-            <label>نژاد پدربزرگ:</label>
-            <p class="form-control">{{ optional($dog->paternalGrandfatherBreed)->name ?? 'نامشخص' }}</p>
-        </div>
-        <div class="form-group mb-2">
-            <label>مادربزرگ پدری:</label>
-            <p class="form-control">{{ $dog->paternal_grandmother_name ?? 'نامشخص' }}</p>
-        </div>
-        <div class="form-group mb-2">
-            <label>نژاد مادربزرگ:</label>
-            <p class="form-control">{{ optional($dog->paternalGrandmotherBreed)->name ?? 'نامشخص' }}</p>
+    </div>
+    <div class="col-md-6">
+        <div class="sp-admin-panel">
+            <h3 class="h6 mb-3">والدین پدری</h3>
+            <dl class="sp-admin-kv mb-0">
+                <dt>پدربزرگ</dt>
+                <dd>
+                    {{ $dog->paternal_grandfather_name ?: '—' }}
+                    <div class="text-muted small">{{ optional($dog->paternalGrandfatherBreed)->name ?: 'نژاد —' }}</div>
+                </dd>
+                <dt>مادربزرگ</dt>
+                <dd>
+                    {{ $dog->paternal_grandmother_name ?: '—' }}
+                    <div class="text-muted small">{{ optional($dog->paternalGrandmotherBreed)->name ?: 'نژاد —' }}</div>
+                </dd>
+            </dl>
         </div>
     </div>
 </div>

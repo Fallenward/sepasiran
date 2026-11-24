@@ -61,7 +61,7 @@ class DogController extends Controller
     public function show($id)
     {
         $dog = Dog::with([
-            'city', 'breed', 'owner',
+            'city', 'breed', 'owner', 'media',
             'fatherBreed', 'motherBreed',
             'maternalGrandmotherBreed', 'maternalGrandfatherBreed',
             'paternalGrandmotherBreed', 'paternalGrandfatherBreed',

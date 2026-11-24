@@ -117,7 +117,10 @@ class AdminPanelSmokeTest extends TestCase
         $this->actingAs($admin)->get(route('admin.dogs.show', $dog))
             ->assertOk()
             ->assertSee('DogShowTest', false)
-            ->assertSee('brown', false);
+            ->assertSee('brown', false)
+            ->assertSee('مشاهده در سایت', false)
+            ->assertSee('شجره مادر', false)
+            ->assertSee('sp-admin-doghero', false);
 
         $this->actingAs($admin)->get(route('admin.users.show', $customer))
             ->assertOk()
