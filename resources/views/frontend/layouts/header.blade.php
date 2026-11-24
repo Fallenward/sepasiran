@@ -93,6 +93,16 @@
             </li>
 
             <li class="sp-menu__item">
+                <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.news.*', 'frontend.blogs.*', 'frontend.blog.*') ? 'is-active' : '' }}" aria-haspopup="true">اخبار و وبلاگ</button>
+                <div class="sp-menu__dropdown" role="menu">
+                    <a href="{{ route('frontend.news.index') }}"
+                       class="{{ request()->routeIs('frontend.news.*') ? 'is-active' : '' }}">اخبار</a>
+                    <a href="{{ route('frontend.blogs.index') }}"
+                       class="{{ request()->routeIs('frontend.blogs.*', 'frontend.blog.*') ? 'is-active' : '' }}">وبلاگ</a>
+                </div>
+            </li>
+
+            <li class="sp-menu__item">
                 <button type="button" class="sp-menu__trigger {{ request()->routeIs('frontend.support.*', 'frontend.support-web.*', 'frontend.contact.*') ? 'is-active' : '' }}" aria-haspopup="true">تیکت و تماس</button>
                 <div class="sp-menu__dropdown" role="menu">
                     <a href="{{ route('frontend.support.index') }}"
@@ -227,6 +237,12 @@
                 <a href="{{ route('frontend.dog.supply.index') }}">سگ‌ها</a>
                 <a href="{{ route('frontend.stores.index') }}">محصولات</a>
                 <a href="{{ route('frontend.shelter.index') }}">پناهگاه</a>
+            </section>
+
+            <section class="sp-sheet__group">
+                <h3>اخبار و وبلاگ</h3>
+                <a href="{{ route('frontend.news.index') }}" class="{{ request()->routeIs('frontend.news.*') ? 'is-active' : '' }}">اخبار</a>
+                <a href="{{ route('frontend.blogs.index') }}" class="{{ request()->routeIs('frontend.blogs.*', 'frontend.blog.*') ? 'is-active' : '' }}">وبلاگ</a>
             </section>
 
             <section class="sp-sheet__group">

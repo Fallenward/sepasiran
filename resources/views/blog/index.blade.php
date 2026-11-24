@@ -1,98 +1,69 @@
-@extends('layouts.app')
+@extends('frontend.layouts.app')
 
-@section('template_title')
-    وبلاگ
-@endsection
+@section('title', 'وبلاگ')
 
 @section('content')
-<div class="container py-4">
+@php
+    $imageUrl = function ($item) {
+        $image = $item->image ?? null;
+        if (! $image) {
+            return asset('images/placeholder.jpg');
+        }
+        if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
+            return $image;
+        }
+        if (str_starts_with($image, 'images/') || str_starts_with($image, 'storage/')) {
+            return asset($image);
+        }
 
-<!-- بخش عنوان و نوار مسیریابی -->
-<x-page-header
-    title=" بلاگ ها"
-    :breadcrumbs="[
-        ['label' => 'سپاس ایران', 'route' => route('frontend.home')],
-        ['label' => 'بلاگ ها', 'route' => route('frontend.dog.supply.index')]
-    ]"
-    extraClasses="text-align-center"
-    bgColor="#0d47a1"
-/>
+        return asset('storage/'.$image);
+    };
+@endphp
 
-    <!-- Most Reviewed Blogs -->
-    <div class="mt-5">
-        <div class="d-flex align-items-center mb-4">
-            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-            <h5 class="fw-bold mb-0 ms-3">● پربیننده‌ترین‌ها</h5>
-            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
+<section class="wrap" style="padding:32px 0 56px">
+    <header style="margin-bottom:28px">
+        <p class="latin" style="margin:0 0 6px;opacity:.7">Blog</p>
+        <h1 style="margin:0 0 8px;font-size:clamp(1.8rem,3vw,2.4rem)">وبلاگ سپاسیران</h1>
+        <p style="margin:0;max-width:40rem;line-height:1.8;opacity:.85">راهنماها، نکات نگهداری و مقاله‌های کاربردی درباره سگ و خدمات مرتبط.</p>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <a class="sp-btn sp-btn--primary" href="{{ route('frontend.blogs.index') }}">همه مقالات</a>
+            <a class="sp-btn sp-btn--ghost" href="{{ route('frontend.news.index') }}">اخبار</a>
         </div>
+    </header>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4 text-end">
-            @foreach($mostReviewedBlogs as $blog)
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm d-flex flex-column">
-                        <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                             class="card-img-top"
-                             alt="{{ $blog->title }}"
-                             style="object-fit: cover; height: 180px;">
-                        <div class="card-body text-center d-flex flex-column justify-content-between" style="min-height: 190px;">
-                            <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                            <p class="card-text text-muted small"
-                               style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                            </p>
-                            <a href="{{ route('frontend.blog.show', $blog->slug) }}" class="btn btn-outline-primary btn-sm mt-2">
-                                بیشتر بخوانید
-                            </a>
+    @if($mostReviewedBlogs->isNotEmpty())
+        <div style="margin-bottom:36px">
+            <h2 style="margin:0 0 14px;font-size:1.2rem">پربیننده‌ترین‌ها</h2>
+            <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+                @foreach($mostReviewedBlogs as $blog)
+                    <a href="{{ route('frontend.blogs.show', $blog->slug) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.03)">
+                        <img src="{{ $imageUrl($blog) }}" alt="{{ $blog->title }}" style="width:100%;height:160px;object-fit:cover;display:block">
+                        <div style="padding:14px">
+                            <h3 style="margin:0 0 8px;font-size:1rem;line-height:1.6">{{ \Illuminate\Support\Str::limit($blog->title, 70) }}</h3>
+                            <p style="margin:0;opacity:.75;font-size:.9rem;line-height:1.7">{{ \Illuminate\Support\Str::limit(strip_tags((string) $blog->content), 110) }}</p>
                         </div>
-                        <div style="border-bottom: 4px solid #0d47a1;"></div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <div>
+        <h2 style="margin:0 0 14px;font-size:1.2rem">تازه‌ترین مقالات</h2>
+        <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+            @forelse($latestBlogs as $blog)
+                <a href="{{ route('frontend.blogs.show', $blog->slug) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.03)">
+                    <img src="{{ $imageUrl($blog) }}" alt="{{ $blog->title }}" style="width:100%;height:160px;object-fit:cover;display:block">
+                    <div style="padding:14px">
+                        <h3 style="margin:0 0 8px;font-size:1rem;line-height:1.6">{{ \Illuminate\Support\Str::limit($blog->title, 70) }}</h3>
+                        <p style="margin:0;opacity:.75;font-size:.9rem;line-height:1.7">{{ \Illuminate\Support\Str::limit(strip_tags((string) $blog->content), 110) }}</p>
                     </div>
-                </div>
-            @endforeach
+                </a>
+            @empty
+                <p style="opacity:.7">مقاله‌ای برای نمایش نیست.</p>
+            @endforelse
         </div>
+        <div style="margin-top:24px">{{ $latestBlogs->withQueryString()->links() }}</div>
     </div>
-
-    <!-- Divider -->
-    <div class="position-relative text-center my-5">
-        <hr>
-        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">ادامه مطالب</span>
-    </div>
-
-    <!-- Latest Blogs -->
-    <div class="mb-5">
-        <div class="d-flex align-items-center mb-4">
-            <div style="width: 15px; height: 15px; border-radius: 50%; background-color: #0d47a1;"></div>
-            <h5 class="fw-bold mb-0 ms-3">● آخرین مطالب</h5>
-            <div class="flex-grow-1" style="height: 2px; background-color: #0d47a1;"></div>
-        </div>
-
-        <div class="row row-cols-1 row-cols-md-3 g-4 text-end">
-            @foreach($latestBlogs as $blog)
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm d-flex flex-column">
-                        <img src="{{ $blog->image ? asset('storage/' . $blog->image) : asset('images/blog-placeholder.jpg') }}"
-                             class="card-img-top"
-                             alt="{{ $blog->title }}"
-                             style="object-fit: cover; height: 180px;">
-                        <div class="card-body text-center d-flex flex-column justify-content-between" style="min-height: 190px;">
-                            <h6 class="card-title">{{ Str::limit($blog->title, 50) }}</h6>
-                            <p class="card-text text-muted small"
-                               style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
-                                {{ Str::limit($blog->description ?? $blog->content ?? '', 90) }}
-                            </p>
-                            <a href="{{ route('frontend.blog.show', $blog->slug) }}" class="btn btn-outline-primary btn-sm mt-2">
-                                بیشتر بخوانید
-                            </a>
-                        </div>
-                        <div style="border-bottom: 4px solid #0d47a1;"></div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    <!-- See More Button -->
-    <div class="text-center mt-4">
-        <a href="{{ route('frontend.blog.index') }}" class="btn btn-outline-primary">مشاهده بیشتر</a>
-    </div>
-</div>
+</section>
 @endsection

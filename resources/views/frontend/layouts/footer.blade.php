@@ -32,6 +32,7 @@
                 <li><a href="{{ route('frontend.contact.index') }}">تماس با ما</a></li>
                 <li><a href="{{ route('frontend.about') }}">درباره ما</a></li>
                 <li><a href="{{ route('frontend.news.index') }}">اخبار</a></li>
+                <li><a href="{{ route('frontend.blogs.index') }}">وبلاگ</a></li>
             </ul>
         </div>
     </div>

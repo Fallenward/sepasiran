@@ -259,7 +259,7 @@ Route::name('frontend.')->group(function () {
         ->name('dog.order.callback');
 
     Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
-    Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/blog', [BlogController::class, 'showById'])->name('blogs.index');
 
     Route::prefix('course')->group(function () {
         Route::get('/', [OnlineCourseController::class, 'index'])->name('online.courses');

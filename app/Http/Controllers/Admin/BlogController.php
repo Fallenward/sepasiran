@@ -91,22 +91,21 @@ class BlogController extends Controller
             ->with('success', 'Blog deleted successfully');
     }
 
-        public function showById()
-        {
-            // Fetch most reviewed blogs (assumes you have a 'views' or 'reviews_count' column)
-            $mostReviewedBlogs = Blog::where('type', 'blog')
-                ->orderByDesc('views') // or 'reviews_count' depending on your schema
-                ->take(3)
-                ->get();
+    public function showById()
+    {
+        $mostReviewedBlogs = Blog::query()
+            ->where('type', 'blog')
+            ->orderByDesc('views')
+            ->take(3)
+            ->get();
 
-            // Fetch latest blogs (newest)
-            $latestBlogs = Blog::where('type', 'blog')
-                ->latest()
-                ->take(6)
-                ->get();
+        $latestBlogs = Blog::query()
+            ->where('type', 'blog')
+            ->latest()
+            ->paginate(9);
 
-            return view('blog.index', compact('mostReviewedBlogs', 'latestBlogs'));
-        }
+        return view('blog.index', compact('mostReviewedBlogs', 'latestBlogs'));
+    }
 
     public function showByOne()
 {
@@ -117,22 +116,18 @@ class BlogController extends Controller
     return view('frontend.pages.blogs.show', compact('title','blog'));
 }
 
-public function news()
-{
-    // Get the latest news post
-    $latestNews = Blog::where('type', 'news')->latest()->first();
+    public function news()
+    {
+        $latestNews = Blog::query()->where('type', 'news')->latest()->first();
 
-    // Get the next 8 news items (excluding the latest one)
-    $newsItems = Blog::where('type', 'news')
-        ->when($latestNews, function ($query) use ($latestNews) {
-            return $query->where('id', '!=', $latestNews->id);
-        })
-        ->latest()
-        ->take(8)
-        ->get();
+        $newsItems = Blog::query()
+            ->where('type', 'news')
+            ->when($latestNews, fn ($query) => $query->where('id', '!=', $latestNews->id))
+            ->latest()
+            ->paginate(12);
 
-    return view('blog.news', compact('latestNews', 'newsItems'));
-}
+        return view('blog.news', compact('latestNews', 'newsItems'));
+    }
 
 
         public function showBlog($slug)
